@@ -3,139 +3,164 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#050b18" />
+  <meta name="theme-color" content="#061021" />
   <meta name="description" content="Tayassuk Imam — Software Engineering Student. Learning, building, and growing through practical software projects." />
   <meta property="og:title" content="Tayassuk OS — Tayassuk Imam" />
   <meta property="og:description" content="A personal software-engineering portfolio desktop." />
   <meta property="og:type" content="website" />
-  <link rel="icon" href="./assets/avatar/tayassuk-portrait.png" />
+  <link rel="icon" href="./assets/avatar/tayassuk-generated-avatar.png" />
   <link rel="stylesheet" href="./styles.css" />
   <title>Tayassuk OS</title>
 </head>
 <body>
-  <div id="app" class="os-shell">
-    <header class="system-bar">
-      <div class="system-left">
-        <button class="brand-button" data-action="open" data-app="about" aria-label="Open About">
-          <span class="status-dot"></span>
-          <span>Tayassuk OS</span>
-        </button>
-        <nav class="system-nav" aria-label="Primary">
-          <button data-action="open" data-app="projects">Work</button>
-          <button data-action="open" data-app="learning">Learning</button>
-          <button data-action="open" data-app="journey">Journey</button>
-          <button data-action="open" data-app="about">About</button>
-        </nav>
-      </div>
-      <div class="system-right">
-        <button class="search-trigger" data-action="search" aria-label="Search apps and content"><span class="icon icon-search"></span><span class="search-hint">Search apps, skills, projects…</span><kbd>Ctrl K</kbd></button>
-        <button class="availability" data-action="open" data-app="control" title="Open Portfolio Control Center"><span class="status-dot"></span>Available</button>
-        <span class="location-pill">Dhaka, Bangladesh</span>
-        <time id="clock" aria-label="Current time"></time>
-        <button class="system-icon" data-action="theme" aria-label="Change theme"><span class="icon icon-sun"></span></button>
-      </div>
-    </header>
-
-    <main class="desktop">
-      <section class="desktop-identity">
-        <div class="eyebrow">SOFTWARE ENGINEERING • LEARNING SYSTEM</div>
-        <div class="identity-row">
-          <div>
-            <h1 id="identity-name">Tayassuk <span>Imam</span></h1>
-            <h2 id="identity-profession">Software Engineering Student</h2>
-            <p id="identity-tagline" class="tagline">Learning <b>•</b> Building <b>•</b> Growing in <strong>Software Engineering</strong></p>
-            <p id="identity-headline" class="headline">Software Engineering Student Building the Future, One Project at a Time</p>
-            <div class="hero-actions">
-              <button class="primary" data-action="open" data-app="projects"><span class="icon icon-rocket"></span> Explore Projects</button>
-              <a id="hero-cv" class="secondary" href="./assets/cv/Tayassuk-Imam-CV.pdf" download><span class="icon icon-download"></span> Download CV</a>
-            </div>
-            <div class="social-row" id="social-row"></div>
-          </div>
-          <div class="hero-portrait-wrap">
-            <div class="portrait-orbit"></div>
-            <img class="hero-portrait" src="./assets/avatar/tayassuk-generated-avatar.png" alt="Stylized portrait of Tayassuk Imam" />
-          </div>
-        </div>
-      </section>
-
-      <section class="desktop-grid" aria-label="Portfolio apps">
-        <div id="app-grid"></div>
-      </section>
-
-      <section class="desktop-widgets">
-        <div class="widget quote-widget">
-          <span class="widget-label">CURRENT MINDSET</span>
-          <p>“Keep learning. Keep building. Keep growing.”</p>
-          <small>— Tayassuk Imam</small>
-        </div>
-        <div class="widget status-widget">
-          <div class="widget-head"><span class="status-dot"></span><span>System Status</span><strong>Learning Mode</strong></div>
-          <div class="progress-line"><span style="width:72%"></span></div>
-          <div class="status-grid"><span>Projects</span><strong>01</strong><span>Core Focus</span><strong>SE</strong></div>
-        </div>
-        <div class="widget quick-widget">
-          <span class="widget-label">QUICK START</span>
-          <button data-action="open" data-app="projects">Open Project Drive <span>→</span></button>
-          <button data-action="open" data-app="learning">View Learning Path <span>→</span></button>
-          <button data-action="open" data-app="contact">Start a Conversation <span>→</span></button>
-        </div>
-      </section>
-
-      <div id="windows" class="window-layer" aria-live="polite"></div>
-      <div id="command-palette" class="overlay hidden" aria-hidden="true"></div>
-    </main>
-
-    <footer class="dock" aria-label="Application dock">
-      <button data-action="open" data-app="about" class="dock-item" title="About"><span class="dock-icon icon-user"></span></button>
-      <button data-action="open" data-app="projects" class="dock-item" title="Projects"><span class="dock-icon icon-folder"></span></button>
-      <button data-action="open" data-app="learning" class="dock-item" title="Learning"><span class="dock-icon icon-layers"></span></button>
-      <button data-action="open" data-app="skills" class="dock-item" title="Skills"><span class="dock-icon icon-code"></span></button>
-      <button data-action="open" data-app="education" class="dock-item" title="Education"><span class="dock-icon icon-cap"></span></button>
-      <button data-action="open" data-app="journey" class="dock-item" title="Journey"><span class="dock-icon icon-route"></span></button>
-      <button data-action="open" data-app="achievements" class="dock-item" title="Achievements"><span class="dock-icon icon-trophy"></span></button>
-      <button data-action="open" data-app="resume" class="dock-item" title="Resume"><span class="dock-icon icon-file"></span></button>
-      <button data-action="open" data-app="contact" class="dock-item" title="Contact"><span class="dock-icon icon-mail"></span></button>
-      <button data-action="open" data-app="whiteboard" class="dock-item" title="Whiteboard"><span class="dock-icon icon-note"></span></button>
-      <button data-action="open" data-app="founder" class="dock-item" title="Founder.txt"><span class="dock-icon icon-terminal"></span></button>
-    </footer>
-
-    <div id="companion" class="companion" role="img" aria-label="Tayassuk OS companion, draggable on desktop">
-      <img src="./assets/avatar/tayassuk-generated-avatar.png" alt="" aria-hidden="true" />
-      <button id="companion-reset" class="companion-reset" title="Reset companion position" aria-label="Reset companion position">↺</button>
-      <div class="companion-bubble">Keep building.</div>
+<div id="app" class="os-shell">
+  <header class="system-bar">
+    <div class="system-left">
+      <button class="brand-button" data-action="open" data-app="about"><span class="brand-glyph">◉</span><span>Tayassuk OS</span></button>
+      <nav class="system-nav" aria-label="Primary">
+        <button data-action="open" data-app="projects">Work</button>
+        <button data-action="open" data-app="learning">Learning</button>
+        <button data-action="open" data-app="journey">Journey</button>
+        <button data-action="open" data-app="about">About</button>
+      </nav>
     </div>
+    <div class="system-right">
+      <button class="search-trigger" data-action="search" aria-label="Search">
+        <span class="glass">⌕</span><span class="search-hint">Search apps, skills, projects…</span><kbd>Ctrl K</kbd>
+      </button>
+      <button class="availability" data-action="open" data-app="control"><span class="status-dot"></span>Available</button>
+      <span class="location-pill">Dhaka, Bangladesh</span>
+      <time id="clock"></time>
+      <button class="system-icon" data-action="theme" aria-label="Change theme">☼</button>
+      <button class="system-icon" data-action="open" data-app="control" aria-label="Control center">⚙</button>
+    </div>
+  </header>
 
-    <div class="boot-screen" id="boot-screen">
-      <div class="boot-card">
-        <div class="boot-mark"><span class="status-dot"></span> Tayassuk OS</div>
-        <div class="boot-title">Initializing personal workspace…</div>
-        <div class="boot-sub">Projects · Learning · Skills · Journey · Contact</div>
-        <div class="boot-progress"><span id="boot-progress-bar"></span></div>
-        <button id="skip-boot" type="button">Skip boot</button>
+  <main class="desktop">
+    <aside class="launcher-panel" aria-label="Applications">
+      <div class="launcher-title">APPS</div>
+      <div id="app-grid" class="launcher-grid"></div>
+      <button class="launcher-trash" data-action="open" data-app="resume"><span class="app-icon mini icon-file"></span><span>Resume</span></button>
+    </aside>
+
+    <section class="hero-area">
+      <div class="hero-copy">
+        <div class="eyebrow">SOFTWARE ENGINEERING • LEARNING SYSTEM</div>
+        <div class="hello">Hello, I'm</div>
+        <h1 id="identity-name">Tayassuk <span>Imam</span></h1>
+        <h2 id="identity-profession">Software Engineering Student</h2>
+        <p id="identity-tagline" class="tagline">Learning <b>•</b> Building <b>•</b> Growing in <strong>Software Engineering</strong></p>
+        <p id="identity-headline" class="headline">Software Engineering Student Building the Future, One Project at a Time</p>
+        <p class="quote-inline">“Software isn't just code, it's problem-solving made real.”</p>
+        <div class="hero-actions">
+          <button class="primary" data-action="open" data-app="projects">✦&nbsp; Explore Projects</button>
+          <a id="hero-cv" class="secondary" href="./assets/cv/Tayassuk-Imam-CV.pdf" download>⇩&nbsp; Download CV</a>
+        </div>
+        <div id="social-row" class="social-row"></div>
       </div>
+      <div class="hero-art">
+        <div class="hero-glow"></div>
+        <div class="portrait-ring"></div>
+        <img id="hero-portrait" class="hero-portrait" src="./assets/avatar/tayassuk-generated-avatar.png" alt="Portrait of Tayassuk Imam" />
+      </div>
+    </section>
+
+    <aside class="right-stack">
+      <section class="glass-card status-card">
+        <div class="card-head"><span class="status-dot"></span><span>System Status</span><button data-action="open" data-app="control" class="closeish">×</button></div>
+        <div class="status-main"><span>Online & Learning</span><strong>Today's Progress</strong></div>
+        <div class="progress-track"><span id="hero-progress" style="width:72%"></span></div>
+        <div class="progress-row"><span>Core growth</span><strong>Learning Mode</strong></div>
+        <div class="motto">⚡ “Discipline turns dreams into reality.”</div>
+      </section>
+
+      <section class="glass-card calendar-card">
+        <div class="calendar-top"><strong id="calendar-month">September 2026</strong><span id="calendar-next">›</span></div>
+        <div id="calendar-grid" class="calendar-grid"></div>
+        <div class="clock-face"><span id="clock-big">10:45</span><small id="clock-ampm">PM</small></div>
+        <div id="calendar-date" class="date-caption">Friday, Sep 4</div>
+      </section>
+
+      <section class="glass-card music-card">
+        <div class="music-thumb"></div>
+        <div class="music-copy"><strong>Lo-Fi Coding</strong><span>Focus Mode</span><div class="music-progress"><span></span></div></div>
+        <div class="music-controls"><button aria-label="Previous">◀</button><button aria-label="Pause">Ⅱ</button><button aria-label="Next">▶</button></div>
+      </section>
+    </aside>
+
+    <section class="dashboard-cards">
+      <article class="feature-card project-card-mini" data-action="open" data-app="projects">
+        <div class="feature-label">🟡 Featured Project</div>
+        <div class="project-mini-body">
+          <div class="project-thumb"><span>Garage<br/>Management</span></div>
+          <div><div class="status-badge">● Live</div><h3>Garage Management System</h3><p>Database-driven garage management web app with authentication, vehicle, customer, billing and payment workflows.</p><div class="chip-row"><span>PHP</span><span>MySQL</span><span>HTML</span><span>CSS</span><span>JavaScript</span></div><div class="mini-meta"><span>👤 Solo Developer</span><span>◉ Working / Live</span></div><div class="mini-actions"><a href="https://garage-management.infinityfree.io/garage_management/" target="_blank" rel="noreferrer noopener" class="primary mini-btn">Live Demo</a><button data-action="project-detail" data-project="garage-management-system" class="secondary mini-btn">View Details</button></div></div>
+        </div>
+      </article>
+
+      <article class="feature-card skills-card-mini" data-action="open" data-app="skills">
+        <div class="feature-label">🟡 Skills</div>
+        <div class="skill-tabs"><span class="active">Programming</span><span>Web Dev</span><span>Database</span><span>Tools</span></div>
+        <div class="skill-mini"><span>C / C++</span><div class="progress-track"><span style="width:72%"></span></div></div>
+        <div class="skill-mini"><span>MySQL / SQL</span><div class="progress-track"><span style="width:74%"></span></div></div>
+        <div class="skill-mini"><span>HTML / CSS</span><div class="progress-track"><span style="width:78%"></span></div></div>
+        <div class="skill-mini"><span>JavaScript</span><div class="progress-track"><span style="width:60%"></span></div></div>
+        <div class="skill-mini"><span>PHP</span><div class="progress-track"><span style="width:65%"></span></div></div>
+      </article>
+
+      <article class="feature-card learning-card-mini" data-action="open" data-app="learning">
+        <div class="feature-label">🟡 Currently Learning</div>
+        <div class="learn-line"><b>Data Structures & Algorithms</b><span>Practicing</span></div><div class="progress-track"><span style="width:70%"></span></div>
+        <div class="learn-line"><b>Advanced SQL & DB Design</b><span>Practicing</span></div><div class="progress-track"><span style="width:74%"></span></div>
+        <div class="learn-line"><b>Modern Web Technologies</b><span>Building</span></div><div class="progress-track"><span style="width:62%"></span></div>
+        <div class="learn-line"><b>Software Engineering</b><span>Growing</span></div><div class="progress-track"><span style="width:55%"></span></div>
+      </article>
+    </section>
+
+    <section class="bottom-widgets">
+      <article class="note-widget yellow"><span>Quick Notes</span><ul><li class="done">Finish SE-223 project</li><li class="done">Practice DSA problems</li><li>Work on next project</li><li>Learn React</li></ul></article>
+      <article class="note-widget"><span>Next Goals</span><ul class="goals"><li>Complete 5 major projects</li><li>Get an internship</li><li>Improve problem solving</li><li>Build a strong portfolio</li></ul></article>
+      <article class="note-widget quote-panel"><div class="quote-mark">“</div><p>Keep learning.<br/>Keep building.<br/>Keep growing.</p><small>— Tayassuk Imam</small></article>
+      <article class="note-widget activity-panel"><span>Recent Activity</span><ul><li><i></i>Updated Garage Management System</li><li><i></i>Learned MySQL Joins</li><li><i></i>Practiced DSA (Arrays)</li><li><i></i>Designed Portfolio UI</li></ul></article>
+    </section>
+
+    <div id="windows" class="window-layer"></div>
+    <div id="command-palette" class="overlay hidden" aria-hidden="true"></div>
+  </main>
+
+  <footer class="dock" aria-label="Application dock">
+    <button data-action="open" data-app="about" class="dock-item"><span class="dock-icon icon-user"></span></button>
+    <button data-action="open" data-app="projects" class="dock-item"><span class="dock-icon icon-folder"></span></button>
+    <button data-action="open" data-app="learning" class="dock-item"><span class="dock-icon icon-layers"></span></button>
+    <button data-action="open" data-app="skills" class="dock-item"><span class="dock-icon icon-code"></span></button>
+    <button data-action="open" data-app="education" class="dock-item"><span class="dock-icon icon-cap"></span></button>
+    <button data-action="open" data-app="journey" class="dock-item"><span class="dock-icon icon-route"></span></button>
+    <button data-action="open" data-app="achievements" class="dock-item"><span class="dock-icon icon-trophy"></span></button>
+    <button data-action="open" data-app="resume" class="dock-item"><span class="dock-icon icon-file"></span></button>
+    <button data-action="open" data-app="contact" class="dock-item"><span class="dock-icon icon-mail"></span></button>
+    <button data-action="open" data-app="whiteboard" class="dock-item"><span class="dock-icon icon-note"></span></button>
+    <button data-action="open" data-app="founder" class="dock-item"><span class="dock-icon icon-terminal"></span></button>
+    <button data-action="open" data-app="control" class="dock-item"><span class="dock-icon icon-lock"></span></button>
+  </footer>
+
+  <div id="companion" class="companion" aria-label="Tayassuk OS companion">
+    <div class="companion-bubble">Let's build<br/><strong>something amazing!</strong></div>
+    <img src="./assets/avatar/tayassuk-generated-avatar.png" alt="" aria-hidden="true" />
+    <button id="companion-reset" class="companion-reset" aria-label="Reset companion position">↺</button>
+  </div>
+
+  <div id="boot-screen" class="boot-screen">
+    <div class="boot-card">
+      <div class="boot-mark"><span class="status-dot"></span> Tayassuk OS</div>
+      <div class="boot-title">Initializing personal workspace…</div>
+      <div class="boot-sub">Projects · Learning · Skills · Journey · Contact</div>
+      <div class="boot-progress"><span id="boot-progress-bar"></span></div>
+      <button id="skip-boot" type="button">Skip boot</button>
     </div>
   </div>
-  <script>
-    // Minimal non-module fallback: Skip Boot must work even if the main module fails to load.
-    (function () {
-      const boot = document.getElementById('boot-screen');
-      const skip = document.getElementById('skip-boot');
-      if (!boot || !skip) return;
-      let done = false;
-      window.__finishTayassukBoot = function () {
-        if (done) return;
-        done = true;
-        boot.style.opacity = '0';
-        boot.style.pointerEvents = 'none';
-        boot.setAttribute('aria-hidden', 'true');
-        try { sessionStorage.setItem('tayassuk-os-boot-seen', '1'); } catch (_) {}
-        window.setTimeout(function () { if (boot.isConnected) boot.remove(); }, 300);
-      };
-      skip.addEventListener('click', window.__finishTayassukBoot, { passive: true });
-      // Safety fallback so the site can never remain blocked by the boot screen.
-      window.setTimeout(window.__finishTayassukBoot, 6500);
-    })();
-  </script>
-  <script type="module" src="./app.js"></script>
+</div>
+<script>
+(function(){const boot=document.getElementById('boot-screen'),skip=document.getElementById('skip-boot');if(!boot||!skip)return;let done=false;window.__finishTayassukBoot=function(){if(done)return;done=true;boot.classList.add('hide');try{sessionStorage.setItem('tayassuk-os-boot-seen','1')}catch(e){}setTimeout(()=>boot.remove(),420)};skip.addEventListener('click',window.__finishTayassukBoot);setTimeout(window.__finishTayassukBoot,6500)})();
+</script>
+<script type="module" src="./app.js"></script>
 </body>
 </html>
