@@ -34,3 +34,13 @@ button { color:inherit; }
 @media (max-width: 1100px){.desktop{padding-inline:30px}.identity-row{grid-template-columns:1fr 260px}.hero-portrait{width:240px}.portrait-orbit{width:240px;height:240px}.desktop-grid #app-grid{grid-template-columns:repeat(4,1fr)}.desktop-widgets{grid-template-columns:1fr 1fr}.quick-widget{grid-column:1 / -1}}
 @media (max-width: 760px){body{overflow:auto}.system-bar{height:56px;padding:0 11px}.system-nav{display:none}.location-pill,.availability{display:none}.search-trigger{min-width:42px;width:42px;padding:0;justify-content:center}.search-hint,.search-trigger kbd{display:none}.desktop{padding:82px 16px 130px;overflow:visible}.identity-row{grid-template-columns:1fr;gap:18px}.hero-portrait-wrap{order:-1;min-height:230px}.hero-portrait{width:190px;max-height:230px}.portrait-orbit{width:190px;height:190px}.identity-row h1{font-size:46px}.identity-row h2{font-size:18px}.tagline{font-size:14px}.headline{font-size:14px}.desktop-grid #app-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.desktop-app{min-height:108px;padding:14px}.desktop-widgets{grid-template-columns:1fr;margin-top:18px}.dock{left:12px;right:12px;bottom:10px;transform:none;overflow:auto;justify-content:flex-start;padding:9px}.dock-item{min-width:46px}.window-layer{inset:0}.app-window{inset:60px 6px 80px;width:auto;height:auto;border-radius:14px}.window-body{padding:16px}.window-body .grid,.contact-box,.whiteboard{grid-template-columns:1fr}.sticky-board{min-height:340px}.companion{left:14px;bottom:94px;width:82px}.companion img{height:92px}.companion-bubble{left:58px;top:2px;width:120px;font-size:9px}.boot-card{padding:20px}.desktop-widgets .widget{padding:14px}}
 @media (prefers-reduced-motion: reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}.desktop-app:hover,.primary:hover,.secondary:hover,.dock-item:hover{transform:none}}
+/* Keep the dock from covering the app grid */
+.app-grid {
+  padding-bottom: 140px;
+}
+
+@media (max-width: 768px) {
+  .app-grid {
+    padding-bottom: 110px;
+  }
+}
