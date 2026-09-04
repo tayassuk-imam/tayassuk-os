@@ -1,23 +1,43 @@
 /* =========================================================
-   TAYASSUK OS — CLEAN REFERENCE + OVERLAP FIXED CSS
+   TAYASSUK OS
+   CLEAN REFERENCE STYLE
+   LOGO + CLICK + OVERLAP FIXED
+   ========================================================= */
+
+
+/* =========================================================
+   ROOT
    ========================================================= */
 
 :root {
   --bg: #020713;
-  --panel: rgba(6, 18, 35, 0.84);
+  --bg-deep: #01040c;
+
+  --panel: rgba(6, 18, 35, 0.86);
+  --panel-2: rgba(7, 22, 40, 0.92);
+
   --text: #f4f8ff;
   --muted: #9bb0c6;
+
   --cyan: #25d6ff;
   --blue: #4c7dff;
   --indigo: #6d6df7;
-  --success: #25e6a2;
-  --border: rgba(140, 195, 240, 0.2);
-  --shadow: 0 22px 70px rgba(0, 0, 0, 0.42);
+  --purple: #a64cff;
 
-  /* Safe areas for floating UI */
-  --dock-safe: 92px;
-  --companion-safe: 188px;
+  --success: #25e6a2;
+  --warning: #ffd45b;
+
+  --border: rgba(140, 195, 240, 0.20);
+
+  --shadow:
+    0 22px 70px rgba(0, 0, 0, 0.42);
+
+  --dock-height: 64px;
+  --dock-space: 96px;
+
+  --companion-space: 185px;
 }
+
 
 /* =========================================================
    RESET
@@ -27,30 +47,50 @@
   box-sizing: border-box;
 }
 
-html,
+html {
+  margin: 0;
+  min-height: 100%;
+  background: var(--bg);
+}
+
 body {
   margin: 0;
   min-height: 100%;
   background: var(--bg);
   color: var(--text);
+
   font-family:
     Inter,
     ui-sans-serif,
     system-ui,
     -apple-system,
+    BlinkMacSystemFont,
     "Segoe UI",
     sans-serif;
-}
 
-body {
   overflow: hidden;
 }
 
 button,
 input,
-textarea {
+textarea,
+select {
   font: inherit;
 }
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  cursor: pointer;
+}
+
+img {
+  max-width: 100%;
+}
+
 
 /* =========================================================
    OS SHELL
@@ -58,27 +98,40 @@ textarea {
 
 .os-shell {
   position: relative;
-  min-height: 100dvh;
+
+  width: 100%;
   height: 100dvh;
+  min-height: 100dvh;
+
   overflow: hidden;
-  background: #020713;
+
+  background:
+    radial-gradient(
+      circle at 60% 40%,
+      rgba(22, 91, 170, 0.12),
+      transparent 38%
+    ),
+    var(--bg);
 }
 
 .os-shell::before {
   content: "";
+
   position: absolute;
   inset: 0;
+
   pointer-events: none;
-  opacity: 0.12;
+
+  opacity: 0.08;
 
   background-image:
     linear-gradient(
-      rgba(55, 155, 220, 0.18) 1px,
+      rgba(55, 155, 220, 0.20) 1px,
       transparent 1px
     ),
     linear-gradient(
       90deg,
-      rgba(55, 155, 220, 0.18) 1px,
+      rgba(55, 155, 220, 0.20) 1px,
       transparent 1px
     );
 
@@ -87,20 +140,29 @@ textarea {
   mask-image:
     linear-gradient(
       to bottom,
-      rgba(0, 0, 0, 0.8),
+      rgba(0, 0, 0, 0.75),
       transparent 90%
     );
+
+  z-index: 0;
 }
+
 
 /* =========================================================
    SYSTEM BAR
    ========================================================= */
 
 .system-bar {
-  height: 38px;
   position: fixed;
-  inset: 0 0 auto;
-  z-index: 300;
+
+  top: 0;
+  left: 0;
+  right: 0;
+
+  width: 100%;
+  height: 38px;
+
+  z-index: 900;
 
   display: flex;
   align-items: center;
@@ -108,10 +170,14 @@ textarea {
 
   padding: 0 18px;
 
-  background: rgba(1, 8, 20, 0.9);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background:
+    rgba(1, 8, 20, 0.92);
 
-  backdrop-filter: blur(16px);
+  border-bottom:
+    1px solid rgba(255, 255, 255, 0.06);
+
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
 }
 
 .system-left,
@@ -130,27 +196,39 @@ textarea {
   gap: 28px;
 }
 
+.system-right {
+  gap: 13px;
+}
+
 .brand-button,
 .system-nav button,
 .availability,
 .system-icon {
   border: 0;
+  outline: 0;
+
   background: transparent;
+
   color: #eef6ff;
+
   cursor: pointer;
 }
 
 .brand-button {
   display: flex;
-  gap: 8px;
   align-items: center;
 
-  font-weight: 800;
+  gap: 8px;
+
   font-size: 14px;
+  font-weight: 800;
 }
 
 .brand-glyph {
-  color: #18cbff;
+  color: var(--cyan);
+
+  text-shadow:
+    0 0 14px rgba(37, 214, 255, 0.7);
 }
 
 .system-nav {
@@ -158,40 +236,63 @@ textarea {
 }
 
 .system-nav button {
+  padding: 4px 0;
+
   font-size: 12px;
+
   color: #c6d5e5;
+
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .system-nav button:hover {
-  color: #fff;
-}
-
-.system-right {
-  gap: 13px;
+  color: #ffffff;
+  transform: translateY(-1px);
 }
 
 .search-trigger {
   width: 307px;
   height: 29px;
 
-  border: 1px solid rgba(132, 181, 226, 0.2);
+  border:
+    1px solid rgba(132, 181, 226, 0.20);
+
   border-radius: 10px;
 
-  background: rgba(9, 19, 35, 0.74);
+  background:
+    rgba(9, 19, 35, 0.78);
 
   display: flex;
   align-items: center;
+
   gap: 8px;
 
   padding: 0 10px;
 
   color: #9eb4c8;
+
   cursor: pointer;
+
+  transition:
+    border-color 0.2s ease,
+    background 0.2s ease;
+}
+
+.search-trigger:hover {
+  border-color:
+    rgba(70, 194, 255, 0.45);
+
+  background:
+    rgba(10, 27, 48, 0.90);
 }
 
 .search-trigger .search-hint {
   flex: 1;
+
   font-size: 11px;
+
   text-align: left;
 }
 
@@ -206,23 +307,27 @@ textarea {
 }
 
 .status-dot {
+  display: inline-block;
+
   width: 8px;
   height: 8px;
 
+  margin-right: 6px;
+
   border-radius: 50%;
+
   background: var(--success);
 
-  display: inline-block;
-
-  box-shadow: 0 0 10px rgba(37, 230, 162, 0.5);
-
-  margin-right: 6px;
+  box-shadow:
+    0 0 10px rgba(37, 230, 162, 0.55);
 }
 
 .location-pill,
 #clock {
   font-size: 10px;
+
   color: #b6c5d6;
+
   white-space: nowrap;
 }
 
@@ -232,22 +337,27 @@ textarea {
 }
 
 .system-icon {
-  font-size: 16px;
-  color: #bfd1e1;
   padding: 2px;
+
+  font-size: 16px;
+
+  color: #bfd1e1;
 }
 
 .system-avatar {
+  display: block;
+
   width: 25px;
   height: 25px;
 
-  border-radius: 50%;
   overflow: hidden;
 
-  border: 1px solid rgba(120, 191, 237, 0.35);
-  background: #10233a;
+  border:
+    1px solid rgba(120, 191, 237, 0.35);
 
-  display: block;
+  border-radius: 50%;
+
+  background: #10233a;
 }
 
 .system-avatar img {
@@ -258,20 +368,22 @@ textarea {
   object-position: center top;
 }
 
+
 /* =========================================================
-   DESKTOP
+   DESKTOP CANVAS
    ========================================================= */
 
 .desktop {
   position: relative;
 
+  width: 100%;
   height: 100dvh;
   min-height: 100dvh;
 
   padding:
     52px
     18px
-    var(--dock-safe);
+    var(--dock-space);
 
   display: grid;
 
@@ -282,13 +394,14 @@ textarea {
 
   grid-template-rows:
     minmax(470px, 1.35fr)
-    minmax(215px, 0.6fr)
+    minmax(215px, 0.60fr)
     minmax(132px, 0.38fr);
 
   column-gap: 20px;
   row-gap: 14px;
 
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
 
   scroll-padding-top: 52px;
   scroll-padding-bottom: 120px;
@@ -296,32 +409,43 @@ textarea {
   background-image:
     linear-gradient(
       90deg,
-      rgba(2, 7, 19, 0.58) 0%,
-      rgba(2, 7, 19, 0.14) 32%,
-      rgba(2, 7, 19, 0.1) 68%,
-      rgba(2, 7, 19, 0.42) 100%
+      rgba(2, 7, 19, 0.62) 0%,
+      rgba(2, 7, 19, 0.16) 32%,
+      rgba(2, 7, 19, 0.10) 68%,
+      rgba(2, 7, 19, 0.46) 100%
     ),
     url("./assets/background/reference-workspace-clean.jpg");
 
   background-size: cover;
   background-position: center top;
   background-attachment: fixed;
+
+  scrollbar-width: thin;
+  scrollbar-color:
+    rgba(83, 169, 225, 0.35)
+    transparent;
+
+  z-index: 1;
 }
 
 .desktop::after {
   content: "";
 
   position: absolute;
-  inset: 38px 0 0;
+
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 
   pointer-events: none;
 
   background:
     linear-gradient(
       180deg,
-      rgba(2, 7, 19, 0.04),
+      rgba(2, 7, 19, 0.02),
       rgba(2, 7, 19, 0.08) 60%,
-      rgba(2, 7, 19, 0.5)
+      rgba(2, 7, 19, 0.48)
     );
 
   z-index: 0;
@@ -329,8 +453,9 @@ textarea {
 
 .desktop > * {
   position: relative;
-  z-index: 1;
+  z-index: 2;
 }
+
 
 /* =========================================================
    LEFT LAUNCHER
@@ -342,16 +467,26 @@ textarea {
 
   align-self: start;
 
-  padding: 18px 6px 0;
+  min-width: 0;
+
+  padding:
+    18px
+    6px
+    0;
 }
 
 .launcher-title {
-  font-size: 8px;
-  letter-spacing: 0.28em;
+  margin:
+    4px
+    10px
+    17px;
 
   color: #4c91c2;
 
-  margin: 4px 10px 17px;
+  font-size: 8px;
+  font-weight: 700;
+
+  letter-spacing: 0.28em;
 }
 
 .launcher-grid {
@@ -361,12 +496,20 @@ textarea {
     repeat(2, 64px);
 
   gap: 18px 20px;
+
+  align-items: start;
 }
 
 .launcher-app,
 .launcher-trash {
+  width: 64px;
+
+  padding: 0;
+
   border: 0;
-  background: none;
+  outline: 0;
+
+  background: transparent;
 
   color: #edf6ff;
 
@@ -376,31 +519,107 @@ textarea {
 
   gap: 7px;
 
-  cursor: pointer;
   text-align: center;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.18s ease,
+    filter 0.18s ease;
+}
+
+.launcher-app:hover {
+  transform: translateY(-3px);
+
+  filter:
+    drop-shadow(
+      0 0 12px rgba(44, 198, 255, 0.35)
+    );
+}
+
+.launcher-app:active {
+  transform: translateY(-1px) scale(0.97);
 }
 
 .launcher-app span:last-child,
 .launcher-trash span:last-child {
+  width: 100%;
+
+  overflow: hidden;
+
   font-size: 10px;
+  line-height: 1.2;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .launcher-trash {
   margin-top: 24px;
+
   cursor: default;
+
+  opacity: 0.75;
 }
 
+
 /* =========================================================
-   ICONS
+   REAL UPLOADED LOGOS
+   ========================================================= */
+
+.app-logo {
+  display: block;
+
+  width: 50px;
+  height: 50px;
+
+  max-width: 50px;
+  max-height: 50px;
+
+  object-fit: contain;
+
+  border-radius: 12px;
+
+  filter:
+    drop-shadow(
+      0 8px 18px rgba(0, 0, 0, 0.35)
+    );
+
+  user-select: none;
+
+  pointer-events: none;
+}
+
+.launcher-app .app-logo {
+  width: 50px;
+  height: 50px;
+}
+
+.launcher-trash .app-logo {
+  width: 46px;
+  height: 46px;
+
+  opacity: 0.72;
+}
+
+
+/* =========================================================
+   BACKWARD COMPATIBLE ICON
    ========================================================= */
 
 .app-icon {
   width: 44px;
   height: 44px;
 
-  border-radius: 12px;
+  display: grid;
+  place-items: center;
 
-  border: 1px solid rgba(115, 191, 244, 0.28);
+  position: relative;
+
+  border:
+    1px solid rgba(115, 191, 244, 0.28);
+
+  border-radius: 12px;
 
   background:
     linear-gradient(
@@ -413,17 +632,14 @@ textarea {
     0 10px 28px rgba(0, 0, 0, 0.22),
     inset 0 1px rgba(255, 255, 255, 0.06);
 
-  position: relative;
-
-  display: grid;
-  place-items: center;
-
   color: #fff;
+
   font-size: 22px;
 }
 
 .app-icon::before {
   display: block;
+
   line-height: 1;
 }
 
@@ -439,9 +655,10 @@ textarea {
 
 .icon-code::before {
   content: "</>";
+  color: #39d8ff;
+
   font-size: 12px;
   font-weight: 900;
-  color: #39d8ff;
 }
 
 .icon-cap::before {
@@ -481,8 +698,9 @@ textarea {
 
 .icon-terminal::before {
   content: ">_";
-  font-size: 12px;
   color: #34cfff;
+
+  font-size: 12px;
 }
 
 .icon-globe::before {
@@ -500,25 +718,6 @@ textarea {
   color: #a9c0d5;
 }
 
-.launcher-app:nth-child(1) .app-icon {
-  background: linear-gradient(145deg, #f4b439, #8e5710);
-}
-
-.launcher-app:nth-child(2) .app-icon {
-  background: linear-gradient(145deg, #5d43cf, #122d62);
-}
-
-.launcher-app:nth-child(3) .app-icon {
-  background: linear-gradient(145deg, #087da7, #0a3558);
-}
-
-.launcher-app:nth-child(4) .app-icon {
-  background: linear-gradient(145deg, #6941d7, #173c77);
-}
-
-.launcher-app:nth-child(5) .app-icon {
-  background: linear-gradient(145deg, #a22ac0, #2637a1);
-}
 
 /* =========================================================
    HERO
@@ -529,6 +728,8 @@ textarea {
   grid-row: 1;
 
   position: relative;
+
+  min-width: 0;
 
   display: grid;
 
@@ -546,27 +747,37 @@ textarea {
 .hero-copy,
 .hero-art {
   position: relative;
-  z-index: 2;
+
+  z-index: 3;
 }
 
 .hero-copy {
-  padding-left: 23px;
-  padding-right: 12px;
+  min-width: 0;
+
+  padding:
+    0
+    12px
+    0
+    23px;
 }
 
 .eyebrow {
-  font-size: 8px;
-  letter-spacing: 0.23em;
+  margin-bottom: 22px;
 
   color: #5fa8d9;
 
-  margin-bottom: 22px;
+  font-size: 8px;
+  font-weight: 700;
+
+  letter-spacing: 0.23em;
 }
 
 .hello {
-  font-size: 21px;
-  color: #f5fbff;
   margin-bottom: 4px;
+
+  color: #f5fbff;
+
+  font-size: 21px;
 }
 
 .hero-copy h1 {
@@ -595,18 +806,22 @@ textarea {
 }
 
 .hero-copy h2 {
-  font-size: 22px;
-
-  margin: 15px 0 12px;
+  margin:
+    15px
+    0
+    12px;
 
   color: #55d5ff;
+
+  font-size: 22px;
 }
 
 .tagline {
-  font-size: 15px;
+  margin: 0 0 13px;
+
   color: #c3d3e4;
 
-  margin: 0 0 13px;
+  font-size: 15px;
 }
 
 .tagline strong {
@@ -614,33 +829,39 @@ textarea {
 }
 
 .headline {
-  font-size: 13px;
-  color: #f2f7ff;
+  max-width: 560px;
 
   margin: 0 0 13px;
 
-  max-width: 560px;
+  color: #f2f7ff;
+
+  font-size: 13px;
+
+  line-height: 1.45;
 }
 
 .quote-inline {
+  max-width: 430px;
+
+  margin-bottom: 21px;
+
+  color: #e7edf6;
+
   font-family:
     ui-monospace,
     SFMono-Regular,
     Menlo,
+    Monaco,
+    Consolas,
     monospace;
 
   font-size: 11px;
 
-  color: #e7edf6;
-
   font-style: italic;
 
   line-height: 1.55;
-
-  max-width: 430px;
-
-  margin-bottom: 21px;
 }
+
 
 /* =========================================================
    HERO BUTTONS
@@ -648,15 +869,19 @@ textarea {
 
 .hero-actions {
   gap: 12px;
+
+  flex-wrap: wrap;
 }
 
 .hero-actions button,
 .hero-actions a {
   height: 40px;
 
-  border-radius: 11px;
+  padding:
+    0
+    18px;
 
-  padding: 0 18px;
+  border-radius: 11px;
 
   display: inline-flex;
   align-items: center;
@@ -666,9 +891,22 @@ textarea {
 
   font-size: 12px;
   font-weight: 800;
+
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.hero-actions button:hover,
+.hero-actions a:hover {
+  transform: translateY(-2px);
 }
 
 .primary {
+  border:
+    1px solid rgba(255, 255, 255, 0.04);
+
   background:
     linear-gradient(
       135deg,
@@ -678,19 +916,25 @@ textarea {
 
   color: #fff;
 
-  border: 1px solid rgba(255, 255, 255, 0.04);
-
   box-shadow:
     0 12px 30px rgba(36, 130, 255, 0.26);
 }
 
+.primary:hover {
+  box-shadow:
+    0 16px 36px rgba(36, 130, 255, 0.38);
+}
+
 .secondary {
-  background: rgba(7, 18, 32, 0.7);
+  border:
+    1px solid rgba(125, 189, 236, 0.23);
+
+  background:
+    rgba(7, 18, 32, 0.72);
 
   color: #d9e7f4;
-
-  border: 1px solid rgba(125, 189, 236, 0.23);
 }
+
 
 /* =========================================================
    SOCIAL
@@ -698,18 +942,23 @@ textarea {
 
 .social-row {
   gap: 8px;
+
   margin-top: 16px;
+
+  flex-wrap: wrap;
 }
 
 .social-chip {
   width: 37px;
   height: 32px;
 
-  border: 1px solid rgba(110, 181, 231, 0.22);
-
-  background: rgba(8, 21, 38, 0.68);
+  border:
+    1px solid rgba(110, 181, 231, 0.22);
 
   border-radius: 8px;
+
+  background:
+    rgba(8, 21, 38, 0.68);
 
   display: flex;
   align-items: center;
@@ -720,21 +969,37 @@ textarea {
   text-decoration: none;
 
   font-size: 9px;
+
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.18s ease;
 }
 
+.social-chip:hover {
+  background:
+    rgba(20, 67, 104, 0.78);
+
+  border-color:
+    rgba(73, 203, 255, 0.42);
+
+  transform: translateY(-2px);
+}
+
+
 /* =========================================================
-   PORTRAIT
+   HERO ART
    ========================================================= */
 
 .hero-art {
   height: 100%;
 
+  min-width: 0;
+
   display: flex;
 
   align-items: center;
   justify-content: center;
-
-  min-width: 0;
 }
 
 .hero-glow {
@@ -748,45 +1013,53 @@ textarea {
   background:
     radial-gradient(
       circle,
-      rgba(26, 173, 255, 0.2),
+      rgba(26, 173, 255, 0.20),
       transparent 64%
     );
 
   filter: blur(3px);
+
+  pointer-events: none;
 }
 
 .portrait-ring {
+  position: absolute;
+
   width: 390px;
   height: 390px;
 
-  border-radius: 50%;
+  border:
+    2px solid rgba(42, 196, 255, 0.90);
 
-  border: 2px solid rgba(42, 196, 255, 0.9);
+  border-radius: 50%;
 
   box-shadow:
     0 0 0 1px rgba(36, 132, 255, 0.18),
     0 0 42px rgba(33, 164, 255, 0.28),
-    inset 0 0 40px rgba(26, 150, 255, 0.1);
+    inset 0 0 40px rgba(26, 150, 255, 0.10);
 
-  position: absolute;
+  pointer-events: none;
 }
 
 .hero-portrait {
+  position: relative;
+
   width: 400px;
   height: 450px;
 
   object-fit: contain;
   object-position: center bottom;
 
+  z-index: 4;
+
   filter:
     drop-shadow(
       0 22px 36px rgba(0, 0, 0, 0.55)
     );
 
-  position: relative;
-
-  z-index: 2;
+  pointer-events: none;
 }
+
 
 /* =========================================================
    RIGHT STACK
@@ -796,16 +1069,19 @@ textarea {
   grid-column: 3;
   grid-row: 1;
 
+  min-width: 0;
+
   display: flex;
   flex-direction: column;
 
   gap: 14px;
-
-  min-width: 0;
 }
 
 .glass-card {
-  border: 1px solid rgba(121, 181, 228, 0.19);
+  min-width: 0;
+
+  border:
+    1px solid rgba(121, 181, 228, 0.19);
 
   border-radius: 15px;
 
@@ -819,13 +1095,17 @@ textarea {
   box-shadow: var(--shadow);
 
   backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 
   overflow: hidden;
 }
 
 .status-card {
-  padding: 16px 17px;
   height: 176px;
+
+  padding:
+    16px
+    17px;
 }
 
 .card-head,
@@ -839,6 +1119,7 @@ textarea {
 
 .card-head {
   gap: 8px;
+
   font-size: 11px;
 }
 
@@ -846,6 +1127,8 @@ textarea {
   margin-left: auto;
 
   border: 0;
+  outline: 0;
+
   background: transparent;
 
   color: #7891a7;
@@ -856,19 +1139,21 @@ textarea {
 }
 
 .status-main {
+  margin:
+    14px
+    0;
+
   display: flex;
   flex-direction: column;
 
   gap: 10px;
-
-  margin: 14px 0;
 }
 
 .status-main span {
+  color: #31e5a7;
+
   font-size: 14px;
   font-weight: 800;
-
-  color: #31e5a7;
 }
 
 .status-main strong {
@@ -878,16 +1163,17 @@ textarea {
 .progress-track {
   height: 7px;
 
-  background: #10243a;
+  overflow: hidden;
 
   border-radius: 999px;
 
-  overflow: hidden;
+  background: #10243a;
 }
 
 .progress-track span {
   display: block;
 
+  width: 0;
   height: 100%;
 
   border-radius: inherit;
@@ -898,35 +1184,40 @@ textarea {
       #28cfff,
       #6e6dff
     );
+
+  transition:
+    width 0.4s ease;
 }
 
 .progress-row {
   justify-content: space-between;
 
-  font-size: 9px;
+  margin-top: 10px;
 
   color: #7290a8;
 
-  margin-top: 10px;
+  font-size: 9px;
 }
 
 .motto {
-  font-size: 10px;
+  margin-top: 13px;
+
   color: #e7eef5;
 
-  margin-top: 13px;
+  font-size: 10px;
 }
+
 
 /* =========================================================
    CALENDAR
    ========================================================= */
 
 .calendar-card {
+  position: relative;
+
   height: 170px;
 
   padding: 15px;
-
-  position: relative;
 }
 
 .calendar-top {
@@ -936,22 +1227,22 @@ textarea {
 }
 
 .calendar-grid {
+  width: 150px;
+
+  margin-top: 14px;
+
   display: grid;
 
   grid-template-columns:
     repeat(7, 1fr);
 
   gap: 7px;
-
-  margin-top: 14px;
-
-  width: 150px;
 }
 
 .calendar-grid span {
-  font-size: 8px;
-
   color: #c1d0de;
+
+  font-size: 8px;
 
   text-align: center;
 }
@@ -964,7 +1255,10 @@ textarea {
   width: 18px;
   height: 18px;
 
-  margin: -4px auto 0;
+  margin:
+    -4px
+    auto
+    0;
 
   border-radius: 50%;
 
@@ -980,13 +1274,14 @@ textarea {
 .clock-face {
   position: absolute;
 
-  right: 16px;
   top: 43px;
+  right: 16px;
 
   width: 94px;
   height: 94px;
 
-  border: 2px solid #008fdc;
+  border:
+    2px solid #008fdc;
 
   border-radius: 50%;
 
@@ -1006,11 +1301,11 @@ textarea {
 }
 
 .clock-face small {
-  font-size: 8px;
+  margin-top: 5px;
 
   color: #91acc1;
 
-  margin-top: 5px;
+  font-size: 8px;
 }
 
 .date-caption {
@@ -1019,10 +1314,11 @@ textarea {
   right: 25px;
   bottom: 10px;
 
-  font-size: 8px;
-
   color: #8497a8;
+
+  font-size: 8px;
 }
+
 
 /* =========================================================
    MUSIC
@@ -1039,6 +1335,8 @@ textarea {
 .music-thumb {
   width: 46px;
   height: 46px;
+
+  flex: 0 0 auto;
 
   border-radius: 8px;
 
@@ -1059,9 +1357,9 @@ textarea {
 }
 
 .music-copy {
-  flex: 1;
-
   min-width: 0;
+
+  flex: 1;
 
   display: flex;
   flex-direction: column;
@@ -1071,23 +1369,28 @@ textarea {
 
 .music-copy strong {
   font-size: 10px;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .music-copy span {
-  font-size: 8px;
   color: #6d8499;
+
+  font-size: 8px;
 }
 
 .music-progress {
   height: 4px;
 
-  border-radius: 999px;
-
-  background: #13243a;
-
   margin-top: 7px;
 
   overflow: hidden;
+
+  border-radius: 999px;
+
+  background: #13243a;
 }
 
 .music-progress span {
@@ -1101,12 +1404,17 @@ textarea {
 
 .music-controls {
   display: flex;
+
   gap: 4px;
 }
 
 .music-controls button {
+  padding: 2px;
+
   border: 0;
-  background: none;
+  outline: 0;
+
+  background: transparent;
 
   color: #aec3d5;
 
@@ -1115,6 +1423,7 @@ textarea {
   cursor: pointer;
 }
 
+
 /* =========================================================
    MIDDLE DASHBOARD
    ========================================================= */
@@ -1122,6 +1431,8 @@ textarea {
 .dashboard-cards {
   grid-column: 2 / span 2;
   grid-row: 2;
+
+  min-width: 0;
 
   display: grid;
 
@@ -1132,15 +1443,14 @@ textarea {
 
   gap: 14px;
 
-  min-width: 0;
-
-  padding-right: var(--companion-safe);
+  padding-right: var(--companion-space);
 }
 
 .feature-card {
   min-width: 0;
 
-  border: 1px solid rgba(119, 180, 228, 0.18);
+  border:
+    1px solid rgba(119, 180, 228, 0.18);
 
   border-radius: 15px;
 
@@ -1148,7 +1458,7 @@ textarea {
     linear-gradient(
       180deg,
       rgba(7, 21, 38, 0.88),
-      rgba(5, 16, 31, 0.8)
+      rgba(5, 16, 31, 0.80)
     );
 
   box-shadow: var(--shadow);
@@ -1157,15 +1467,20 @@ textarea {
 }
 
 .feature-label {
-  padding: 12px 14px 8px;
+  padding:
+    12px
+    14px
+    8px;
+
+  color: #e8f1f8;
 
   font-size: 9px;
   font-weight: 800;
-
-  color: #e8f1f8;
 }
 
 .project-mini-body {
+  min-width: 0;
+
   display: grid;
 
   grid-template-columns:
@@ -1174,12 +1489,13 @@ textarea {
 
   gap: 16px;
 
-  padding: 0 14px 14px;
-
-  min-width: 0;
+  padding:
+    0
+    14px
+    14px;
 }
 
-.project-mini-body > div:last-child {
+.project-mini-body > div {
   min-width: 0;
 }
 
@@ -1188,11 +1504,12 @@ textarea {
 
   min-height: 0;
 
-  border-radius: 12px;
-
-  border: 1px solid rgba(102, 180, 238, 0.18);
-
   overflow: hidden;
+
+  border:
+    1px solid rgba(102, 180, 238, 0.18);
+
+  border-radius: 12px;
 
   background: #08182b;
 }
@@ -1210,11 +1527,14 @@ textarea {
 .status-badge {
   display: inline-flex;
 
-  padding: 5px 8px;
+  padding:
+    5px
+    8px;
 
   border-radius: 8px;
 
-  background: rgba(39, 224, 168, 0.08);
+  background:
+    rgba(39, 224, 168, 0.08);
 
   color: #39e2a7;
 
@@ -1222,46 +1542,59 @@ textarea {
 }
 
 .project-card h3 {
-  margin: 8px 0 6px;
+  margin:
+    8px
+    0
+    6px;
 
   font-size: 16px;
 }
 
 .project-card p {
-  font-size: 9px;
-
-  line-height: 1.45;
+  margin:
+    0
+    0
+    8px;
 
   color: #a9bacb;
 
-  margin: 0 0 8px;
+  font-size: 9px;
+
+  line-height: 1.45;
 }
 
 .chip-row {
   gap: 5px;
+
   flex-wrap: wrap;
 }
 
 .chip-row span {
-  font-size: 8px;
+  padding:
+    4px
+    6px;
 
-  background: rgba(31, 110, 164, 0.24);
-
-  border: 1px solid rgba(104, 175, 226, 0.12);
-
-  padding: 4px 6px;
+  border:
+    1px solid rgba(104, 175, 226, 0.12);
 
   border-radius: 6px;
+
+  background:
+    rgba(31, 110, 164, 0.24);
+
+  font-size: 8px;
 }
 
 .mini-meta {
   gap: 12px;
 
-  margin: 9px 0;
-
-  font-size: 8px;
+  margin:
+    9px
+    0;
 
   color: #8da2b5;
+
+  font-size: 8px;
 
   flex-wrap: wrap;
 }
@@ -1275,15 +1608,18 @@ textarea {
 .mini-btn {
   height: 29px !important;
 
-  padding: 0 11px !important;
-
-  font-size: 8px !important;
+  padding:
+    0
+    11px !important;
 
   border-radius: 8px !important;
+
+  font-size: 8px !important;
 }
 
+
 /* =========================================================
-   SKILLS / LEARNING
+   SKILLS
    ========================================================= */
 
 .skills-card-mini,
@@ -1296,61 +1632,82 @@ textarea {
 
   gap: 6px;
 
-  padding: 0 14px 11px;
+  padding:
+    0
+    14px
+    11px;
 
   flex-wrap: wrap;
 }
 
 .skill-tabs span {
-  font-size: 8px;
+  padding:
+    7px
+    10px;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.06);
+
+  border-radius: 999px;
+
+  background:
+    rgba(255, 255, 255, 0.025);
 
   color: #8aa3b8;
 
-  background: rgba(255, 255, 255, 0.025);
-
-  border: 1px solid rgba(255, 255, 255, 0.06);
-
-  padding: 7px 10px;
-
-  border-radius: 999px;
+  font-size: 8px;
 }
 
 .skill-tabs .active {
+  border-color: transparent;
+
   background: #0b96e2;
 
   color: #fff;
-
-  border-color: transparent;
 }
 
 .skill-mini {
-  padding: 0 14px;
+  margin:
+    9px
+    0;
 
-  margin: 9px 0;
+  padding:
+    0
+    14px;
 }
 
 .skill-mini > span {
-  font-size: 9px;
-
-  color: #d6e2ec;
-
   display: block;
 
   margin-bottom: 4px;
+
+  color: #d6e2ec;
+
+  font-size: 9px;
 }
 
 .skill-mini .progress-track {
   height: 6px;
 }
 
+
+/* =========================================================
+   LEARNING
+   ========================================================= */
+
 .learn-line {
   justify-content: space-between;
 
-  padding: 0 14px;
-
-  margin: 10px 0 5px;
-
   gap: 8px;
+
+  margin:
+    10px
+    0
+    5px;
+
+  padding:
+    0
+    14px;
 }
 
 .learn-line b {
@@ -1358,24 +1715,29 @@ textarea {
 }
 
 .learn-line span {
-  font-size: 8px;
-
   color: #7891a5;
+
+  font-size: 8px;
 }
 
 .learning-card-mini > .progress-track {
-  margin: 0 14px;
-
   height: 6px;
+
+  margin:
+    0
+    14px;
 }
 
+
 /* =========================================================
-   LOWER ROW
+   LOWER WIDGETS
    ========================================================= */
 
 .bottom-widgets {
   grid-column: 2 / span 2;
   grid-row: 3;
+
+  min-width: 0;
 
   display: grid;
 
@@ -1387,20 +1749,18 @@ textarea {
 
   gap: 14px;
 
-  min-width: 0;
-
-  /*
-    Reserve space for companion.
-    This prevents the fixed companion from
-    sitting over important lower content.
-  */
-  padding-right: var(--companion-safe);
+  padding-right: var(--companion-space);
 }
 
 .note-widget {
   min-width: 0;
 
-  border: 1px solid rgba(119, 180, 228, 0.17);
+  overflow: hidden;
+
+  padding: 14px;
+
+  border:
+    1px solid rgba(119, 180, 228, 0.17);
 
   border-radius: 14px;
 
@@ -1411,25 +1771,23 @@ textarea {
       rgba(5, 15, 30, 0.74)
     );
 
-  padding: 14px;
-
   box-shadow: var(--shadow);
-
-  overflow: hidden;
 }
 
 .note-widget > span {
   font-size: 10px;
-
   font-weight: 800;
 }
 
 .note-widget ul {
-  list-style: none;
+  margin:
+    11px
+    0
+    0;
 
   padding: 0;
 
-  margin: 11px 0 0;
+  list-style: none;
 
   display: flex;
   flex-direction: column;
@@ -1438,13 +1796,15 @@ textarea {
 }
 
 .note-widget li {
-  font-size: 9px;
-
-  color: #cad6e2;
-
   position: relative;
 
   padding-left: 15px;
+
+  color: #cad6e2;
+
+  font-size: 9px;
+
+  line-height: 1.35;
 }
 
 .note-widget.yellow {
@@ -1467,6 +1827,7 @@ textarea {
   content: "☑";
 
   position: absolute;
+
   left: 0;
 }
 
@@ -1474,14 +1835,16 @@ textarea {
   content: "○";
 
   position: absolute;
+
   left: 0;
 
   color: #8ca1b6;
 }
 
 .quote-panel {
-  display: flex;
+  position: relative;
 
+  display: flex;
   flex-direction: column;
 
   justify-content: center;
@@ -1492,34 +1855,36 @@ textarea {
       rgba(8, 36, 70, 0.94),
       rgba(25, 18, 64, 0.92)
     );
-
-  position: relative;
 }
 
 .quote-mark {
-  font-size: 46px;
-
   color: #edf6ff;
+
+  font-size: 46px;
 
   line-height: 0.5;
 }
 
 .quote-panel p {
-  font-size: 14px;
+  margin:
+    5px
+    0
+    8px;
 
+  color: #ffffff;
+
+  font-size: 14px;
   font-weight: 800;
 
   font-style: italic;
 
   line-height: 1.25;
-
-  margin: 5px 0 8px;
 }
 
 .quote-panel small {
-  font-size: 9px;
-
   color: #86a8bf;
+
+  font-size: 9px;
 }
 
 .activity-panel li {
@@ -1529,8 +1894,8 @@ textarea {
 .activity-panel li i {
   position: absolute;
 
-  left: 0;
   top: 4px;
+  left: 0;
 
   width: 7px;
   height: 7px;
@@ -1542,6 +1907,7 @@ textarea {
   box-shadow:
     0 0 8px rgba(45, 188, 245, 0.32);
 }
+
 
 /* =========================================================
    DOCK
@@ -1555,38 +1921,41 @@ textarea {
 
   transform: translateX(-50%);
 
-  z-index: 400;
+  z-index: 800;
 
-  height: 64px;
+  width: max-content;
+  max-width: calc(100vw - 28px);
 
-  padding: 8px 13px;
+  min-height: var(--dock-height);
+
+  padding:
+    8px
+    13px;
 
   display: flex;
-
   align-items: center;
 
   gap: 8px;
 
-  background: rgba(5, 18, 34, 0.96);
+  overflow-x: auto;
+  overflow-y: hidden;
 
-  border: 1px solid rgba(112, 183, 235, 0.22);
+  scrollbar-width: none;
+
+  border:
+    1px solid rgba(112, 183, 235, 0.22);
 
   border-radius: 18px;
+
+  background:
+    rgba(5, 18, 34, 0.96);
 
   box-shadow:
     0 20px 70px rgba(0, 0, 0, 0.44),
     inset 0 1px rgba(255, 255, 255, 0.04);
 
   backdrop-filter: blur(18px);
-
-  width: max-content;
-
-  max-width: calc(100vw - 28px);
-
-  overflow-x: auto;
-  overflow-y: hidden;
-
-  scrollbar-width: none;
+  -webkit-backdrop-filter: blur(18px);
 }
 
 .dock::-webkit-scrollbar {
@@ -1597,36 +1966,49 @@ textarea {
   width: 42px;
   height: 42px;
 
-  border: 0;
+  flex: 0 0 auto;
 
-  background: transparent;
+  padding: 0;
+
+  border: 0;
+  outline: 0;
 
   border-radius: 10px;
 
-  display: flex;
+  background: transparent;
 
+  display: flex;
   align-items: center;
   justify-content: center;
 
   cursor: pointer;
 
-  flex: 0 0 auto;
+  transition:
+    background 0.18s ease,
+    transform 0.18s ease;
 }
 
 .dock-item:hover {
-  background: rgba(88, 185, 240, 0.12);
+  background:
+    rgba(88, 185, 240, 0.12);
 
   transform: translateY(-3px);
 }
 
-.dock-icon {
-  width: 23px;
-  height: 23px;
+.dock-item:active {
+  transform: translateY(-1px) scale(0.95);
+}
 
-  border-radius: 7px;
+.dock-icon {
+  width: 28px;
+  height: 28px;
+
+  border-radius: 8px;
 
   display: grid;
   place-items: center;
+
+  overflow: hidden;
 
   background:
     linear-gradient(
@@ -1643,57 +2025,14 @@ textarea {
   font-size: 13px;
 }
 
-.dock-icon::before {
-  line-height: 1;
+.dock-icon img,
+.dock-icon .app-logo {
+  width: 100%;
+  height: 100%;
+
+  object-fit: contain;
 }
 
-.dock-icon.icon-user::before {
-  content: "●";
-}
-
-.dock-icon.icon-folder::before {
-  content: "▰";
-}
-
-.dock-icon.icon-layers::before {
-  content: "▱";
-}
-
-.dock-icon.icon-code::before {
-  content: "</>";
-}
-
-.dock-icon.icon-cap::before {
-  content: "◆";
-}
-
-.dock-icon.icon-route::before {
-  content: "✣";
-}
-
-.dock-icon.icon-trophy::before {
-  content: "♛";
-}
-
-.dock-icon.icon-file::before {
-  content: "▤";
-}
-
-.dock-icon.icon-mail::before {
-  content: "✉";
-}
-
-.dock-icon.icon-note::before {
-  content: "▰";
-}
-
-.dock-icon.icon-terminal::before {
-  content: ">_";
-}
-
-.dock-icon.icon-lock::before {
-  content: "⚙";
-}
 
 /* =========================================================
    COMPANION
@@ -1707,10 +2046,9 @@ textarea {
 
   width: 150px;
 
-  z-index: 380;
+  z-index: 750;
 
   display: flex;
-
   flex-direction: column;
 
   align-items: flex-end;
@@ -1723,9 +2061,12 @@ textarea {
 
   max-width: 96px;
 
-  padding: 10px 12px;
+  padding:
+    10px
+    12px;
 
-  border: 1px solid rgba(82, 172, 233, 0.28);
+  border:
+    1px solid rgba(82, 172, 233, 0.28);
 
   border-radius:
     12px
@@ -1733,7 +2074,10 @@ textarea {
     4px
     12px;
 
-  background: rgba(5, 20, 39, 0.88);
+  background:
+    rgba(5, 20, 39, 0.88);
+
+  color: #eef7ff;
 
   font-size: 10px;
 
@@ -1749,17 +2093,17 @@ textarea {
 
   object-fit: contain;
 
+  margin-top: 3px;
+
   filter:
     drop-shadow(
       0 15px 24px rgba(0, 0, 0, 0.45)
     );
 
-  margin-top: 3px;
+  pointer-events: none;
 }
 
 .companion-reset {
-  pointer-events: auto;
-
   position: absolute;
 
   right: 0;
@@ -1768,66 +2112,96 @@ textarea {
   width: 20px;
   height: 20px;
 
-  border: 1px solid rgba(125, 189, 236, 0.2);
+  padding: 0;
+
+  pointer-events: auto;
+
+  border:
+    1px solid rgba(125, 189, 236, 0.20);
 
   border-radius: 50%;
 
-  background: rgba(7, 20, 35, 0.8);
+  background:
+    rgba(7, 20, 35, 0.80);
 
   color: #9ab0c4;
 
   font-size: 10px;
+
+  cursor: pointer;
 }
 
+
 /* =========================================================
-   WINDOWS
+   WINDOW LAYER
+   IMPORTANT:
+   layer itself DOES NOT block clicks
    ========================================================= */
 
 .window-layer {
   position: fixed;
 
-  inset: 38px 0 0;
+  top: 38px;
+  right: 0;
+  bottom: 0;
+  left: 0;
 
-  z-index: 250;
+  z-index: 700;
 
   pointer-events: none;
 }
 
 .app-window {
-  pointer-events: auto;
-
   position: absolute;
-
-  max-height: calc(100dvh - 96px);
 
   min-width: 360px;
 
-  border: 1px solid rgba(109, 181, 231, 0.28);
+  max-width: calc(100vw - 24px);
+  max-height: calc(100dvh - 96px);
+
+  overflow: hidden;
+
+  pointer-events: auto;
+
+  border:
+    1px solid rgba(109, 181, 231, 0.28);
 
   border-radius: 14px;
 
-  background: rgba(4, 13, 26, 0.96);
+  background:
+    rgba(4, 13, 26, 0.97);
 
   box-shadow:
     0 30px 100px rgba(0, 0, 0, 0.62);
 
-  overflow: hidden;
+  isolation: isolate;
 }
 
 .window-chrome {
   height: 38px;
 
   display: flex;
-
   align-items: center;
 
   gap: 10px;
 
-  padding: 0 12px;
+  padding:
+    0
+    12px;
 
-  background: rgba(10, 28, 49, 0.96);
+  background:
+    rgba(10, 28, 49, 0.96);
 
-  border-bottom: 1px solid rgba(121, 181, 228, 0.14);
+  border-bottom:
+    1px solid rgba(121, 181, 228, 0.14);
+
+  cursor: grab;
+
+  user-select: none;
+}
+
+.window-chrome:active {
+  cursor: grabbing;
 }
 
 .window-title {
@@ -1836,26 +2210,45 @@ textarea {
 }
 
 .window-state {
-  font-size: 8px;
+  margin-left: auto;
 
   color: #6f8ca6;
 
-  margin-left: auto;
+  font-size: 8px;
+}
+
+.window-controls {
+  display: flex;
+  align-items: center;
+
+  gap: 4px;
 }
 
 .window-controls button {
   width: 24px;
   height: 24px;
 
+  padding: 0;
+
   border: 0;
 
   border-radius: 6px;
 
-  background: rgba(255, 255, 255, 0.04);
+  background:
+    rgba(255, 255, 255, 0.04);
 
   color: #b8c9d8;
 
+  font-size: 15px;
+
   cursor: pointer;
+}
+
+.window-controls button:hover {
+  background:
+    rgba(255, 80, 100, 0.15);
+
+  color: #ffffff;
 }
 
 .window-body {
@@ -1864,7 +2257,60 @@ textarea {
   overflow: auto;
 
   padding: 18px;
+
+  color: #dce9f5;
 }
+
+
+/* =========================================================
+   WINDOW CONTENT
+   ========================================================= */
+
+.window-body h1,
+.window-body h2,
+.window-body h3,
+.window-body h4 {
+  margin-top: 0;
+}
+
+.window-body a {
+  color: #43d7ff;
+}
+
+.window-body input,
+.window-body textarea,
+.window-body select {
+  width: 100%;
+
+  border:
+    1px solid rgba(110, 181, 231, 0.20);
+
+  border-radius: 8px;
+
+  background:
+    rgba(6, 20, 36, 0.92);
+
+  color: #ffffff;
+
+  padding: 9px 10px;
+
+  outline: none;
+}
+
+.window-body input:focus,
+.window-body textarea:focus,
+.window-body select:focus {
+  border-color:
+    rgba(37, 214, 255, 0.55);
+
+  box-shadow:
+    0 0 0 3px rgba(37, 214, 255, 0.08);
+}
+
+.window-body button {
+  border-radius: 8px;
+}
+
 
 /* =========================================================
    SEARCH OVERLAY
@@ -1875,27 +2321,39 @@ textarea {
 
   inset: 38px 0 0;
 
-  z-index: 500;
+  z-index: 950;
 
-  background: rgba(1, 6, 14, 0.54);
+  background:
+    rgba(1, 6, 14, 0.54);
 
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
 
   display: grid;
 
   place-items: start center;
 
   padding-top: 80px;
+
+  pointer-events: auto;
 }
 
 .overlay.hidden {
-  display: none;
+  display: none !important;
+
+  pointer-events: none;
 }
 
 .command-palette {
-  width: min(640px, calc(100vw - 32px));
+  width: min(
+    640px,
+    calc(100vw - 32px)
+  );
 
-  border: 1px solid rgba(105, 183, 236, 0.25);
+  overflow: hidden;
+
+  border:
+    1px solid rgba(105, 183, 236, 0.25);
 
   border-radius: 16px;
 
@@ -1903,22 +2361,24 @@ textarea {
 
   box-shadow:
     0 30px 90px rgba(0, 0, 0, 0.55);
-
-  overflow: hidden;
 }
 
 .command-search {
   width: 100%;
   height: 52px;
 
+  padding:
+    0
+    16px;
+
   border: 0;
   outline: 0;
 
   background: #0a2038;
 
-  color: #fff;
+  color: #ffffff;
 
-  padding: 0 16px;
+  font-size: 14px;
 }
 
 .command-list {
@@ -1930,31 +2390,35 @@ textarea {
 .command-item {
   width: 100%;
 
+  padding:
+    12px
+    16px;
+
   border: 0;
 
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom:
+    1px solid rgba(255, 255, 255, 0.05);
 
   background: transparent;
 
   color: #e5eff8;
 
-  padding: 12px 16px;
-
   display: flex;
-
   justify-content: space-between;
 
-  cursor: pointer;
-
   text-align: left;
+
+  cursor: pointer;
 }
 
 .command-item:hover {
-  background: rgba(50, 160, 220, 0.1);
+  background:
+    rgba(50, 160, 220, 0.10);
 }
 
+
 /* =========================================================
-   BOOT
+   BOOT SCREEN
    ========================================================= */
 
 .boot-screen {
@@ -1962,13 +2426,22 @@ textarea {
 
   inset: 0;
 
-  z-index: 1000;
+  z-index: 2000;
 
   display: grid;
-
   place-items: center;
 
-  background: #020713;
+  background:
+    radial-gradient(
+      circle at center,
+      rgba(15, 67, 120, 0.15),
+      transparent 50%
+    ),
+    #020713;
+
+  opacity: 1;
+
+  pointer-events: auto;
 }
 
 .boot-screen.hide {
@@ -1976,19 +2449,25 @@ textarea {
 
   pointer-events: none;
 
-  transition: opacity 0.4s;
+  transition:
+    opacity 0.4s ease;
 }
 
 .boot-card {
-  width: min(560px, calc(100vw - 32px));
+  width: min(
+    560px,
+    calc(100vw - 32px)
+  );
 
   padding: 32px;
 
-  border: 1px solid rgba(112, 184, 237, 0.22);
+  border:
+    1px solid rgba(112, 184, 237, 0.22);
 
   border-radius: 18px;
 
-  background: rgba(5, 18, 35, 0.92);
+  background:
+    rgba(5, 18, 35, 0.92);
 
   box-shadow:
     0 30px 100px rgba(0, 0, 0, 0.55);
@@ -1997,17 +2476,26 @@ textarea {
 }
 
 .boot-mark {
+  color: #36d5ff;
+
   font-weight: 800;
+
+  text-shadow:
+    0 0 20px rgba(54, 213, 255, 0.5);
 }
 
 .boot-title {
   margin-top: 16px;
 
   font-size: 18px;
+  font-weight: 800;
 }
 
 .boot-sub {
-  margin: 8px 0 20px;
+  margin:
+    8px
+    0
+    20px;
 
   color: #8198ad;
 
@@ -2017,19 +2505,18 @@ textarea {
 .boot-progress {
   height: 6px;
 
+  overflow: hidden;
+
   border-radius: 99px;
 
   background: #10243a;
-
-  overflow: hidden;
 }
 
 .boot-progress span {
   display: block;
 
-  height: 100%;
-
   width: 0;
+  height: 100%;
 
   background:
     linear-gradient(
@@ -2037,29 +2524,42 @@ textarea {
       #28cfff,
       #6e6dff
     );
+
+  transition:
+    width 0.2s ease;
 }
 
 #skip-boot {
   margin-top: 18px;
 
-  border: 1px solid rgba(125, 189, 236, 0.24);
+  padding:
+    8px
+    13px;
+
+  border:
+    1px solid rgba(125, 189, 236, 0.24);
+
+  border-radius: 9px;
 
   background: transparent;
 
   color: #cce0ef;
 
-  border-radius: 9px;
-
-  padding: 8px 13px;
-
   cursor: pointer;
 }
+
+#skip-boot:hover {
+  background:
+    rgba(60, 170, 230, 0.10);
+}
+
 
 /* =========================================================
    LARGE DESKTOP
    ========================================================= */
 
 @media (min-width: 1201px) {
+
   .desktop {
     grid-template-columns:
       172px
@@ -2068,7 +2568,7 @@ textarea {
 
     grid-template-rows:
       minmax(470px, 1.35fr)
-      minmax(215px, 0.6fr)
+      minmax(215px, 0.60fr)
       minmax(132px, 0.38fr);
 
     column-gap: 20px;
@@ -2081,7 +2581,9 @@ textarea {
     grid-template-columns:
       repeat(2, 64px);
 
-    gap: 18px 20px;
+    gap:
+      18px
+      20px;
   }
 
   .hero-area {
@@ -2103,38 +2605,26 @@ textarea {
       1.1fr
       1.5fr
       1.5fr;
-
-    padding-right: 188px;
-  }
-
-  .companion {
-    right: 14px;
-    bottom: 84px;
-  }
-
-  .dock {
-    bottom: 12px;
   }
 }
+
 
 /* =========================================================
    SHORT DESKTOP
    ========================================================= */
 
 @media (min-width: 1201px) and (max-height: 900px) {
+
   .desktop {
     padding-top: 46px;
     padding-bottom: 110px;
 
     grid-template-rows:
       minmax(380px, 1.25fr)
-      minmax(190px, 0.6fr)
+      minmax(190px, 0.60fr)
       minmax(120px, 0.38fr);
 
     row-gap: 11px;
-
-    scroll-padding-top: 46px;
-    scroll-padding-bottom: 120px;
   }
 
   .hero-copy h1 {
@@ -2142,8 +2632,9 @@ textarea {
   }
 
   .hero-copy h2 {
-    font-size: 20px;
     margin-top: 10px;
+
+    font-size: 20px;
   }
 
   .portrait-ring {
@@ -2167,30 +2658,29 @@ textarea {
   .music-card {
     height: 82px;
   }
-
-  .bottom-widgets {
-    padding-right: 188px;
-  }
 }
+
 
 /* =========================================================
    VERY SHORT DESKTOP
    ========================================================= */
 
 @media (min-width: 1201px) and (max-height: 820px) {
+
   .desktop {
     padding-top: 42px;
     padding-bottom: 106px;
 
     grid-template-rows:
-      minmax(315px, 1.2fr)
+      minmax(315px, 1.20fr)
       minmax(155px, 0.58fr)
       minmax(105px, 0.36fr);
 
     row-gap: 9px;
+  }
 
-    scroll-padding-top: 42px;
-    scroll-padding-bottom: 118px;
+  .hero-copy {
+    padding-left: 18px;
   }
 
   .hero-copy h1 {
@@ -2198,12 +2688,9 @@ textarea {
   }
 
   .hero-copy h2 {
-    font-size: 18px;
     margin-top: 8px;
-  }
 
-  .hero-copy {
-    padding-left: 18px;
+    font-size: 18px;
   }
 
   .portrait-ring {
@@ -2218,28 +2705,30 @@ textarea {
 
   .status-card {
     height: 148px;
-    padding: 13px 15px;
+
+    padding:
+      13px
+      15px;
   }
 
   .calendar-card {
     height: 138px;
+
     padding: 13px;
   }
 
   .music-card {
     height: 76px;
   }
-
-  .bottom-widgets {
-    padding-right: 188px;
-  }
 }
 
+
 /* =========================================================
-   TABLET / MEDIUM
+   TABLET
    ========================================================= */
 
 @media (max-width: 1200px) {
+
   .desktop {
     grid-template-columns:
       120px
@@ -2254,8 +2743,6 @@ textarea {
   .bottom-widgets {
     grid-template-columns:
       repeat(2, minmax(0, 1fr));
-
-    padding-right: 140px;
   }
 
   .launcher-grid {
@@ -2263,6 +2750,16 @@ textarea {
       repeat(2, 52px);
 
     gap: 16px;
+  }
+
+  .launcher-app,
+  .launcher-trash {
+    width: 52px;
+  }
+
+  .app-logo {
+    width: 44px;
+    height: 44px;
   }
 
   .hero-copy h1 {
@@ -2302,11 +2799,13 @@ textarea {
   }
 }
 
+
 /* =========================================================
    MOBILE
    ========================================================= */
 
 @media (max-width: 900px) {
+
   body {
     overflow: auto;
   }
@@ -2320,12 +2819,13 @@ textarea {
 
   .system-bar {
     position: sticky;
-    top: 0;
 
     height: auto;
     min-height: 48px;
 
-    padding: 8px 12px;
+    padding:
+      8px
+      12px;
   }
 
   .system-nav,
@@ -2358,8 +2858,9 @@ textarea {
   }
 
   .desktop {
-    height: auto;
+    width: 100%;
 
+    height: auto;
     min-height: 100dvh;
 
     padding:
@@ -2379,7 +2880,10 @@ textarea {
   }
 
   .launcher-panel {
-    padding: 0 0 12px;
+    padding:
+      0
+      0
+      12px;
   }
 
   .launcher-title {
@@ -2388,9 +2892,17 @@ textarea {
 
   .launcher-grid {
     grid-template-columns:
-      repeat(6, minmax(42px, 1fr));
+      repeat(
+        6,
+        minmax(42px, 1fr)
+      );
 
     gap: 10px;
+  }
+
+  .launcher-app,
+  .launcher-trash {
+    width: auto;
   }
 
   .launcher-app span:last-child,
@@ -2398,13 +2910,9 @@ textarea {
     font-size: 8px;
   }
 
-  .app-icon {
+  .app-logo {
     width: 40px;
     height: 40px;
-  }
-
-  .launcher-trash {
-    margin-top: 14px;
   }
 
   .hero-area {
@@ -2421,18 +2929,18 @@ textarea {
     background:
       linear-gradient(
         180deg,
-        rgba(2, 10, 23, 0.2),
+        rgba(2, 10, 23, 0.20),
         rgba(2, 10, 23, 0.76)
       );
   }
 
   .hero-copy {
+    order: 2;
+
     padding:
       28px
       18px
       24px;
-
-    order: 2;
   }
 
   .hero-art {
@@ -2488,6 +2996,10 @@ textarea {
     grid-template-columns: 1fr;
   }
 
+  .project-thumb {
+    height: 200px;
+  }
+
   .companion {
     right: 10px;
     bottom: 82px;
@@ -2503,9 +3015,9 @@ textarea {
   .companion-bubble {
     max-width: 80px;
 
-    font-size: 8px;
-
     padding: 7px;
+
+    font-size: 8px;
   }
 
   .dock {
@@ -2523,33 +3035,38 @@ textarea {
   }
 
   .window-layer {
-    inset: 48px 0 0;
+    top: 48px;
   }
 
   .app-window {
-    left: 7px !important;
-    right: 7px !important;
     top: 10px !important;
+    right: 7px !important;
     bottom: 70px !important;
+    left: 7px !important;
 
     width: auto !important;
-
     height: auto !important;
 
     min-width: 0;
 
+    max-width: none;
     max-height: none;
   }
 }
+
 
 /* =========================================================
    SMALL MOBILE
    ========================================================= */
 
 @media (max-width: 430px) {
+
   .launcher-grid {
     grid-template-columns:
-      repeat(4, minmax(48px, 1fr));
+      repeat(
+        4,
+        minmax(48px, 1fr)
+      );
   }
 
   .hero-copy h1 {
@@ -2582,13 +3099,25 @@ textarea {
   .system-avatar {
     display: none;
   }
+
+  .dock-item {
+    width: 40px;
+    height: 40px;
+  }
+
+  .dock-icon {
+    width: 26px;
+    height: 26px;
+  }
 }
+
 
 /* =========================================================
    VERY SMALL MOBILE
    ========================================================= */
 
 @media (max-width: 375px) {
+
   .desktop {
     padding-left: 9px;
     padding-right: 9px;
@@ -2622,11 +3151,30 @@ textarea {
   .dock {
     left: 7px;
     right: 7px;
+
     bottom: 8px;
   }
 
   .dock-item {
     width: 39px;
     height: 39px;
+  }
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
   }
 }
