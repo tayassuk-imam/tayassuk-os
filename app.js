@@ -233,13 +233,14 @@ document.documentElement.dataset.theme =
    ========================================================= */
 
 function renderAppGrid() {
-
   const el =
-    document.querySelector('#app-grid');
+    document.querySelector('#app-grid') ||
+    document.querySelector('.app-launcher') ||
+    document.querySelector('.system-left');
 
   if (!el) return;
 
-  el.innerHTML = apps
+  const html = apps
     .map(
       app => `
         <button
@@ -247,25 +248,22 @@ function renderAppGrid() {
           class="launcher-app"
           data-action="open"
           data-app="${esc(app.id)}"
-          title="${esc(app.desc)}"
+          title="${esc(app.desc || app.name)}"
         >
-
           <img
             class="app-logo"
-            src="${esc(app.logo)}"
+            src="${esc(app.logo || '')}"
             alt="${esc(app.name)}"
             width="56"
             height="56"
           >
-
-          <span>
-            ${esc(app.name)}
-          </span>
-
+          <span>${esc(app.name)}</span>
         </button>
       `
     )
     .join('');
+
+  el.insertAdjacentHTML('beforeend', html);
 }
 
 
