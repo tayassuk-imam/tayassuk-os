@@ -233,37 +233,33 @@ document.documentElement.dataset.theme =
    ========================================================= */
 
 function renderAppGrid() {
-  const el =
-    document.querySelector('#app-grid') ||
-    document.querySelector('.app-launcher') ||
-    document.querySelector('.system-left');
+  const el = document.getElementById('app-grid');
 
-  if (!el) return;
+  if (!el) {
+    console.warn('App grid not found');
+    return;
+  }
 
-  const html = apps
-    .map(
-      app => `
-        <button
-          type="button"
-          class="launcher-app"
-          data-action="open"
-          data-app="${esc(app.id)}"
-          title="${esc(app.desc || app.name)}"
+  el.innerHTML = apps
+    .map(app => `
+      <button
+        type="button"
+        class="launcher-app"
+        data-action="open"
+        data-app="${esc(app.id)}"
+        title="${esc(app.desc || app.name)}"
+      >
+        <img
+          class="app-logo"
+          src="${esc(app.logo || '')}"
+          alt="${esc(app.name)}"
+          width="56"
+          height="56"
         >
-          <img
-            class="app-logo"
-            src="${esc(app.logo || '')}"
-            alt="${esc(app.name)}"
-            width="56"
-            height="56"
-          >
-          <span>${esc(app.name)}</span>
-        </button>
-      `
-    )
+        <span>${esc(app.name)}</span>
+      </button>
+    `)
     .join('');
-
-  el.insertAdjacentHTML('beforeend', html);
 }
 
 
