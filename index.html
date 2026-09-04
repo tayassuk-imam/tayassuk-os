@@ -111,10 +111,31 @@
         <div class="boot-title">Initializing personal workspace…</div>
         <div class="boot-sub">Projects · Learning · Skills · Journey · Contact</div>
         <div class="boot-progress"><span id="boot-progress-bar"></span></div>
-        <button id="skip-boot">Skip boot</button>
+        <button id="skip-boot" type="button">Skip boot</button>
       </div>
     </div>
   </div>
+  <script>
+    // Minimal non-module fallback: Skip Boot must work even if the main module fails to load.
+    (function () {
+      const boot = document.getElementById('boot-screen');
+      const skip = document.getElementById('skip-boot');
+      if (!boot || !skip) return;
+      let done = false;
+      window.__finishTayassukBoot = function () {
+        if (done) return;
+        done = true;
+        boot.style.opacity = '0';
+        boot.style.pointerEvents = 'none';
+        boot.setAttribute('aria-hidden', 'true');
+        try { sessionStorage.setItem('tayassuk-os-boot-seen', '1'); } catch (_) {}
+        window.setTimeout(function () { if (boot.isConnected) boot.remove(); }, 300);
+      };
+      skip.addEventListener('click', window.__finishTayassukBoot, { passive: true });
+      // Safety fallback so the site can never remain blocked by the boot screen.
+      window.setTimeout(window.__finishTayassukBoot, 6500);
+    })();
+  </script>
   <script type="module" src="./app.js"></script>
 </body>
 </html>

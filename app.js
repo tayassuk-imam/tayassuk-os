@@ -156,5 +156,5 @@ let drag=false,cx=0,cy=0;companion.addEventListener('pointerdown',e=>{if(e.targe
 
 renderAppGrid(); renderSocials();
 
-const boot=document.querySelector('#boot-screen');const bar=document.querySelector('#boot-progress-bar');let progress=0;const finish=()=>{boot.style.opacity='0';boot.style.pointerEvents='none';setTimeout(()=>boot.remove(),260);sessionStorage.setItem('tayassuk-os-boot-seen','1');};document.querySelector('#skip-boot').onclick=finish;
+const boot=document.querySelector('#boot-screen');const bar=document.querySelector('#boot-progress-bar');let progress=0;const finish=()=>{if(window.__finishTayassukBoot){window.__finishTayassukBoot();return;}if(!boot)return;boot.style.opacity='0';boot.style.pointerEvents='none';setTimeout(()=>boot.remove(),260);try{sessionStorage.setItem('tayassuk-os-boot-seen','1');}catch{}};const skipButton=document.querySelector('#skip-boot');if(skipButton)skipButton.onclick=finish;
 if(sessionStorage.getItem('tayassuk-os-boot-seen')) finish(); else {const timer=setInterval(()=>{progress+=8;bar.style.width=progress+'%';if(progress>=100){clearInterval(timer);setTimeout(finish,180);}},70);}
