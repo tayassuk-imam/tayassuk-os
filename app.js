@@ -4354,3 +4354,57 @@ if (document.readyState === 'loading') {
 } else {
   replaceDockIcons();
 }
+/* =========================================================
+   WINDOW CONTROLS
+   ========================================================= */
+
+document.addEventListener("click", function (event) {
+
+  const button =
+    event.target.closest("[data-window-action]");
+
+  if (!button) return;
+
+  const windowNode =
+    button.closest(".app-window");
+
+  if (!windowNode) return;
+
+  const action =
+    button.dataset.windowAction;
+
+
+  /* ---------- CLOSE ---------- */
+
+  if (action === "close") {
+
+    windowNode.remove();
+
+    return;
+  }
+
+
+  /* ---------- MINIMIZE ---------- */
+
+  if (action === "minimize") {
+
+    windowNode.classList.toggle(
+      "window-minimized"
+    );
+
+    return;
+  }
+
+
+  /* ---------- MAXIMIZE ---------- */
+
+  if (action === "maximize") {
+
+    windowNode.classList.toggle(
+      "window-maximized"
+    );
+
+    return;
+  }
+
+});
