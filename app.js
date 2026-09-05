@@ -4845,7 +4845,6 @@ function renderDashboard() {
 /* =========================================================
    DOCK
    ========================================================= */
-
 function renderDock() {
 
   const dock =
@@ -4853,9 +4852,7 @@ function renderDock() {
       '#dock'
     );
 
-
   if (!dock) return;
-
 
   const dockApps =
     [
@@ -4872,7 +4869,6 @@ function renderDock() {
       'control'
     ];
 
-
   dock.innerHTML =
     dockApps
       .map(
@@ -4884,9 +4880,7 @@ function renderDock() {
                 item.id === id
             );
 
-
           if (!app) return '';
-
 
           return `
 
@@ -4895,18 +4889,15 @@ function renderDock() {
               class="dock-item"
               data-action="open"
               data-app="${esc(id)}"
-              title="${esc(
-                app.name
-              )}"
+              title="${esc(app.name)}"
             >
 
               <img
-                src="${esc(
-                  app.logo
-                )}"
-                alt="${esc(
-                  app.name
-                )}"
+                src="${esc(app.logo)}"
+                alt="${esc(app.name)}"
+                class="dock-app-logo"
+                width="42"
+                height="42"
                 draggable="false"
               >
 
@@ -4919,7 +4910,6 @@ function renderDock() {
       .join('');
 
 }
-
 
 /* =========================================================
    COMPANION
