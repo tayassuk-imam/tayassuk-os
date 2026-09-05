@@ -3305,123 +3305,73 @@ button[data-window-action="close"]:hover {
 .companion {
   position: fixed !important;
 
-  right: 24px;
-  bottom: 100px;
+  right: 24px !important;
 
-  width: 78px;
-  height: 78px;
+  bottom:
+    var(--companion-space) !important;
 
-  z-index: 9999;
+  width: 116px;
+
+  z-index: 940;
 
   pointer-events: auto;
-
-  cursor: grab;
-  user-select: none;
-  touch-action: none;
-}
-
-.companion:active {
-  cursor: grabbing;
 }
 
 .companion-card {
-  position: relative;
+  padding:
+    12px;
 
-  width: 78px;
-  height: 78px;
+  border:
+    1px solid rgba(116, 187, 232, 0.19);
 
-  padding: 0;
+  border-radius: 13px;
 
-  border: none;
-  border-radius: 50%;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(7, 24, 42, 0.94),
+      rgba(4, 15, 29, 0.90)
+    );
 
-  background: transparent;
+  box-shadow:
+    0 18px 45px rgba(0, 0, 0, 0.42);
 
-  box-shadow: none;
-
-  backdrop-filter: none;
+  backdrop-filter: blur(16px);
 }
 
 .companion-card p {
   margin: 0;
-}
-
-.companion-avatar {
-  width: 78px;
-  height: 78px;
-
-  overflow: hidden;
-
-  border-radius: 50%;
-
-  border: 3px solid rgba(255, 255, 255, 0.9);
-
-  background: rgba(8, 20, 38, 0.9);
-
-  box-shadow:
-    0 6px 25px rgba(0, 0, 0, 0.45),
-    0 0 20px rgba(42, 196, 255, 0.45);
-}
-
-.companion-avatar img {
-  width: 100%;
-  height: 100%;
-
-  display: block;
-
-  object-fit: cover;
-  object-position: center;
-
-  filter: none;
-}
-
-.companion-copy {
-  position: absolute;
-
-  right: 70px;
-  bottom: 0;
-
-  width: 150px;
-
-  padding: 10px 14px;
 
   color: #edf6ff;
 
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 10px;
+
+  font-weight: 800;
 
   line-height: 1.3;
-
-  background: rgba(8, 20, 38, 0.94);
-
-  border: 1px solid rgba(80, 190, 255, 0.35);
-
-  border-radius: 18px;
-
-  box-shadow:
-    0 8px 25px rgba(0, 0, 0, 0.35);
-
-  backdrop-filter: blur(12px);
 }
 
-.companion-copy::after {
-  content: "";
+.companion-image {
+  width: 78px;
+  height: 78px;
 
-  position: absolute;
+  display: block;
 
-  right: -7px;
-  bottom: 15px;
+  margin:
+    10px
+    auto
+    -5px;
 
-  width: 14px;
-  height: 14px;
+  object-fit: contain;
 
-  background: rgba(8, 20, 38, 0.94);
+  object-position: center bottom;
 
-  border-right: 1px solid rgba(80, 190, 255, 0.35);
-  border-top: 1px solid rgba(80, 190, 255, 0.35);
-
-  transform: rotate(45deg);
+  filter:
+    drop-shadow(
+      0 12px 18px rgba(0, 0, 0, 0.46)
+    );
 }
+ ki replace korbo
 /* =========================================================
    DOCK + COMPANION SAFE POSITION
    ========================================================= */
