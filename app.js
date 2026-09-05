@@ -725,6 +725,7 @@ function renderCalendar(date) {
 
 
   let html = [
+
     'Mo',
     'Tu',
     'We',
@@ -786,8 +787,6 @@ setInterval(
   updateClock,
   1000
 );
-
-
 /* =========================================================
    WINDOW POSITION
    ========================================================= */
@@ -834,7 +833,6 @@ function windowPosition() {
     width,
     height
   };
-
 }
 
 
@@ -924,7 +922,6 @@ function maximizeWindow(id) {
     restoreWindowSize(id);
 
     return;
-
   }
 
 
@@ -996,16 +993,1024 @@ function maximizeWindow(id) {
   focusWindow(id);
 
 }
-      document.documentElement.dataset.theme =
-        theme;
+
+
+/* =========================================================
+   RESTORE WINDOW SIZE
+   ========================================================= */
+
+function restoreWindowSize(id) {
+
+  const win =
+    state.windows.get(id);
+
+  if (!win?.node) return;
+
+
+  const previous =
+    state.windowRestoreState.get(id);
+
+
+  state.maximizedWindows.delete(id);
+
+
+  win.node.classList.remove(
+    'window-maximized'
+  );
+
+
+  if (previous) {
+
+    win.node.style.left =
+      previous.left;
+
+    win.node.style.top =
+      previous.top;
+
+    win.node.style.width =
+      previous.width;
+
+    win.node.style.height =
+      previous.height;
+
+  }
+
+
+  const button =
+    win.node.querySelector(
+      '[data-window-action="maximize"]'
+    );
+
+
+  if (button) {
+
+    button.setAttribute(
+      'aria-label',
+      'Maximize window'
+    );
+
+    button.title =
+      'Maximize';
+
+    button.textContent =
+      '□';
+
+  }
+
+
+  focusWindow(id);
+
+}
+
+
+/* =========================================================
+   CLOSE WINDOW
+   ========================================================= */
+
+function closeWindow(id) {
+
+  const win =
+    state.windows.get(id);
+
+  if (!win) return;
+
+
+  win.node.remove();
+
+
+  state.windows.delete(id);
+
+  state.minimizedWindows.delete(id);
+
+  state.maximizedWindows.delete(id);
+
+  state.windowRestoreState.delete(id);
+
+}
+
+
+/* =========================================================
+   WINDOW CONTROLS
+   ========================================================= */
+
+function wireWindowControls(node, id) {
+
+  if (!node) return;
+
+
+  const controls =
+    node.querySelector(
+      '.window-controls'
+    );
+
+
+  if (!controls) return;
+
+
+  controls.addEventListener(
+    'click',
+    event => {
+
+      const button =
+        event.target.closest(
+          '[data-window-action]'
+        );
+
+
+      if (!button) return;
+
+
+      event.preventDefault();
+
+      event.stopPropagation();
+
+
+      const action =
+        button.dataset.windowAction;
+
+
+      if (action === 'minimize') {
+
+        minimizeWindow(id);
+
+        return;
+
+      }
+
+
+      if (action === 'maximize') {
+
+        maximizeWindow(id);
+
+        return;
+
+      }
+
+
+      if (action === 'close') {
+
+        closeWindow(id);
+
+      }
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   OPEN WINDOW
+   ========================================================= */
+
+function openWindow(id) {
+
+  if (!id) return;
+
+
+  /* -----------------------------------------
+     Already open
+     ----------------------------------------- */
+
+  if (
+    state.windows.has(id)
+  ) {
+
+    const win =
+      state.windows.get(id);
+
+
+    if (
+      state.minimizedWindows.has(id)
+    ) {
+
+      restoreWindow(id);
+
+    } else {
+
+      focusWindow(id);
+
+    }
+
+
+    return;
+
+  }
+
+
+  const layer =
+    document.querySelector(
+      '#windows'
+    );
+
+
+  if (!layer) {
+
+    console.error(
+      'Window layer #windows not found.'
+    );
+
+    return;
+
+  }
+
+
+  const app =
+    apps.find(
+      item =>
+        item.id === id
+    );
+
+
+  /* -----------------------------------------
+     Trash
+     ----------------------------------------- */
+
+  if (id === 'trash') {
+
+    openTrashWindow();
+
+    return;
+
+  }
+
+
+  /* -----------------------------------------
+     Settings
+     ----------------------------------------- */
+
+  if (id === 'settings') {
+
+    openSettingsWindow();
+
+    return;
+
+  }
+
+
+  const position =
+    windowPosition();
+
+
+  const node =
+    document.createElement(
+      'section'
+    );
+
+
+  node.className =
+    'app-window';
+
+
+  node.dataset.app =
+    id;
+
+
+  node.style.left =
+    `${position.left}px`;
+
+
+  node.style.top =
+    `${position.top}px`;
+
+
+  node.style.width =
+    `${position.width}px`;
+
+
+  node.style.height =
+    `${position.height}px`;
+
+
+  node.style.zIndex =
+    ++state.z;
+/* =========================================================
+   FIX: KEEP APP WINDOW INSIDE VIEWPORT
+   ========================================================= */
+
+const safeWidth = Math.min(
+  position.width,
+  window.innerWidth - 40
+);
+
+const safeHeight = Math.min(
+  position.height,
+  window.innerHeight - 100
+);
+
+const safeLeft = Math.max(
+  20,
+  (window.innerWidth - safeWidth) / 2
+);
+
+const safeTop = Math.max(
+  70,
+  (window.innerHeight - safeHeight) / 2
+);
+
+node.style.setProperty(
+  'position',
+  'fixed',
+  'important'
+);
+
+node.style.setProperty(
+  'left',
+  `${safeLeft}px`,
+  'important'
+);
+
+node.style.setProperty(
+  'top',
+  `${safeTop}px`,
+  'important'
+);
+
+node.style.setProperty(
+  'width',
+  `${safeWidth}px`,
+  'important'
+);
+
+node.style.setProperty(
+  'height',
+  `${safeHeight}px`,
+  'important'
+);
+
+node.style.setProperty(
+  'margin',
+  '0',
+  'important'
+);
+
+node.style.setProperty(
+  'transform',
+  'none',
+  'important'
+);
+
+node.style.setProperty(
+  'z-index',
+  `${++state.z}`,
+  'important'
+);
+
+  node.innerHTML = `
+
+    <div class="window-chrome">
+
+      <div class="window-title-area">
+
+        <span class="window-title">
+          ${esc(
+            app?.name ||
+            id
+          )}
+        </span>
+
+        <span class="window-state">
+          Tayassuk OS
+        </span>
+
+      </div>
+
+
+      <div class="window-controls">
+
+        <button
+          type="button"
+          class="window-control window-minimize"
+          data-window-action="minimize"
+          aria-label="Minimize window"
+          title="Minimize"
+        >
+          −
+        </button>
+
+
+        <button
+          type="button"
+          class="window-control window-maximize"
+          data-window-action="maximize"
+          aria-label="Maximize window"
+          title="Maximize"
+        >
+          □
+        </button>
+
+
+        <button
+          type="button"
+          class="window-control window-close"
+          data-window-action="close"
+          aria-label="Close window"
+          title="Close"
+        >
+          ×
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <div class="window-body"></div>
+
+  `;
+
+
+  layer.appendChild(node);
+
+
+  const win = {
+
+    node,
+
+    body:
+      node.querySelector(
+        '.window-body'
+      )
+
+  };
+
+
+  state.windows.set(
+    id,
+    win
+  );
+
+
+  renderWindow(id);
+
+
+  wireWindowControls(
+    node,
+    id
+  );
+
+
+  wireDrag(
+    node,
+    id
+  );
+
+
+  node.addEventListener(
+    'pointerdown',
+    () => focusWindow(id)
+  );
+
+
+  focusWindow(id);
+
+}
+
+
+/* =========================================================
+   TRASH WINDOW
+   ========================================================= */
+
+function openTrashWindow() {
+
+  const id =
+    'trash';
+
+
+  if (
+    state.windows.has(id)
+  ) {
+
+    const win =
+      state.windows.get(id);
+
+
+    if (
+      state.minimizedWindows.has(id)
+    ) {
+
+      restoreWindow(id);
+
+    } else {
+
+      focusWindow(id);
+
+    }
+
+
+    return;
+
+  }
+
+
+  const layer =
+    document.querySelector(
+      '#windows'
+    );
+
+
+  if (!layer) return;
+
+
+  const position =
+    windowPosition();
+
+
+  const node =
+    document.createElement(
+      'section'
+    );
+
+
+  node.className =
+    'app-window';
+
+
+  node.dataset.app =
+    id;
+
+
+  node.style.left =
+    `${position.left}px`;
+
+
+  node.style.top =
+    `${position.top}px`;
+
+
+  node.style.width =
+    `${Math.min(
+      760,
+      innerWidth - 44
+    )}px`;
+
+
+  node.style.height =
+    `${Math.min(
+      560,
+      innerHeight - 120
+    )}px`;
+
+
+  node.style.zIndex =
+    ++state.z;
+
+
+  node.innerHTML = `
+
+    <div class="window-chrome">
+
+      <div class="window-title-area">
+
+        <span class="window-title">
+          Trash
+        </span>
+
+        <span class="window-state">
+          Tayassuk OS
+        </span>
+
+      </div>
+
+
+      <div class="window-controls">
+
+        <button
+          type="button"
+          class="window-control window-minimize"
+          data-window-action="minimize"
+          aria-label="Minimize window"
+          title="Minimize"
+        >
+          −
+        </button>
+
+
+        <button
+          type="button"
+          class="window-control window-maximize"
+          data-window-action="maximize"
+          aria-label="Maximize window"
+          title="Maximize"
+        >
+          □
+        </button>
+
+
+        <button
+          type="button"
+          class="window-control window-close"
+          data-window-action="close"
+          aria-label="Close window"
+          title="Close"
+        >
+          ×
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <div class="window-body">
+
+      <div class="empty-state">
+
+        <div class="empty-icon">
+          🗑️
+        </div>
+
+        <h2>
+          Trash is Empty
+        </h2>
+
+        <p>
+          There are no deleted portfolio items.
+        </p>
+
+      </div>
+
+    </div>
+
+  `;
+
+
+  layer.appendChild(node);
+
+
+  state.windows.set(
+    id,
+    {
+      node,
+      body:
+        node.querySelector(
+          '.window-body'
+        )
+    }
+  );
+
+
+  wireWindowControls(
+    node,
+    id
+  );
+
+
+  wireDrag(
+    node,
+    id
+  );
+
+
+  node.addEventListener(
+    'pointerdown',
+    () => focusWindow(id)
+  );
+
+
+  focusWindow(id);
+
+}
+
+
+/* =========================================================
+   SETTINGS WINDOW
+   ========================================================= */
+
+function openSettingsWindow() {
+
+  const id =
+    'settings';
+
+
+  if (
+    state.windows.has(id)
+  ) {
+
+    const win =
+      state.windows.get(id);
+
+
+    if (
+      state.minimizedWindows.has(id)
+    ) {
+
+      restoreWindow(id);
+
+    } else {
+
+      focusWindow(id);
+
+    }
+
+
+    return;
+
+  }
+
+
+  const layer =
+    document.querySelector(
+      '#windows'
+    );
+
+
+  if (!layer) return;
+
+
+  const position =
+    windowPosition();
+
+
+  const node =
+    document.createElement(
+      'section'
+    );
+
+
+  node.className =
+    'app-window';
+
+
+  node.dataset.app =
+    id;
+
+
+  node.style.left =
+    `${position.left}px`;
+
+
+  node.style.top =
+    `${position.top}px`;
+
+
+  node.style.width =
+    `${Math.min(
+      760,
+      innerWidth - 44
+    )}px`;
+
+
+  node.style.height =
+    `${Math.min(
+      580,
+      innerHeight - 120
+    )}px`;
+
+
+  node.style.zIndex =
+    ++state.z;
+
+
+  node.innerHTML = `
+
+    <div class="window-chrome">
+
+      <div class="window-title-area">
+
+        <span class="window-title">
+          Settings
+        </span>
+
+        <span class="window-state">
+          Tayassuk OS
+        </span>
+
+      </div>
+
+
+      <div class="window-controls">
+
+        <button
+          type="button"
+          class="window-control window-minimize"
+          data-window-action="minimize"
+          aria-label="Minimize window"
+          title="Minimize"
+        >
+          −
+        </button>
+
+
+        <button
+          type="button"
+          class="window-control window-maximize"
+          data-window-action="maximize"
+          aria-label="Maximize window"
+          title="Maximize"
+        >
+          □
+        </button>
+
+
+        <button
+          type="button"
+          class="window-control window-close"
+          data-window-action="close"
+          aria-label="Close window"
+          title="Close"
+        >
+          ×
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <div class="window-body">
+
+      <div class="window-page settings-page">
+
+        <div class="window-page-heading">
+
+          <span class="eyebrow">
+            System Preferences
+          </span>
+
+          <h1>
+            Settings
+          </h1>
+
+          <p>
+            Customize your Tayassuk OS experience.
+          </p>
+
+        </div>
+
+
+        <div class="settings-grid">
+
+          <section class="control-card">
+
+            <div class="settings-card-icon">
+              ◐
+            </div>
+
+            <div>
+
+              <h3>
+                Appearance
+              </h3>
+
+              <p>
+                Choose your preferred interface theme.
+              </p>
+
+            </div>
+
+
+            <div class="settings-actions">
+
+              <button
+                type="button"
+                class="secondary-action"
+                data-settings-theme="dark"
+              >
+                Dark
+              </button>
+
+              <button
+                type="button"
+                class="secondary-action"
+                data-settings-theme="light"
+              >
+                Light
+              </button>
+
+            </div>
+
+          </section>
+
+
+          <section class="control-card">
+
+            <div class="settings-card-icon">
+              ✦
+            </div>
+
+            <div>
+
+              <h3>
+                Interface
+              </h3>
+
+              <p>
+                Tayassuk OS desktop experience.
+              </p>
+
+            </div>
+
+            <span class="settings-status">
+              v2.0
+            </span>
+
+          </section>
+
+
+          <section class="control-card">
+
+            <div class="settings-card-icon">
+              ↻
+            </div>
+
+            <div>
+
+              <h3>
+                Local Storage
+              </h3>
+
+              <p>
+                Whiteboard notes are stored locally on this device.
+              </p>
+
+            </div>
+
+          </section>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  `;
+
+
+  layer.appendChild(node);
+
+
+  state.windows.set(
+    id,
+    {
+      node,
+      body:
+        node.querySelector(
+          '.window-body'
+        )
+    }
+  );
+
+
+  wireWindowControls(
+    node,
+    id
+  );
+
+
+  wireDrag(
+    node,
+    id
+  );
+
+
+  node.addEventListener(
+    'pointerdown',
+    () => focusWindow(id)
+  );
+
+
+  /* -----------------------------------------
+     Theme buttons
+     ----------------------------------------- */
+
+  node.addEventListener(
+    'click',
+    event => {
+
+      const button =
+        event.target.closest(
+          '[data-settings-theme]'
+        );
+
+
+      if (!button) return;
+
+
+      const theme =
+        button.dataset.settingsTheme;
+
+
+      if (
+        theme !== 'dark' &&
+        theme !== 'light'
+      ) {
+        return;
+      }
+
 
       state.theme =
         theme;
+
 
       localStorage.setItem(
         'tayassuk-os-theme-v2',
         theme
       );
+
+
+      document.documentElement.dataset.theme =
+        theme;
 
     }
   );
@@ -1017,1377 +2022,6 @@ function maximizeWindow(id) {
 
 
 /* =========================================================
-   WINDOW RENDER
-   ========================================================= */
-
-function renderWindow(id) {
-
-  const win =
-    state.windows.get(id);
-
-  if (!win?.body) return;
-
-
-  const renderers = {
-
-    about:
-      renderAbout,
-
-    journey:
-      renderJourney,
-
-    projects:
-      renderProjects,
-
-    learning:
-      renderLearning,
-
-    skills:
-      renderSkills,
-
-    education:
-      renderEducation,
-
-    achievements:
-      renderAchievements,
-
-    contact:
-      renderContact,
-
-    founder:
-      renderFounder,
-
-    browser:
-      renderBrowser,
-
-    whiteboard:
-      renderWhiteboard,
-
-    control:
-      renderControlCenter
-
-  };
-
-
-  const renderer =
-    renderers[id];
-
-
-  if (renderer) {
-
-    renderer(
-      win.body
-    );
-
-  } else {
-
-    win.body.innerHTML = `
-      <div class="empty-state">
-        <h2>
-          ${esc(id)}
-        </h2>
-
-        <p>
-          This application is not available yet.
-        </p>
-      </div>
-    `;
-
-  }
-
-}
-
-
-/* =========================================================
-   ABOUT
-   ========================================================= */
-
-function renderAbout(body) {
-
-  const identity =
-    portfolio.owner?.identity ||
-    {};
-
-
-  body.innerHTML = `
-
-    <div class="window-page">
-
-      <div class="window-page-heading">
-
-        <span class="eyebrow">
-          About Me
-        </span>
-
-        <h1>
-          ${esc(
-            identity.fullName ||
-            'Tayassuk Imam'
-          )}
-        </h1>
-
-        <p>
-          ${esc(
-            identity.headline ||
-            'Software Engineering Student Building the Future, One Project at a Time'
-          )}
-        </p>
-
-      </div>
-
-
-      <div class="window-grid">
-
-        <section class="window-card">
-
-          <h3>
-            Who I Am
-          </h3>
-
-          <p>
-            ${esc(
-              portfolio.owner?.about?.summary ||
-              'I am a Software Engineering student focused on learning, building, and growing through real projects.'
-            )}
-          </p>
-
-        </section>
-
-
-        <section class="window-card">
-
-          <h3>
-            Location
-          </h3>
-
-          <p>
-            ${esc(
-              identity.location ||
-              'Dhaka, Bangladesh'
-            )}
-          </p>
-
-        </section>
-
-
-        <section class="window-card">
-
-          <h3>
-            Current Focus
-          </h3>
-
-          <p>
-            ${esc(
-              portfolio.owner?.about?.focus ||
-              'Software engineering, web development, databases, and problem solving.'
-            )}
-          </p>
-
-        </section>
-
-      </div>
-
-    </div>
-
-  `;
-
-}
-
-
-/* =========================================================
-   JOURNEY
-   ========================================================= */
-
-function renderJourney(body) {
-
-  const items =
-    portfolio.journey ||
-    [];
-
-
-  body.innerHTML = `
-
-    <div class="window-page">
-
-      <div class="window-page-heading">
-
-        <span class="eyebrow">
-          Journey
-        </span>
-
-        <h1>
-          My Learning Journey
-        </h1>
-
-        <p>
-          From programming foundations to building real applications.
-        </p>
-
-      </div>
-
-
-      <div class="timeline">
-
-        ${
-          items
-            .map(
-              (item, index) => `
-
-                <article class="timeline-item">
-
-                  <div class="timeline-marker">
-                    ${index + 1}
-                  </div>
-
-                  <div class="timeline-content">
-
-                    <h3>
-                      ${esc(
-                        item.title
-                      )}
-                    </h3>
-
-                    <p>
-                      ${esc(
-                        item.detail
-                      )}
-                    </p>
-
-                  </div>
-
-                </article>
-
-              `
-            )
-            .join('')
-        }
-
-      </div>
-
-    </div>
-
-  `;
-
-}
-
-
-/* =========================================================
-   PROJECTS
-   ========================================================= */
-
-function renderProjects(body) {
-
-  const projects =
-    portfolio.projects ||
-    [];
-
-
-  body.innerHTML = `
-
-    <div class="window-page">
-
-      <div class="window-page-heading">
-
-        <span class="eyebrow">
-          Portfolio
-        </span>
-
-        <h1>
-          Projects
-        </h1>
-
-        <p>
-          Things I have built and continue to improve.
-        </p>
-
-      </div>
-
-
-      <div class="project-grid">
-
-        ${
-          projects.length
-            ? projects
-                .map(
-                  project => `
-
-                    <article class="project-card">
-
-                      <div class="project-card-top">
-
-                        <span class="project-status">
-                          ${esc(
-                            project.status ||
-                            'Project'
-                          )}
-                        </span>
-
-                      </div>
-
-
-                      <h3>
-                        ${esc(
-                          project.title ||
-                          project.name ||
-                          'Untitled Project'
-                        )}
-                      </h3>
-
-
-                      <p>
-                        ${esc(
-                          project.description ||
-                          ''
-                        )}
-                      </p>
-
-
-                      ${
-                        project.technologies
-                          ? `
-                            <div class="project-tech">
-
-                              ${(
-                                Array.isArray(
-                                  project.technologies
-                                )
-                                  ? project.technologies
-                                  : String(
-                                      project.technologies
-                                    )
-                                      .split(',')
-                              )
-                                .map(
-                                  tech => `
-                                    <span>
-                                      ${esc(
-                                        String(
-                                          tech
-                                        ).trim()
-                                      )}
-                                    </span>
-                                  `
-                                )
-                                .join('')}
-
-                            </div>
-                          `
-                          : ''
-                      }
-
-
-                      ${
-                        project.url
-                          ? `
-                            <a
-                              href="${esc(
-                                safeUrl(
-                                  project.url
-                                )
-                              )}"
-                              target="_blank"
-                              rel="noreferrer noopener"
-                              class="project-link"
-                            >
-                              Open Project
-                            </a>
-                          `
-                          : ''
-                      }
-
-                    </article>
-
-                  `
-                )
-                .join('')
-            : `
-
-                <div class="empty-state">
-
-                  <h2>
-                    No Projects Yet
-                  </h2>
-
-                  <p>
-                    Projects will appear here when added.
-                  </p>
-
-                </div>
-
-              `
-        }
-
-      </div>
-
-    </div>
-
-  `;
-
-}
-
-
-/* =========================================================
-   LEARNING
-   ========================================================= */
-
-function renderLearning(body) {
-
-  const learning =
-    portfolio.owner?.learning ||
-    [];
-
-
-  body.innerHTML = `
-
-    <div class="window-page">
-
-      <div class="window-page-heading">
-
-        <span class="eyebrow">
-          Currently Learning
-        </span>
-
-        <h1>
-          Learning
-        </h1>
-
-        <p>
-          Skills and technologies I am currently working on.
-        </p>
-
-      </div>
-
-
-      <div class="learning-list">
-
-        ${
-          learning.length
-            ? learning
-                .map(
-                  item => {
-
-                    const progress =
-                      Math.max(
-                        0,
-                        Math.min(
-                          100,
-                          Number(
-                            item.progress
-                          ) || 0
-                        )
-                      );
-
-                    return `
-
-                      <article class="learning-item">
-
-                        <div class="learning-item-head">
-
-                          <strong>
-                            ${esc(
-                              item.title ||
-                              item.name ||
-                              'Learning'
-                            )}
-                          </strong>
-
-                          <span>
-                            ${progress}%
-                          </span>
-
-                        </div>
-
-
-                        <div class="progress-track">
-
-                          <div
-                            class="progress-fill"
-                            style="width:${progress}%"
-                          ></div>
-
-                        </div>
-
-
-                        ${
-                          item.detail
-                            ? `
-                              <p>
-                                ${esc(
-                                  item.detail
-                                )}
-                              </p>
-                            `
-                            : ''
-                        }
-
-                      </article>
-
-                    `;
-
-                  }
-                )
-                .join('')
-            : `
-
-                <div class="empty-state">
-
-                  <h2>
-                    Learning data unavailable
-                  </h2>
-
-                </div>
-
-              `
-        }
-
-      </div>
-
-    </div>
-
-  `;
-
-}
-
-
-/* =========================================================
-   SKILLS
-   ========================================================= */
-
-function renderSkills(body) {
-
-  const groups =
-    portfolio.skills ||
-    [];
-
-
-  body.innerHTML = `
-
-    <div class="window-page">
-
-      <div class="window-page-heading">
-
-        <span class="eyebrow">
-          Technical Toolkit
-        </span>
-
-        <h1>
-          Skills
-        </h1>
-
-        <p>
-          Technologies and tools I use while learning and building.
-        </p>
-
-      </div>
-
-
-      <div class="skill-groups">
-
-        ${
-          groups.length
-            ? groups
-                .map(
-                  group => `
-
-                    <section class="skill-group">
-
-                      <h3>
-                        ${esc(
-                          group.title ||
-                          group.name ||
-                          'Skills'
-                        )}
-                      </h3>
-
-
-                      <div class="skill-tags">
-
-                        ${
-                          (
-                            group.skills ||
-                            group.items ||
-                            []
-                          )
-                            .map(
-                              skill => `
-
-                                <span class="skill-tag">
-                                  ${esc(
-                                    typeof skill ===
-                                    'string'
-                                      ? skill
-                                      : skill.name ||
-                                        skill.title ||
-                                        ''
-                                  )}
-                                </span>
-
-                              `
-                            )
-                            .join('')
-                        }
-
-                      </div>
-
-                    </section>
-
-                  `
-                )
-                .join('')
-            : `
-
-                <div class="empty-state">
-
-                  <h2>
-                    No skills available
-                  </h2>
-
-                </div>
-
-              `
-        }
-
-      </div>
-
-    </div>
-
-  `;
-
-}
-
-
-/* =========================================================
-   EDUCATION
-   ========================================================= */
-
-function renderEducation(body) {
-
-  const education =
-    portfolio.education ||
-    [];
-
-
-  body.innerHTML = `
-
-    <div class="window-page">
-
-      <div class="window-page-heading">
-
-        <span class="eyebrow">
-          Academic Timeline
-        </span>
-
-        <h1>
-          Education
-        </h1>
-
-      </div>
-
-
-      <div class="education-list">
-
-        ${
-          education.length
-            ? education
-                .map(
-                  item => `
-
-                    <article class="education-card">
-
-                      <div>
-
-                        <span class="education-year">
-                          ${esc(
-                            item.year ||
-                            item.period ||
-                            ''
-                          )}
-                        </span>
-
-                      </div>
-
-
-                      <div>
-
-                        <h3>
-                          ${esc(
-                            item.degree ||
-                            item.title ||
-                            item.program ||
-                            ''
-                          )}
-                        </h3>
-
-                        <p>
-                          ${esc(
-                            item.institution ||
-                            item.school ||
-                            ''
-                          )}
-                        </p>
-
-                        ${
-                          item.detail
-                            ? `
-                              <p>
-                                ${esc(
-                                  item.detail
-                                )}
-                              </p>
-                            `
-                            : ''
-                        }
-
-                      </div>
-
-                    </article>
-
-                  `
-                )
-                .join('')
-            : `
-
-                <div class="empty-state">
-
-                  <h2>
-                    No education data
-                  </h2>
-
-                </div>
-
-              `
-        }
-
-      </div>
-
-    </div>
-
-  `;
-
-}
-
-
-/* =========================================================
-   ACHIEVEMENTS
-   ========================================================= */
-
-function renderAchievements(body) {
-
-  const achievements =
-    portfolio.achievements ||
-    [];
-
-
-  body.innerHTML = `
-
-    <div class="window-page">
-
-      <div class="window-page-heading">
-
-        <span class="eyebrow">
-          Milestones
-        </span>
-
-        <h1>
-          Achievements
-        </h1>
-
-        <p>
-          Activities, experiences, and milestones.
-        </p>
-
-      </div>
-
-
-      <div class="achievement-grid">
-
-        ${
-          achievements.length
-            ? achievements
-                .map(
-                  item => `
-
-                    <article class="achievement-card">
-
-                      <div class="achievement-icon">
-                        ✦
-                      </div>
-
-
-                      <div>
-
-                        <h3>
-                          ${esc(
-                            item.title ||
-                            item.name ||
-                            ''
-                          )}
-                        </h3>
-
-                        <p>
-                          ${esc(
-                            item.description ||
-                            item.detail ||
-                            ''
-                          )}
-                        </p>
-
-                      </div>
-
-                    </article>
-
-                  `
-                )
-                .join('')
-            : `
-
-                <div class="empty-state">
-
-                  <h2>
-                    No achievements yet
-                  </h2>
-
-                </div>
-
-              `
-        }
-
-      </div>
-
-    </div>
-
-  `;
-
-}
-
-
-/* =========================================================
-   CONTACT
-   ========================================================= */
-
-function renderContact(body) {
-
-  const contact =
-    portfolio.owner?.contact ||
-    {};
-
-
-  body.innerHTML = `
-
-    <div class="window-page">
-
-      <div class="window-page-heading">
-
-        <span class="eyebrow">
-          Get In Touch
-        </span>
-
-        <h1>
-          Contact
-        </h1>
-
-        <p>
-          Start a conversation or connect with me online.
-        </p>
-
-      </div>
-
-
-      <div class="contact-grid">
-
-        ${
-          contact.email
-            ? `
-
-              <a
-                class="contact-card"
-                href="mailto:${esc(
-                  contact.email
-                )}"
-              >
-
-                <span class="contact-card-label">
-                  Email
-                </span>
-
-                <strong>
-                  ${esc(
-                    contact.email
-                  )}
-                </strong>
-
-              </a>
-
-            `
-            : ''
-        }
-
-
-        ${
-          contact.github
-            ? `
-
-              <a
-                class="contact-card"
-                href="${esc(
-                  safeUrl(
-                    contact.github
-                  )
-                )}"
-                target="_blank"
-                rel="noreferrer noopener"
-              >
-
-                <span class="contact-card-label">
-                  GitHub
-                </span>
-
-                <strong>
-                  GitHub Profile
-                </strong>
-
-              </a>
-
-            `
-            : ''
-        }
-
-
-        ${
-          contact.linkedin
-            ? `
-
-              <a
-                class="contact-card"
-                href="${esc(
-                  safeUrl(
-                    contact.linkedin
-                  )
-                )}"
-                target="_blank"
-                rel="noreferrer noopener"
-              >
-
-                <span class="contact-card-label">
-                  LinkedIn
-                </span>
-
-                <strong>
-                  LinkedIn Profile
-                </strong>
-
-              </a>
-
-            `
-            : ''
-        }
-
-      </div>
-
-    </div>
-
-  `;
-
-}
-
-
-/* =========================================================
-   FOUNDER
-   ========================================================= */
-
-function renderFounder(body) {
-
-  const founder =
-    portfolio.owner?.founder ||
-    {};
-
-
-  body.innerHTML = `
-
-    <div class="window-page">
-
-      <div class="window-page-heading">
-
-        <span class="eyebrow">
-          Founder.txt
-        </span>
-
-        <h1>
-          Working Principles
-        </h1>
-
-      </div>
-
-
-      <div class="founder-text">
-
-        <p>
-          ${esc(
-            founder.summary ||
-            'Learn continuously. Build consistently. Improve every day.'
-          )}
-        </p>
-
-
-        ${
-          Array.isArray(
-            founder.principles
-          )
-            ? `
-
-              <ul>
-
-                ${
-                  founder.principles
-                    .map(
-                      item => `
-                        <li>
-                          ${esc(item)}
-                        </li>
-                      `
-                    )
-                    .join('')
-                }
-
-              </ul>
-
-            `
-            : ''
-        }
-
-      </div>
-
-    </div>
-
-  `;
-
-}
-
-
-/* =========================================================
-   BROWSER
-   ========================================================= */
-
-function renderBrowser(body) {
-
-  const links =
-    portfolio.owner?.links ||
-    [];
-
-
-  body.innerHTML = `
-
-    <div class="window-page">
-
-      <div class="window-page-heading">
-
-        <span class="eyebrow">
-          Approved Links
-        </span>
-
-        <h1>
-          Browser
-        </h1>
-
-        <p>
-          Useful external links.
-        </p>
-
-      </div>
-
-
-      <div class="browser-links">
-
-        ${
-          Array.isArray(links) &&
-          links.length
-            ? links
-                .map(
-                  link => `
-
-                    <a
-                      class="browser-link"
-                      href="${esc(
-                        safeUrl(
-                          link.url
-                        )
-                      )}"
-                      target="_blank"
-                      rel="noreferrer noopener"
-                    >
-
-                      <span>
-                        ${esc(
-                          link.title ||
-                          link.name ||
-                          link.url ||
-                          'Open Link'
-                        )}
-                      </span>
-
-                      <span>
-                        ↗
-                      </span>
-
-                    </a>
-
-                  `
-                )
-                .join('')
-            : `
-
-                <div class="empty-state">
-
-                  <h2>
-                    No approved links
-                  </h2>
-
-                </div>
-
-              `
-        }
-
-      </div>
-
-    </div>
-
-  `;
-
-}
-
-
-/* =========================================================
-   WHITEBOARD
-   ========================================================= */
-
-function renderWhiteboard(body) {
-
-  const key =
-    'tayassuk-os-whiteboard-v1';
-
-
-  const saved =
-    localStorage.getItem(key) ||
-    '';
-
-
-  body.innerHTML = `
-
-    <div class="window-page">
-
-      <div class="window-page-heading">
-
-        <span class="eyebrow">
-          Local Notes
-        </span>
-
-        <h1>
-          Whiteboard
-        </h1>
-
-        <p>
-          Leave a private note on this device.
-        </p>
-
-      </div>
-
-
-      <textarea
-        class="whiteboard-input"
-        placeholder="Write your note here..."
-      >${esc(saved)}</textarea>
-
-
-      <div class="whiteboard-actions">
-
-        <button
-          type="button"
-          class="primary-action"
-          data-whiteboard-save
-        >
-          Save Note
-        </button>
-
-        <button
-          type="button"
-          class="secondary-action"
-          data-whiteboard-clear
-        >
-          Clear
-        </button>
-
-      </div>
-
-    </div>
-
-  `;
-
-
-  const textarea =
-    body.querySelector(
-      '.whiteboard-input'
-    );
-
-
-  const saveButton =
-    body.querySelector(
-      '[data-whiteboard-save]'
-    );
-
-
-  const clearButton =
-    body.querySelector(
-      '[data-whiteboard-clear]'
-    );
-
-
-  saveButton?.addEventListener(
-    'click',
-    () => {
-
-      localStorage.setItem(
-        key,
-        textarea?.value ||
-        ''
-      );
-
-      showToast(
-        'Note saved locally.'
-      );
-
-    }
-  );
-
-
-  clearButton?.addEventListener(
-    'click',
-    () => {
-
-      if (textarea) {
-        textarea.value = '';
-      }
-
-      localStorage.removeItem(
-        key
-      );
-
-      showToast(
-        'Note cleared.'
-      );
-
-    }
-  );
-
-}
-
-
-/* =========================================================
-   CONTROL CENTER
-   ========================================================= */
-
-function renderControlCenter(body) {
-
-  body.innerHTML = `
-
-    <div class="window-page">
-
-      <div class="window-page-heading">
-
-        <span class="eyebrow">
-          Private Portfolio Management
-        </span>
-
-        <h1>
-          Control Center
-        </h1>
-
-        <p>
-          Manage portfolio content from one place.
-        </p>
-
-      </div>
-
-
-      <div class="control-center-grid">
-
-        <section class="control-card">
-
-          <div class="control-card-icon">
-            ✦
-          </div>
-
-          <div>
-
-            <h3>
-              Portfolio Status
-            </h3>
-
-            <p>
-              ${
-                state.adminSession
-                  ? 'Admin session active.'
-                  : 'Public visitor mode.'
-              }
-            </p>
-
-          </div>
-
-        </section>
-
-
-        <section class="control-card">
-
-          <div class="control-card-icon">
-            ◈
-          </div>
-
-          <div>
-
-            <h3>
-              Projects
-            </h3>
-
-            <p>
-              ${(
-                portfolio.projects ||
-                []
-              ).length}
-              project(s) available.
-            </p>
-
-          </div>
-
-        </section>
-
-
-        <section class="control-card">
-
-          <div class="control-card-icon">
-            ✓
-          </div>
-
-          <div>
-
-            <h3>
-              Cloud Storage
-            </h3>
-
-            <p>
-              Portfolio data is connected to Supabase.
-            </p>
-
-          </div>
-
-        </section>
-
-      </div>
-
-    </div>
-
-  `;
-
-}
-/* =========================================================
    WINDOW DRAG
    ========================================================= */
 
@@ -2397,6 +2031,7 @@ function wireDrag(node, id) {
     node.querySelector(
       '.window-chrome'
     );
+
 
   if (!chrome) return;
 
@@ -2428,7 +2063,9 @@ function wireDrag(node, id) {
           'button'
         )
       ) {
+
         return;
+
       }
 
 
@@ -2437,7 +2074,9 @@ function wireDrag(node, id) {
       if (
         state.maximizedWindows.has(id)
       ) {
+
         return;
+
       }
 
 
@@ -2447,6 +2086,7 @@ function wireDrag(node, id) {
 
       startX =
         event.clientX;
+
 
       startY =
         event.clientY;
@@ -2532,6 +2172,7 @@ function wireDrag(node, id) {
 
       node.style.left =
         `${nextLeft}px`;
+
 
       node.style.top =
         `${nextTop}px`;
@@ -2778,13 +2419,11 @@ function renderProjectDetail(project) {
 
 
         <p class="project-detail-description">
-
           ${esc(
             project.description ||
             project.desc ||
             'No description available.'
           )}
-
         </p>
 
 
@@ -2900,8 +2539,6 @@ function renderProjectDetail(project) {
   `;
 
 }
-
-
 /* =========================================================
    WINDOW RENDERER
    ========================================================= */
@@ -2919,7 +2556,6 @@ function renderWindow(id) {
     case 'projects':
 
       win.body.innerHTML = `
-
         <div class="window-page">
 
           <div class="window-page-heading">
@@ -2950,7 +2586,6 @@ function renderWindow(id) {
           </div>
 
         </div>
-
       `;
 
       break;
@@ -3039,7 +2674,6 @@ function renderWindow(id) {
     default:
 
       win.body.innerHTML = `
-
         <div class="window-page">
 
           <div class="window-page-heading">
@@ -3059,7 +2693,6 @@ function renderWindow(id) {
           </div>
 
         </div>
-
       `;
 
   }
@@ -3273,14 +2906,12 @@ function renderSkillsWindow() {
                                 : skill?.name;
 
                             return `
-
                               <span>
                                 ${esc(
                                   skillName ||
                                   'Skill'
                                 )}
                               </span>
-
                             `;
 
                           }
@@ -3391,7 +3022,7 @@ function renderEducationWindow() {
               <div class="empty-state">
 
                 <h2>
-                  No education data
+                  No education records yet
                 </h2>
 
               </div>
@@ -3406,6 +3037,8 @@ function renderEducationWindow() {
   `;
 
 }
+
+
 /* =========================================================
    JOURNEY WINDOW
    ========================================================= */
@@ -3547,12 +3180,10 @@ function renderAboutWindow() {
         <div class="about-profile-content">
 
           <span class="eyebrow">
-
             ${esc(
               identity.profession ||
               'Software Engineering Student'
             )}
-
           </span>
 
           <h2>
@@ -3958,13 +3589,11 @@ function renderFounderWindow() {
         <div class="terminal-body">
 
           <div class="terminal-line">
-
             <span class="terminal-prompt">
               $
             </span>
 
             cat founder.txt
-
           </div>
 
 
@@ -4344,8 +3973,6 @@ function wireWindowActions(body) {
   );
 
 }
-
-
 /* =========================================================
    CONTROL CENTER
    ========================================================= */
@@ -4371,268 +3998,271 @@ function renderControlCenter() {
         <span class="eyebrow">
           Private Workspace
         </span>
+
         <h1>
-  Control Center
-</h1>
+          Control Center
+        </h1>
 
-<p>
-  Manage your portfolio content and system preferences.
-</p>
-
-</div>
-
-
-<div class="admin-status">
-
-  <span class="status-dot"></span>
-
-  <span>
-    ${
-      state.adminSession
-        ? 'Admin authenticated'
-        : 'Visitor mode'
-    }
-  </span>
-
-</div>
-
-
-${
-  state.adminSession
-
-    ? `
-
-      <div class="control-grid">
-
-        <section class="control-card">
-
-          <div class="control-card-icon">
-            ◉
-          </div>
-
-          <div>
-
-            <h3>
-              Profile
-            </h3>
-
-            <p>
-              ${esc(
-                identity.fullName ||
-                'Tayassuk Imam'
-              )}
-            </p>
-
-            <small>
-              ${esc(
-                identity.profession ||
-                'Software Engineering Student'
-              )}
-            </small>
-
-          </div>
-
-        </section>
-
-
-        <section class="control-card">
-
-          <div class="control-card-icon">
-            ◇
-          </div>
-
-          <div>
-
-            <h3>
-              Projects
-            </h3>
-
-            <p>
-              ${
-                (
-                  portfolio.projects ||
-                  []
-                ).length
-              }
-              project(s)
-            </p>
-
-            <small>
-              Portfolio projects
-            </small>
-
-          </div>
-
-        </section>
-
-
-        <section class="control-card">
-
-          <div class="control-card-icon">
-            ◎
-          </div>
-
-          <div>
-
-            <h3>
-              Learning
-            </h3>
-
-            <p>
-              ${
-                (
-                  owner.learning ||
-                  []
-                ).length
-              }
-              learning item(s)
-            </p>
-
-            <small>
-              Current focus
-            </small>
-
-          </div>
-
-        </section>
-
-
-        <section class="control-card">
-
-          <div class="control-card-icon">
-            @
-          </div>
-
-          <div>
-
-            <h3>
-              Contact
-            </h3>
-
-            <p>
-              ${esc(
-                contact.email ||
-                'No email configured'
-              )}
-            </p>
-
-            <small>
-              Public contact
-            </small>
-
-          </div>
-
-        </section>
+        <p>
+          Manage your portfolio content and system preferences.
+        </p>
 
       </div>
 
 
-      <div class="control-actions">
+      <div class="admin-status">
 
-        <button
-          type="button"
-          class="secondary-action"
-          data-action="admin-refresh"
-        >
-          ↻ Refresh Data
-        </button>
+        <span class="status-dot"></span>
 
-
-        <button
-          type="button"
-          class="primary-action"
-          data-action="admin-logout"
-        >
-          Sign Out
-        </button>
+        <span>
+          ${
+            state.adminSession
+              ? 'Admin authenticated'
+              : 'Visitor mode'
+          }
+        </span>
 
       </div>
 
-    `
 
-    : `
+      ${
+        state.adminSession
 
-      <form
-        class="admin-login-form"
-        id="admin-login-form"
-      >
+          ? `
 
-        <div class="login-intro">
+            <div class="control-grid">
 
-          <div class="login-icon">
-            ◈
-          </div>
+              <section class="control-card">
 
-          <div>
+                <div class="control-card-icon">
+                  ◉
+                </div>
 
-            <h3>
-              Administrator Access
-            </h3>
+                <div>
 
-            <p>
-              Sign in to manage your portfolio.
-            </p>
+                  <h3>
+                    Profile
+                  </h3>
 
-          </div>
+                  <p>
+                    ${esc(
+                      identity.fullName ||
+                      'Tayassuk Imam'
+                    )}
+                  </p>
 
-        </div>
+                  <small>
+                    ${esc(
+                      identity.profession ||
+                      'Software Engineering Student'
+                    )}
+                  </small>
 
+                </div>
 
-        <label>
-
-          <span>
-            Email
-          </span>
-
-          <input
-            type="email"
-            name="email"
-            autocomplete="email"
-            placeholder="admin@example.com"
-            required
-          >
-
-        </label>
+              </section>
 
 
-        <label>
+              <section class="control-card">
 
-          <span>
-            Password
-          </span>
+                <div class="control-card-icon">
+                  ◇
+                </div>
 
-          <input
-            type="password"
-            name="password"
-            autocomplete="current-password"
-            placeholder="••••••••"
-            required
-          >
+                <div>
 
-        </label>
+                  <h3>
+                    Projects
+                  </h3>
+
+                  <p>
+                    ${
+                      (
+                        portfolio.projects ||
+                        []
+                      ).length
+                    }
+                    project(s)
+                  </p>
+
+                  <small>
+                    Portfolio projects
+                  </small>
+
+                </div>
+
+              </section>
 
 
-        <button
-          type="submit"
-          class="primary-action"
-        >
-          Sign In
-        </button>
+              <section class="control-card">
+
+                <div class="control-card-icon">
+                  ◎
+                </div>
+
+                <div>
+
+                  <h3>
+                    Learning
+                  </h3>
+
+                  <p>
+                    ${
+                      (
+                        owner.learning ||
+                        []
+                      ).length
+                    }
+                    learning item(s)
+                  </p>
+
+                  <small>
+                    Current focus
+                  </small>
+
+                </div>
+
+              </section>
 
 
-        <p
-          class="form-status"
-          id="admin-login-status"
-        ></p>
+              <section class="control-card">
 
-      </form>
+                <div class="control-card-icon">
+                  @
+                </div>
 
-    `
+                <div>
+
+                  <h3>
+                    Contact
+                  </h3>
+
+                  <p>
+                    ${esc(
+                      contact.email ||
+                      'No email configured'
+                    )}
+                  </p>
+
+                  <small>
+                    Public contact
+                  </small>
+
+                </div>
+
+              </section>
+
+            </div>
+
+
+            <div class="control-actions">
+
+              <button
+                type="button"
+                class="secondary-action"
+                data-action="admin-refresh"
+              >
+                ↻ Refresh Data
+              </button>
+
+
+              <button
+                type="button"
+                class="primary-action"
+                data-action="admin-logout"
+              >
+                Sign Out
+              </button>
+
+            </div>
+
+          `
+
+          : `
+
+            <form
+              class="admin-login-form"
+              id="admin-login-form"
+            >
+
+              <div class="login-intro">
+
+                <div class="login-icon">
+                  ◈
+                </div>
+
+                <div>
+
+                  <h3>
+                    Administrator Access
+                  </h3>
+
+                  <p>
+                    Sign in to manage your portfolio.
+                  </p>
+
+                </div>
+
+              </div>
+
+
+              <label>
+
+                <span>
+                  Email
+                </span>
+
+                <input
+                  type="email"
+                  name="email"
+                  autocomplete="email"
+                  placeholder="admin@example.com"
+                  required
+                >
+
+              </label>
+
+
+              <label>
+
+                <span>
+                  Password
+                </span>
+
+                <input
+                  type="password"
+                  name="password"
+                  autocomplete="current-password"
+                  placeholder="••••••••"
+                  required
+                >
+
+              </label>
+
+
+              <button
+                type="submit"
+                class="primary-action"
+              >
+                Sign In
+              </button>
+
+
+              <p
+                class="form-status"
+                id="admin-login-status"
+              ></p>
+
+            </form>
+
+          `
+      }
+
+    </div>
+
+  `;
+
 }
-
-</div>
-
-`;
 
 
 /* =========================================================
@@ -4731,7 +4361,6 @@ function wireControlCenter(body) {
         wireControlCenter(
           body
         );
-
 
       } catch (error) {
 
@@ -4943,15 +4572,12 @@ function renderSearchResults(query) {
           >
 
             <span class="search-result-icon">
-
               ${
                 result.type === 'project'
                   ? '◆'
                   : '◈'
               }
-
             </span>
-
 
             <span>
 
@@ -4969,7 +4595,6 @@ function renderSearchResults(query) {
 
             </span>
 
-
             <span>
               →
             </span>
@@ -4982,7 +4607,6 @@ function renderSearchResults(query) {
 
 
   return (
-
     output ||
 
     `
@@ -5004,7 +4628,6 @@ function renderSearchResults(query) {
       </div>
 
     `
-
   );
 
 }
@@ -5222,7 +4845,6 @@ function renderDashboard() {
 /* =========================================================
    DOCK
    ========================================================= */
-
 function renderDock() {
 
   const dock =
@@ -5230,9 +4852,7 @@ function renderDock() {
       '#dock'
     );
 
-
   if (!dock) return;
-
 
   const dockApps =
     [
@@ -5249,7 +4869,6 @@ function renderDock() {
       'control'
     ];
 
-
   dock.innerHTML =
     dockApps
       .map(
@@ -5261,9 +4880,7 @@ function renderDock() {
                 item.id === id
             );
 
-
           if (!app) return '';
-
 
           return `
 
@@ -5293,7 +4910,6 @@ function renderDock() {
       .join('');
 
 }
-
 
 /* =========================================================
    COMPANION
@@ -5382,7 +4998,610 @@ document.addEventListener(
       return;
 
     }
-    /* =========================================================
+
+
+    /* -----------------------------------------
+       Close active window
+       ----------------------------------------- */
+
+    const closeButton =
+      event.target.closest(
+        '[data-win-close]'
+      );
+
+
+    if (closeButton) {
+
+      const node =
+        closeButton.closest(
+          '.app-window'
+        );
+
+
+      if (node) {
+
+        closeWindow(
+          node.dataset.app
+        );
+
+      }
+
+      return;
+
+    }
+
+
+    /* -----------------------------------------
+       Search
+       ----------------------------------------- */
+
+    const searchButton =
+      event.target.closest(
+        '[data-action="search"]'
+      );
+
+
+    if (searchButton) {
+
+      openSearchWindow();
+
+      return;
+
+    }
+
+
+    /* -----------------------------------------
+       Theme
+       ----------------------------------------- */
+
+    const themeButton =
+      event.target.closest(
+        '[data-theme]'
+      );
+
+
+    if (themeButton) {
+
+      const theme =
+        themeButton.dataset.theme;
+
+
+      if (
+        theme === 'dark' ||
+        theme === 'light'
+      ) {
+
+        state.theme =
+          theme;
+
+
+        document.documentElement.dataset.theme =
+          theme;
+
+
+        localStorage.setItem(
+          'tayassuk-os-theme-v2',
+          theme
+        );
+
+      }
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   SEARCH WINDOW
+   ========================================================= */
+
+function openSearchWindow() {
+
+  const id =
+    'search';
+
+
+  if (
+    state.windows.has(id)
+  ) {
+
+    restoreWindow(id);
+
+    return;
+
+  }
+
+
+  const layer =
+    document.querySelector(
+      '#windows'
+    );
+
+
+  if (!layer) return;
+
+
+  const node =
+    document.createElement(
+      'section'
+    );
+
+
+  node.className =
+    'app-window search-window';
+
+
+  node.dataset.app =
+    id;
+
+
+  node.style.width =
+    `${Math.min(
+      680,
+      innerWidth - 40
+    )}px`;
+
+
+  node.style.height =
+    `${Math.min(
+      520,
+      innerHeight - 120
+    )}px`;
+
+
+  node.style.left =
+    `${Math.max(
+      20,
+      (innerWidth - 680) / 2
+    )}px`;
+
+
+  node.style.top =
+    `${Math.max(
+      72,
+      (innerHeight - 520) / 2
+    )}px`;
+
+
+  node.style.zIndex =
+    ++state.z;
+
+
+  node.innerHTML = `
+
+    <div class="window-chrome">
+
+      <div class="window-title-area">
+
+        <span class="window-title">
+          Search
+        </span>
+
+        <span class="window-state">
+          Tayassuk OS
+        </span>
+
+      </div>
+
+
+      <div class="window-controls">
+
+        <button
+          type="button"
+          class="window-control window-minimize"
+          data-window-action="minimize"
+          title="Minimize"
+        >
+          −
+        </button>
+
+
+        <button
+          type="button"
+          class="window-control window-maximize"
+          data-window-action="maximize"
+          title="Maximize"
+        >
+          □
+        </button>
+
+
+        <button
+          type="button"
+          class="window-control window-close"
+          data-window-action="close"
+          title="Close"
+        >
+          ×
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <div class="window-body">
+
+      <div class="search-page">
+
+        <div class="search-input-wrap">
+
+          <span>
+            ⌕
+          </span>
+
+          <input
+            type="search"
+            id="portfolio-search-input"
+            placeholder="Search apps and projects..."
+            autocomplete="off"
+          >
+
+        </div>
+
+
+        <div
+          class="search-results"
+          id="portfolio-search-results"
+        >
+
+          <div class="empty-state">
+
+            <div class="empty-icon">
+              ⌕
+            </div>
+
+            <p>
+              Start typing to search.
+            </p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  `;
+
+
+  layer.appendChild(
+    node
+  );
+
+
+  state.windows.set(
+    id,
+    {
+      node,
+      body:
+        node.querySelector(
+          '.window-body'
+        )
+    }
+  );
+
+
+  wireWindowControls(
+    node,
+    id
+  );
+
+
+  wireDrag(
+    node,
+    id
+  );
+
+
+  node.addEventListener(
+    'pointerdown',
+    () => focusWindow(id)
+  );
+
+
+  const input =
+    node.querySelector(
+      '#portfolio-search-input'
+    );
+
+
+  const results =
+    node.querySelector(
+      '#portfolio-search-results'
+    );
+
+
+  if (input && results) {
+
+    input.addEventListener(
+      'input',
+      () => {
+
+        results.innerHTML =
+          renderSearchResults(
+            input.value
+          );
+
+      }
+    );
+
+  }
+
+
+  focusWindow(id);
+
+
+  requestAnimationFrame(
+    () => input?.focus()
+  );
+
+}
+
+
+/* =========================================================
+   KEYBOARD SHORTCUTS
+   ========================================================= */
+
+document.addEventListener(
+  'keydown',
+  event => {
+
+    /* ESC → close focused window */
+
+    if (
+      event.key === 'Escape'
+    ) {
+
+      const openWindows =
+        Array.from(
+          state.windows.values()
+        )
+          .filter(
+            win =>
+              win?.node &&
+              !win.node.hidden
+          );
+
+
+      if (
+        openWindows.length
+      ) {
+
+        const active =
+          openWindows
+            .sort(
+              (a, b) =>
+                Number(
+                  b.node.style.zIndex
+                ) -
+                Number(
+                  a.node.style.zIndex
+                )
+            )[0];
+
+
+        if (active) {
+
+          closeWindow(
+            active.node.dataset.app
+          );
+
+        }
+
+      }
+
+    }
+
+
+    /* CTRL + K → Search */
+
+    if (
+      (event.ctrlKey ||
+        event.metaKey) &&
+      event.key.toLowerCase() === 'k'
+    ) {
+
+      event.preventDefault();
+
+      openSearchWindow();
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   WINDOW RESIZE
+   ========================================================= */
+
+window.addEventListener(
+  'resize',
+  () => {
+
+    state.windows.forEach(
+      (win, id) => {
+
+        if (!win?.node) return;
+
+
+        if (
+          state.maximizedWindows.has(id)
+        ) {
+
+          win.node.style.left =
+            '16px';
+
+          win.node.style.top =
+            '64px';
+
+          win.node.style.width =
+            'calc(100vw - 32px)';
+
+          win.node.style.height =
+            'calc(100vh - 82px)';
+
+          return;
+
+        }
+
+
+        const maxLeft =
+          Math.max(
+            12,
+            innerWidth -
+              win.node.offsetWidth -
+              12
+          );
+
+
+        const maxTop =
+          Math.max(
+            64,
+            innerHeight -
+              win.node.offsetHeight -
+              12
+          );
+
+
+        const currentLeft =
+          parseFloat(
+            win.node.style.left
+          ) || 12;
+
+
+        const currentTop =
+          parseFloat(
+            win.node.style.top
+          ) || 64;
+
+
+        win.node.style.left =
+          `${Math.min(
+            maxLeft,
+            Math.max(
+              12,
+              currentLeft
+            )
+          )}px`;
+
+
+        win.node.style.top =
+          `${Math.min(
+            maxTop,
+            Math.max(
+              64,
+              currentTop
+            )
+          )}px`;
+
+      }
+    );
+
+  }
+);
+
+
+/* =========================================================
+   INITIALIZE REMOTE DATA
+   ========================================================= */
+
+async function initRemoteData() {
+
+  try {
+
+    const session =
+      await getSession();
+
+
+    state.adminSession =
+      session?.session ||
+      session ||
+      null;
+
+  } catch (error) {
+
+    console.warn(
+      'Session initialization failed:',
+      error
+    );
+
+  }
+
+
+  try {
+
+    const remote =
+      await loadRemotePortfolio();
+
+
+    if (
+      remote &&
+      typeof remote === 'object'
+    ) {
+
+      portfolio = {
+
+        ...portfolio,
+
+        ...remote,
+
+        owner: {
+
+          ...portfolio.owner,
+
+          ...(remote.owner || {})
+
+        }
+
+      };
+
+    }
+
+  } catch (error) {
+
+    console.warn(
+      'Remote portfolio initialization failed:',
+      error
+    );
+
+  }
+
+
+  renderAll();
+
+}
+
+
+/* =========================================================
+   STARTUP
+   ========================================================= */
+
+function initialize() {
+
+  document.documentElement.dataset.theme =
+    state.theme;
+
+
+  renderAll();
+
+
+  initRemoteData()
+    .catch(
+      error =>
+        console.error(
+          'Portfolio initialization failed:',
+          error
+        )
+    );
+
+}
+
+
+/* =========================================================
    START
    ========================================================= */
 
@@ -5403,8 +5622,6 @@ if (
   initialize();
 
 }
-
-
 /* =====================================================
    FINAL SMALL FIX
    1. Remove duplicate Trash from bottom dock
@@ -5425,9 +5642,7 @@ if (
         '[data-dock] [data-app="trash"]'
       )
       .forEach(function (item) {
-
         item.style.display = 'none';
-
       });
 
 
@@ -5475,44 +5690,31 @@ if (
       .querySelectorAll('.app-window')
       .forEach(function (win) {
 
-        if (
-          win.dataset.safePositionFixed === 'yes'
-        ) {
+        if (win.dataset.safePositionFixed === 'yes') {
           return;
         }
 
+        const rect = win.getBoundingClientRect();
 
-        const rect =
-          win.getBoundingClientRect();
+        const width = Math.min(
+          rect.width || 900,
+          window.innerWidth - 40
+        );
 
+        const height = Math.min(
+          rect.height || 650,
+          window.innerHeight - 100
+        );
 
-        const width =
-          Math.min(
-            rect.width || 900,
-            window.innerWidth - 40
-          );
+        const left = Math.max(
+          20,
+          (window.innerWidth - width) / 2
+        );
 
-
-        const height =
-          Math.min(
-            rect.height || 650,
-            window.innerHeight - 100
-          );
-
-
-        const left =
-          Math.max(
-            20,
-            (window.innerWidth - width) / 2
-          );
-
-
-        const top =
-          Math.max(
-            70,
-            (window.innerHeight - height) / 2
-          );
-
+        const top = Math.max(
+          70,
+          (window.innerHeight - height) / 2
+        );
 
         win.style.setProperty(
           'position',
@@ -5520,13 +5722,11 @@ if (
           'important'
         );
 
-
         win.style.setProperty(
           'left',
           left + 'px',
           'important'
         );
-
 
         win.style.setProperty(
           'top',
@@ -5534,13 +5734,11 @@ if (
           'important'
         );
 
-
         win.style.setProperty(
           'width',
           width + 'px',
           'important'
         );
-
 
         win.style.setProperty(
           'height',
@@ -5548,13 +5746,11 @@ if (
           'important'
         );
 
-
         win.style.setProperty(
           'margin',
           '0',
           'important'
         );
-
 
         win.style.setProperty(
           'transform',
@@ -5562,54 +5758,33 @@ if (
           'important'
         );
 
-
-        win.dataset.safePositionFixed =
-          'yes';
-
+        win.dataset.safePositionFixed = 'yes';
       });
-
   }
 
 
   /* Run after page loads */
-
-  if (
-    document.readyState === 'loading'
-  ) {
-
+  if (document.readyState === 'loading') {
     document.addEventListener(
       'DOMContentLoaded',
       fixTayassukOS
     );
-
   } else {
-
     fixTayassukOS();
-
   }
 
 
   /* Detect newly opened windows */
+  const observer = new MutationObserver(function () {
+    fixTayassukOS();
+  });
 
-  const observer =
-    new MutationObserver(
-      function () {
-        fixTayassukOS();
-      }
-    );
-
-
-  observer.observe(
-    document.body,
-    {
-      childList: true,
-      subtree: true
-    }
-  );
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
 
 })();
-
-
 /* =====================================================
    FINAL DOCK PNG ICON FIX — ONLY
    ===================================================== */
@@ -5618,155 +5793,55 @@ if (
 
   function forceDockPNGIcons() {
 
-    const dock =
-      document.querySelector(
-        '#dock'
-      );
-
+    const dock = document.querySelector('#dock');
 
     if (!dock) return;
 
-
     const iconMap = {
-
-      projects:
-        './assets/icons/projects.png',
-
-      learning:
-        './assets/icons/learning.png',
-
-      skills:
-        './assets/icons/skills.png',
-
-      education:
-        './assets/icons/education.png',
-
-      journey:
-        './assets/icons/journey.png',
-
-      about:
-        './assets/icons/about.png',
-
-      achievements:
-        './assets/icons/achievements.png',
-
-      contact:
-        './assets/icons/contact.png',
-
-      whiteboard:
-        './assets/icons/whiteboard.png',
-
-      browser:
-        './assets/icons/browser.png',
-
-      control:
-        './assets/icons/control-center.png'
-
+      projects: './assets/icons/projects.png',
+      learning: './assets/icons/learning.png',
+      skills: './assets/icons/skills.png',
+      education: './assets/icons/education.png',
+      journey: './assets/icons/journey.png',
+      about: './assets/icons/about.png',
+      achievements: './assets/icons/achievements.png',
+      contact: './assets/icons/contact.png',
+      whiteboard: './assets/icons/whiteboard.png',
+      browser: './assets/icons/browser.png',
+      control: './assets/icons/control-center.png'
     };
 
+    dock.querySelectorAll('.dock-item').forEach(function (item) {
 
-    dock
-      .querySelectorAll(
-        '.dock-item'
-      )
-      .forEach(
-        function (item) {
+      const appId = item.getAttribute('data-app');
+      const logo = iconMap[appId];
 
-          const appId =
-            item.getAttribute(
-              'data-app'
-            );
+      if (!logo) return;
 
+      item.innerHTML = '';
 
-          const logo =
-            iconMap[appId];
+      const img = document.createElement('img');
 
+      img.src = logo;
+      img.alt = appId;
+      img.className = 'dock-logo';
 
-          if (!logo) return;
+      img.setAttribute('draggable', 'false');
 
+      img.style.setProperty('width', '42px', 'important');
+      img.style.setProperty('height', '42px', 'important');
+      img.style.setProperty('object-fit', 'contain', 'important');
+      img.style.setProperty('display', 'block', 'important');
+      img.style.setProperty('visibility', 'visible', 'important');
 
-          item.innerHTML =
-            '';
+      item.appendChild(img);
 
-
-          const img =
-            document.createElement(
-              'img'
-            );
-
-
-          img.src =
-            logo;
-
-
-          img.alt =
-            appId;
-
-
-          img.className =
-            'dock-logo';
-
-
-          img.setAttribute(
-            'draggable',
-            'false'
-          );
-
-
-          img.style.setProperty(
-            'width',
-            '42px',
-            'important'
-          );
-
-
-          img.style.setProperty(
-            'height',
-            '42px',
-            'important'
-          );
-
-
-          img.style.setProperty(
-            'object-fit',
-            'contain',
-            'important'
-          );
-
-
-          img.style.setProperty(
-            'display',
-            'block',
-            'important'
-          );
-
-
-          img.style.setProperty(
-            'visibility',
-            'visible',
-            'important'
-          );
-
-
-          item.appendChild(
-            img
-          );
-
-        }
-      );
+    });
 
   }
 
+  window.addEventListener('load', forceDockPNGIcons);
 
-  window.addEventListener(
-    'load',
-    forceDockPNGIcons
-  );
+  document.addEventListener('DOMContentLoaded', forceDockPNGIcons);
 
-
-  document.addEventListener(
-    'DOMContentLoaded',
-    forceDockPNGIcons
-  );
-
-})();
+ 
