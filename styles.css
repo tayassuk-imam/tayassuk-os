@@ -3382,3 +3382,948 @@ img {
     bottom: 82px !important;
   }
 }
+/* =========================================================
+   TAYASSUK OS — MODERN APP UI
+   ========================================================= */
+
+/* ---------- PAGE SCROLL ---------- */
+
+html {
+  min-height: 100%;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+.desktop {
+  min-height: 100vh !important;
+  height: auto !important;
+
+  overflow-x: hidden !important;
+  overflow-y: visible !important;
+
+  padding-bottom: 150px !important;
+}
+
+
+/* =========================================================
+   MODERN APP WINDOW
+   ========================================================= */
+
+.app-window {
+  width: min(920px, calc(100vw - 70px)) !important;
+  height: min(720px, calc(100vh - 120px)) !important;
+
+  background:
+    radial-gradient(
+      circle at 85% 0%,
+      rgba(42, 153, 255, .10),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 10% 100%,
+      rgba(125, 75, 255, .08),
+      transparent 30%
+    ),
+    rgba(5, 14, 28, .97) !important;
+
+  border: 1px solid rgba(108, 184, 255, .20) !important;
+
+  border-radius: 20px !important;
+
+  box-shadow:
+    0 35px 100px rgba(0,0,0,.55),
+    0 0 80px rgba(28,153,255,.07),
+    inset 0 1px rgba(255,255,255,.05) !important;
+
+  backdrop-filter: blur(24px);
+
+  overflow: hidden !important;
+}
+
+
+/* =========================================================
+   WINDOW TOP BAR
+   ========================================================= */
+
+.window-chrome {
+  height: 56px !important;
+
+  padding: 0 14px !important;
+
+  display: flex !important;
+  align-items: center !important;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,.045),
+      rgba(255,255,255,.015)
+    ) !important;
+
+  border-bottom: 1px solid rgba(255,255,255,.07) !important;
+
+  cursor: grab;
+
+  user-select: none;
+}
+
+.window-chrome:active {
+  cursor: grabbing;
+}
+
+
+/* ---------- APP DOT ---------- */
+
+.window-chrome::before {
+  content: "";
+
+  width: 9px;
+  height: 9px;
+
+  border-radius: 50%;
+
+  background: #43d7ff;
+
+  box-shadow:
+    0 0 12px rgba(67,215,255,.8);
+
+  margin-right: 3px;
+}
+
+
+/* ---------- TITLE ---------- */
+
+.window-title {
+  font-size: 13px !important;
+  font-weight: 800 !important;
+
+  color: #e8f5ff !important;
+
+  letter-spacing: .01em;
+}
+
+
+/* ---------- RIGHT STATUS ---------- */
+
+.window-state {
+  font-size: 9px !important;
+
+  color: #718ba5 !important;
+
+  letter-spacing: .08em;
+
+  text-transform: uppercase;
+}
+
+
+/* =========================================================
+   3 WINDOW CONTROLS
+   ========================================================= */
+
+.window-controls {
+  display: flex !important;
+
+  gap: 7px !important;
+
+  margin-left: 12px !important;
+}
+
+.window-controls button {
+  width: 28px !important;
+  height: 28px !important;
+
+  border-radius: 8px !important;
+
+  border: 1px solid rgba(255,255,255,.08) !important;
+
+  background: rgba(255,255,255,.045) !important;
+
+  color: #91a9bd !important;
+
+  display: grid !important;
+  place-items: center !important;
+
+  font-size: 12px !important;
+
+  cursor: pointer;
+
+  transition:
+    transform .18s ease,
+    background .18s ease,
+    color .18s ease,
+    box-shadow .18s ease;
+}
+
+.window-controls button:hover {
+  transform: translateY(-1px);
+
+  background: rgba(71,170,255,.14) !important;
+
+  color: #ffffff !important;
+
+  box-shadow:
+    0 5px 20px rgba(38,160,255,.12);
+}
+
+
+/* MINIMIZE */
+
+.window-controls button[data-window-action="minimize"]::before {
+  content: "−";
+  font-size: 16px;
+}
+
+
+/* MAXIMIZE */
+
+.window-controls button[data-window-action="maximize"]::before {
+  content: "□";
+  font-size: 12px;
+}
+
+
+/* CLOSE */
+
+.window-controls button[data-window-action="close"] {
+  color: #ff8790 !important;
+}
+
+.window-controls button[data-window-action="close"]::before {
+  content: "×";
+  font-size: 17px;
+}
+
+.window-controls button[data-window-action="close"]:hover {
+  background: rgba(255,70,90,.15) !important;
+
+  box-shadow:
+    0 5px 22px rgba(255,70,90,.12);
+}
+
+
+/* =========================================================
+   WINDOW BODY
+   ========================================================= */
+
+.window-body {
+  height: calc(100% - 56px) !important;
+
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+
+  padding: 28px !important;
+
+  scrollbar-width: thin;
+
+  scrollbar-color:
+    rgba(70,180,255,.35)
+    transparent;
+}
+
+.window-body::-webkit-scrollbar {
+  width: 7px;
+}
+
+.window-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.window-body::-webkit-scrollbar-thumb {
+  background: rgba(70,180,255,.28);
+  border-radius: 999px;
+}
+
+.window-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(70,180,255,.48);
+}
+
+
+/* =========================================================
+   MODERN APP HEADER
+   ========================================================= */
+
+.window-body > h2:first-child {
+  margin-top: 0 !important;
+
+  font-size: clamp(30px, 4vw, 46px) !important;
+
+  line-height: 1.05;
+
+  letter-spacing: -.04em;
+
+  background:
+    linear-gradient(
+      90deg,
+      #f4f8ff,
+      #72d9ff,
+      #8d7cff
+    );
+
+  -webkit-background-clip: text;
+  background-clip: text;
+
+  color: transparent !important;
+}
+
+.window-body > p:first-of-type {
+  max-width: 680px;
+
+  color: #8fa8be !important;
+
+  line-height: 1.7 !important;
+}
+
+
+/* =========================================================
+   MODERN SECTION TITLES
+   ========================================================= */
+
+.window-body h3 {
+  margin-top: 30px !important;
+
+  font-size: 12px !important;
+
+  color: #63d5ff !important;
+
+  text-transform: uppercase;
+
+  letter-spacing: .16em;
+}
+
+
+/* =========================================================
+   MODERN CARDS
+   ========================================================= */
+
+.panel-card,
+.skill-row,
+.timeline-item,
+.contact-card,
+.browser-card,
+.achievement-card,
+.education-card,
+.project-card {
+  position: relative;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(16,35,58,.78),
+      rgba(7,19,34,.74)
+    ) !important;
+
+  border: 1px solid rgba(112,182,236,.13) !important;
+
+  border-radius: 16px !important;
+
+  padding: 18px !important;
+
+  box-shadow:
+    0 15px 45px rgba(0,0,0,.20),
+    inset 0 1px rgba(255,255,255,.025);
+
+  transition:
+    transform .2s ease,
+    border-color .2s ease,
+    box-shadow .2s ease;
+}
+
+.panel-card:hover,
+.skill-row:hover,
+.timeline-item:hover,
+.contact-card:hover,
+.browser-card:hover,
+.achievement-card:hover,
+.education-card:hover,
+.project-card:hover {
+  transform: translateY(-3px);
+
+  border-color: rgba(74,196,255,.28) !important;
+
+  box-shadow:
+    0 20px 55px rgba(0,0,0,.28),
+    0 0 25px rgba(38,170,255,.06);
+}
+
+
+/* =========================================================
+   GRID
+   ========================================================= */
+
+.window-grid {
+  display: grid !important;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 14px !important;
+}
+
+
+/* =========================================================
+   CHIPS
+   ========================================================= */
+
+.chip {
+  display: inline-flex !important;
+
+  align-items: center;
+
+  padding: 7px 11px !important;
+
+  border-radius: 999px !important;
+
+  background:
+    rgba(51,155,235,.08) !important;
+
+  border:
+    1px solid rgba(83,185,245,.15) !important;
+
+  color: #a8dfff !important;
+
+  font-size: 10px !important;
+
+  transition: .18s ease;
+}
+
+.chip:hover {
+  background: rgba(56,173,255,.15) !important;
+
+  border-color:
+    rgba(78,193,255,.32) !important;
+
+  transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   EDUCATION
+   ========================================================= */
+
+.education-card {
+  display: grid;
+
+  grid-template-columns: 58px 1fr;
+
+  gap: 16px;
+
+  align-items: start;
+}
+
+.education-icon {
+  width: 58px;
+  height: 58px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 16px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #218cf2,
+      #754ff4
+    );
+
+  color: white;
+
+  font-size: 24px;
+
+  box-shadow:
+    0 10px 30px rgba(49,119,255,.25);
+}
+
+.education-card h3 {
+  margin: 0 !important;
+
+  color: #eef7ff !important;
+
+  font-size: 16px !important;
+
+  letter-spacing: 0 !important;
+
+  text-transform: none !important;
+}
+
+.education-card .muted {
+  display: block;
+
+  margin-top: 5px;
+
+  color: #7590a8 !important;
+
+  font-size: 11px;
+}
+
+.education-card p {
+  margin: 12px 0 0;
+
+  color: #c3d5e5 !important;
+
+  line-height: 1.6;
+}
+
+
+/* =========================================================
+   SKILLS
+   ========================================================= */
+
+.skill-row {
+  margin-bottom: 12px;
+}
+
+.skill-top {
+  display: flex;
+
+  justify-content: space-between;
+
+  gap: 12px;
+
+  margin-bottom: 9px;
+}
+
+.skill-top span {
+  color: #dceafa;
+
+  font-size: 12px;
+
+  font-weight: 700;
+}
+
+.skill-top strong {
+  color: #61d7ff;
+
+  font-size: 10px;
+}
+
+.skill-bar {
+  height: 7px !important;
+
+  background: #102338 !important;
+
+  border-radius: 999px !important;
+
+  overflow: hidden;
+}
+
+.skill-bar span {
+  height: 100%;
+
+  display: block;
+
+  border-radius: inherit;
+
+  background:
+    linear-gradient(
+      90deg,
+      #1db8ff,
+      #7968ff
+    ) !important;
+
+  box-shadow:
+    0 0 15px rgba(57,187,255,.3);
+}
+
+
+/* =========================================================
+   PROJECT CARDS
+   ========================================================= */
+
+.project-card {
+  overflow: hidden;
+
+  padding: 0 !important;
+}
+
+.project-card img,
+.project-window-image {
+  width: 100%;
+
+  height: 170px;
+
+  object-fit: cover;
+
+  display: block;
+
+  border-bottom:
+    1px solid rgba(255,255,255,.07);
+}
+
+.project-card > div {
+  padding: 17px;
+}
+
+
+/* =========================================================
+   TIMELINE
+   ========================================================= */
+
+.timeline {
+  position: relative;
+
+  display: grid;
+
+  gap: 14px;
+}
+
+.timeline::before {
+  content: "";
+
+  position: absolute;
+
+  left: 20px;
+
+  top: 10px;
+
+  bottom: 10px;
+
+  width: 1px;
+
+  background:
+    linear-gradient(
+      #32c7ff,
+      rgba(93,105,255,.08)
+    );
+}
+
+.timeline-item {
+  margin-left: 38px;
+
+  position: relative;
+}
+
+.timeline-item::before {
+  content: "";
+
+  position: absolute;
+
+  left: -27px;
+
+  top: 20px;
+
+  width: 9px;
+
+  height: 9px;
+
+  border-radius: 50%;
+
+  background: #38caff;
+
+  box-shadow:
+    0 0 15px rgba(56,202,255,.7);
+}
+
+
+/* =========================================================
+   CONTACT
+   ========================================================= */
+
+.contact-box {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 14px;
+}
+
+.contact-card {
+  display: flex;
+
+  align-items: center;
+
+  gap: 14px;
+}
+
+.contact-card-icon {
+  width: 44px;
+  height: 44px;
+
+  flex: 0 0 44px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 13px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #159eea,
+      #6656ec
+    );
+
+  color: white;
+}
+
+.contact-card strong {
+  display: block;
+
+  color: #eaf5ff;
+
+  font-size: 12px;
+}
+
+.contact-card span {
+  display: block;
+
+  margin-top: 4px;
+
+  color: #7690a8;
+
+  font-size: 10px;
+}
+
+
+/* =========================================================
+   BROWSER / LINKS
+   ========================================================= */
+
+.browser-card {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 15px;
+}
+
+.browser-card-left {
+  display: flex;
+
+  align-items: center;
+
+  gap: 13px;
+}
+
+.browser-card-icon {
+  width: 42px;
+  height: 42px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 12px;
+
+  background:
+    rgba(42,163,245,.10);
+
+  border:
+    1px solid rgba(72,188,255,.15);
+}
+
+.browser-card a {
+  color: #65d8ff;
+
+  text-decoration: none;
+
+  font-size: 11px;
+}
+
+.browser-card a:hover {
+  text-decoration: underline;
+}
+
+
+/* =========================================================
+   ACHIEVEMENTS
+   ========================================================= */
+
+.achievement-card {
+  display: flex;
+
+  gap: 14px;
+
+  align-items: flex-start;
+}
+
+.achievement-icon {
+  width: 45px;
+  height: 45px;
+
+  flex: 0 0 45px;
+
+  display: grid;
+  place-items: center;
+
+  border-radius: 13px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #f0b83f,
+      #8b4cf0
+    );
+
+  color: white;
+}
+
+
+/* =========================================================
+   WHITEBOARD
+   ========================================================= */
+
+.whiteboard,
+.sticky-board {
+  border-radius: 18px !important;
+
+  border:
+    1px solid rgba(112,182,236,.14) !important;
+
+  background:
+    radial-gradient(
+      circle at 20% 20%,
+      rgba(50,185,255,.06),
+      transparent 30%
+    ),
+    #071525 !important;
+}
+
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+.primary,
+.primary-link,
+.secondary,
+.window-actions button,
+.window-actions a {
+  border-radius: 10px !important;
+
+  padding: 10px 15px !important;
+
+  font-size: 10px !important;
+
+  font-weight: 700;
+
+  text-decoration: none;
+
+  transition: .18s ease;
+}
+
+.primary,
+.primary-link {
+  background:
+    linear-gradient(
+      135deg,
+      #159fe9,
+      #6259ed
+    ) !important;
+
+  color: white !important;
+
+  border: 0 !important;
+
+  box-shadow:
+    0 8px 25px rgba(46,143,255,.18);
+}
+
+.primary:hover,
+.primary-link:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 12px 32px rgba(46,143,255,.28);
+}
+
+.secondary,
+.window-actions button {
+  background:
+    rgba(255,255,255,.045) !important;
+
+  color: #bdd0e3 !important;
+
+  border:
+    1px solid rgba(255,255,255,.08) !important;
+}
+
+
+/* =========================================================
+   MINIMIZED WINDOW
+   ========================================================= */
+
+.app-window.window-minimized {
+  display: none !important;
+}
+
+
+/* =========================================================
+   MAXIMIZED WINDOW
+   ========================================================= */
+
+.app-window.window-maximized {
+  position: fixed !important;
+
+  left: 12px !important;
+  top: 12px !important;
+
+  width: calc(100vw - 24px) !important;
+  height: calc(100vh - 24px) !important;
+
+  max-width: none !important;
+  max-height: none !important;
+
+  border-radius: 18px !important;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 760px) {
+
+  .desktop {
+    padding:
+      75px 14px 120px !important;
+  }
+
+  .app-window {
+    left: 6px !important;
+    top: 55px !important;
+
+    width:
+      calc(100vw - 12px) !important;
+
+    height:
+      calc(100vh - 75px) !important;
+
+    border-radius: 15px !important;
+  }
+
+  .window-body {
+    padding: 18px !important;
+  }
+
+  .window-grid,
+  .contact-box {
+    grid-template-columns: 1fr !important;
+  }
+
+  .education-card {
+    grid-template-columns: 1fr;
+  }
+
+  .education-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .app-window.window-maximized {
+    left: 5px !important;
+    top: 5px !important;
+
+    width: calc(100vw - 10px) !important;
+    height: calc(100vh - 10px) !important;
+  }
+}
