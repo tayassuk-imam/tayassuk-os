@@ -5814,6 +5814,7 @@ if (
     dock.querySelectorAll('.dock-item').forEach(function (item) {
 
       const appId = item.getAttribute('data-app');
+
       const logo = iconMap[appId];
 
       if (!logo) return;
@@ -5828,11 +5829,35 @@ if (
 
       img.setAttribute('draggable', 'false');
 
-      img.style.setProperty('width', '42px', 'important');
-      img.style.setProperty('height', '42px', 'important');
-      img.style.setProperty('object-fit', 'contain', 'important');
-      img.style.setProperty('display', 'block', 'important');
-      img.style.setProperty('visibility', 'visible', 'important');
+      img.style.setProperty(
+        'width',
+        '42px',
+        'important'
+      );
+
+      img.style.setProperty(
+        'height',
+        '42px',
+        'important'
+      );
+
+      img.style.setProperty(
+        'object-fit',
+        'contain',
+        'important'
+      );
+
+      img.style.setProperty(
+        'display',
+        'block',
+        'important'
+      );
+
+      img.style.setProperty(
+        'visibility',
+        'visible',
+        'important'
+      );
 
       item.appendChild(img);
 
@@ -5840,8 +5865,37 @@ if (
 
   }
 
-  window.addEventListener('load', forceDockPNGIcons);
 
-  document.addEventListener('DOMContentLoaded', forceDockPNGIcons);
+  /* Run after everything is rendered */
+  window.addEventListener(
+    'load',
+    forceDockPNGIcons
+  );
 
- 
+
+  /* Run after DOM is ready */
+  document.addEventListener(
+    'DOMContentLoaded',
+    forceDockPNGIcons
+  );
+
+
+  /* Protect against old dock icon code */
+  const observer = new MutationObserver(
+    function () {
+      forceDockPNGIcons();
+    }
+  );
+
+  const dock = document.querySelector('#dock');
+
+  if (dock) {
+
+    observer.observe(dock, {
+      childList: true,
+      subtree: true
+    });
+
+  }
+
+})();
