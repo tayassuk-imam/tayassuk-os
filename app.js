@@ -6350,23 +6350,4 @@ if (
     forceDockPNGIcons
   );
 
-
-  /* Protect against old dock icon code */
-  const observer = new MutationObserver(
-    function () {
-      forceDockPNGIcons();
-    }
-  );
-
-  const dock = document.querySelector('#dock');
-
-  if (dock) {
-
-    observer.observe(dock, {
-      childList: true,
-      subtree: true
-    });
-
-  }
-
 })();
