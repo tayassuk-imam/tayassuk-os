@@ -3298,7 +3298,6 @@ button[data-window-action="close"]:hover {
     ) !important;
 }
 
-
 /* =========================================================
    COMPANION
    ========================================================= */
@@ -3306,74 +3305,123 @@ button[data-window-action="close"]:hover {
 .companion {
   position: fixed !important;
 
-  right: 24px !important;
+  right: 24px;
+  bottom: 100px;
 
-  bottom:
-    var(--companion-space) !important;
+  width: 78px;
+  height: 78px;
 
-  width: 116px;
-
-  z-index: 940;
+  z-index: 9999;
 
   pointer-events: auto;
+
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+.companion:active {
+  cursor: grabbing;
 }
 
 .companion-card {
-  padding:
-    12px;
+  position: relative;
 
-  border:
-    1px solid rgba(116, 187, 232, 0.19);
+  width: 78px;
+  height: 78px;
 
-  border-radius: 13px;
+  padding: 0;
 
-  background:
-    linear-gradient(
-      145deg,
-      rgba(7, 24, 42, 0.94),
-      rgba(4, 15, 29, 0.90)
-    );
+  border: none;
+  border-radius: 50%;
 
-  box-shadow:
-    0 18px 45px rgba(0, 0, 0, 0.42);
+  background: transparent;
 
-  backdrop-filter: blur(16px);
+  box-shadow: none;
+
+  backdrop-filter: none;
 }
 
 .companion-card p {
   margin: 0;
-
-  color: #edf6ff;
-
-  font-size: 10px;
-
-  font-weight: 800;
-
-  line-height: 1.3;
 }
 
-.companion-image {
+.companion-avatar {
   width: 78px;
   height: 78px;
 
-  display: block;
+  overflow: hidden;
 
-  margin:
-    10px
-    auto
-    -5px;
+  border-radius: 50%;
 
-  object-fit: contain;
+  border: 3px solid rgba(255, 255, 255, 0.9);
 
-  object-position: center bottom;
+  background: rgba(8, 20, 38, 0.9);
 
-  filter:
-    drop-shadow(
-      0 12px 18px rgba(0, 0, 0, 0.46)
-    );
+  box-shadow:
+    0 6px 25px rgba(0, 0, 0, 0.45),
+    0 0 20px rgba(42, 196, 255, 0.45);
 }
 
+.companion-avatar img {
+  width: 100%;
+  height: 100%;
 
+  display: block;
+
+  object-fit: cover;
+  object-position: center;
+
+  filter: none;
+}
+
+.companion-copy {
+  position: absolute;
+
+  right: 70px;
+  bottom: 0;
+
+  width: 150px;
+
+  padding: 10px 14px;
+
+  color: #edf6ff;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  line-height: 1.3;
+
+  background: rgba(8, 20, 38, 0.94);
+
+  border: 1px solid rgba(80, 190, 255, 0.35);
+
+  border-radius: 18px;
+
+  box-shadow:
+    0 8px 25px rgba(0, 0, 0, 0.35);
+
+  backdrop-filter: blur(12px);
+}
+
+.companion-copy::after {
+  content: "";
+
+  position: absolute;
+
+  right: -7px;
+  bottom: 15px;
+
+  width: 14px;
+  height: 14px;
+
+  background: rgba(8, 20, 38, 0.94);
+
+  border-right: 1px solid rgba(80, 190, 255, 0.35);
+  border-top: 1px solid rgba(80, 190, 255, 0.35);
+
+  transform: rotate(45deg);
+}
 /* =========================================================
    DOCK + COMPANION SAFE POSITION
    ========================================================= */
