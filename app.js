@@ -85,16 +85,49 @@ const state = {
 
   windows: new Map(),
 
-  adminSession: null
+  adminSession: null,
+
+  /* Window state */
+  minimizedWindows: new Set(),
+
+  maximizedWindows: new Set(),
+
+  /* Store previous window size before maximize */
+  windowRestoreState: new Map()
 
 };
 
 
 /* =========================================================
    APPS
+   =========================================================
+   
+   EXACT 14 APPS
+   1. Journey
+   2. Projects
+   3. Learning
+   4. Control Center
+   5. Contact
+   6. Founder.txt
+   7. Skills
+   8. Trash
+   9. Achievements
+   10. About
+   11. Education
+   12. Settings
+   13. Browser
+   14. Whiteboard
+   
    ========================================================= */
 
 const apps = [
+
+  {
+    id: 'journey',
+    name: 'Journey',
+    desc: 'Software engineering growth',
+    logo: './assets/icons/journey.png'
+  },
 
   {
     id: 'projects',
@@ -111,45 +144,10 @@ const apps = [
   },
 
   {
-    id: 'skills',
-    name: 'Skills',
-    desc: 'Technical toolkit',
-    logo: './assets/icons/skills.png'
-  },
-
-  {
-    id: 'education',
-    name: 'Education',
-    desc: 'Academic timeline',
-    logo: './assets/icons/education.png'
-  },
-
-  {
-    id: 'journey',
-    name: 'Journey',
-    desc: 'Software engineering growth',
-    logo: './assets/icons/journey.png'
-  },
-
-  {
-    id: 'about',
-    name: 'About',
-    desc: 'Who I am & what I value',
-    logo: './assets/icons/about.png'
-  },
-
-  {
-    id: 'achievements',
-    name: 'Achievements',
-    desc: 'Activities & milestones',
-    logo: './assets/icons/achievements.png'
-  },
-
-  {
-    id: 'resume',
-    name: 'Resume',
-    desc: 'Official CV',
-    logo: './assets/icons/resume.png'
+    id: 'control',
+    name: 'Control Center',
+    desc: 'Private portfolio management',
+    logo: './assets/icons/control-center.png'
   },
 
   {
@@ -160,17 +158,52 @@ const apps = [
   },
 
   {
-    id: 'whiteboard',
-    name: 'Whiteboard',
-    desc: 'Leave a local note',
-    logo: './assets/icons/whiteboard.png'
-  },
-
-  {
     id: 'founder',
     name: 'Founder.txt',
     desc: 'My working principles',
     logo: './assets/icons/founder.png'
+  },
+
+  {
+    id: 'skills',
+    name: 'Skills',
+    desc: 'Technical toolkit',
+    logo: './assets/icons/skills.png'
+  },
+
+  {
+    id: 'trash',
+    name: 'Trash',
+    desc: 'Deleted portfolio items',
+    logo: './assets/icons/trash.png'
+  },
+
+  {
+    id: 'achievements',
+    name: 'Achievements',
+    desc: 'Activities & milestones',
+    logo: './assets/icons/achievements.png'
+  },
+
+  {
+    id: 'about',
+    name: 'About',
+    desc: 'Who I am & what I value',
+    logo: './assets/icons/about.png'
+  },
+
+  {
+    id: 'education',
+    name: 'Education',
+    desc: 'Academic timeline',
+    logo: './assets/icons/education.png'
+  },
+
+  {
+    id: 'settings',
+    name: 'Settings',
+    desc: 'Tayassuk OS preferences',
+    logo: './assets/icons/settings.png'
   },
 
   {
@@ -181,10 +214,10 @@ const apps = [
   },
 
   {
-    id: 'control',
-    name: 'Control Center',
-    desc: 'Private portfolio management',
-    logo: './assets/icons/control-center.png'
+    id: 'whiteboard',
+    name: 'Whiteboard',
+    desc: 'Leave a local note',
+    logo: './assets/icons/whiteboard.png'
   }
 
 ];
@@ -210,7 +243,8 @@ const esc = value =>
 
 const safeUrl = value => {
 
-  const url = String(value ?? '').trim();
+  const url =
+    String(value ?? '').trim();
 
   if (!url) return '#';
 
@@ -237,16 +271,20 @@ function renderAppGrid() {
     document.getElementById('app-grid');
 
   if (!el) {
+
     console.warn(
       'App grid #app-grid not found'
     );
+
     return;
   }
+
 
   el.innerHTML =
     apps
       .map(
         app => `
+
           <button
             type="button"
             class="launcher-app"
@@ -257,21 +295,26 @@ function renderAppGrid() {
             )}"
           >
 
-            <img
-              class="app-logo"
-              src="${esc(app.logo)}"
-              alt="${esc(app.name)}"
-              width="56"
-              height="56"
-              loading="lazy"
-              draggable="false"
-            >
+            <span class="launcher-app-icon">
 
-            <span>
+              <img
+                class="app-logo"
+                src="${esc(app.logo)}"
+                alt="${esc(app.name)}"
+                width="56"
+                height="56"
+                loading="lazy"
+                draggable="false"
+              >
+
+            </span>
+
+            <span class="launcher-app-name">
               ${esc(app.name)}
             </span>
 
           </button>
+
         `
       )
       .join('');
@@ -795,6 +838,216 @@ function focusWindow(id) {
 
 
 /* =========================================================
+   RESTORE MINIMIZED WINDOW
+   ========================================================= */
+
+function restoreWindow(id) {
+
+  const win =
+    state.windows.get(id);
+
+  if (!win?.node) return;
+
+  state.minimizedWindows.delete(id);
+
+  win.node.hidden = false;
+
+  win.node.classList.remove(
+    'window-minimized'
+  );
+
+  focusWindow(id);
+
+}
+
+
+/* =========================================================
+   MINIMIZE WINDOW
+   ========================================================= */
+
+function minimizeWindow(id) {
+
+  const win =
+    state.windows.get(id);
+
+  if (!win?.node) return;
+
+  state.minimizedWindows.add(id);
+
+  win.node.classList.add(
+    'window-minimized'
+  );
+
+  win.node.hidden = true;
+
+}
+
+
+/* =========================================================
+   MAXIMIZE WINDOW
+   ========================================================= */
+
+function maximizeWindow(id) {
+
+  const win =
+    state.windows.get(id);
+
+  if (!win?.node) return;
+
+
+  /* -----------------------------------------
+     If already maximized → restore
+     ----------------------------------------- */
+
+  if (
+    state.maximizedWindows.has(id)
+  ) {
+
+    restoreWindowSize(id);
+
+    return;
+  }
+
+
+  /* -----------------------------------------
+     Save current dimensions
+     ----------------------------------------- */
+
+  state.windowRestoreState.set(
+    id,
+    {
+      left:
+        win.node.style.left,
+
+      top:
+        win.node.style.top,
+
+      width:
+        win.node.style.width,
+
+      height:
+        win.node.style.height
+    }
+  );
+
+
+  state.maximizedWindows.add(id);
+
+
+  win.node.classList.add(
+    'window-maximized'
+  );
+
+
+  win.node.style.left =
+    '16px';
+
+  win.node.style.top =
+    '64px';
+
+  win.node.style.width =
+    'calc(100vw - 32px)';
+
+  win.node.style.height =
+    'calc(100vh - 82px)';
+
+
+  const button =
+    win.node.querySelector(
+      '[data-window-action="maximize"]'
+    );
+
+
+  if (button) {
+
+    button.setAttribute(
+      'aria-label',
+      'Restore window'
+    );
+
+    button.title =
+      'Restore';
+
+    button.textContent =
+      '❐';
+
+  }
+
+
+  focusWindow(id);
+
+}
+
+
+/* =========================================================
+   RESTORE WINDOW SIZE
+   ========================================================= */
+
+function restoreWindowSize(id) {
+
+  const win =
+    state.windows.get(id);
+
+  if (!win?.node) return;
+
+
+  const previous =
+    state.windowRestoreState.get(id);
+
+
+  state.maximizedWindows.delete(id);
+
+
+  win.node.classList.remove(
+    'window-maximized'
+  );
+
+
+  if (previous) {
+
+    win.node.style.left =
+      previous.left;
+
+    win.node.style.top =
+      previous.top;
+
+    win.node.style.width =
+      previous.width;
+
+    win.node.style.height =
+      previous.height;
+
+  }
+
+
+  const button =
+    win.node.querySelector(
+      '[data-window-action="maximize"]'
+    );
+
+
+  if (button) {
+
+    button.setAttribute(
+      'aria-label',
+      'Maximize window'
+    );
+
+    button.title =
+      'Maximize';
+
+    button.textContent =
+      '□';
+
+  }
+
+
+  focusWindow(id);
+
+}
+
+
+/* =========================================================
    CLOSE WINDOW
    ========================================================= */
 
@@ -805,9 +1058,87 @@ function closeWindow(id) {
 
   if (!win) return;
 
+
   win.node.remove();
 
+
   state.windows.delete(id);
+
+  state.minimizedWindows.delete(id);
+
+  state.maximizedWindows.delete(id);
+
+  state.windowRestoreState.delete(id);
+
+}
+
+
+/* =========================================================
+   WINDOW CONTROLS
+   ========================================================= */
+
+function wireWindowControls(node, id) {
+
+  if (!node) return;
+
+
+  const controls =
+    node.querySelector(
+      '.window-controls'
+    );
+
+
+  if (!controls) return;
+
+
+  controls.addEventListener(
+    'click',
+    event => {
+
+      const button =
+        event.target.closest(
+          '[data-window-action]'
+        );
+
+
+      if (!button) return;
+
+
+      event.preventDefault();
+
+      event.stopPropagation();
+
+
+      const action =
+        button.dataset.windowAction;
+
+
+      if (action === 'minimize') {
+
+        minimizeWindow(id);
+
+        return;
+
+      }
+
+
+      if (action === 'maximize') {
+
+        maximizeWindow(id);
+
+        return;
+
+      }
+
+
+      if (action === 'close') {
+
+        closeWindow(id);
+
+      }
+
+    }
+  );
 
 }
 
@@ -820,13 +1151,31 @@ function openWindow(id) {
 
   if (!id) return;
 
-  /*
-   * If already open, simply bring it
-   * to the front.
-   */
-  if (state.windows.has(id)) {
 
-    focusWindow(id);
+  /* -----------------------------------------
+     Already open
+     ----------------------------------------- */
+
+  if (
+    state.windows.has(id)
+  ) {
+
+    const win =
+      state.windows.get(id);
+
+
+    if (
+      state.minimizedWindows.has(id)
+    ) {
+
+      restoreWindow(id);
+
+    } else {
+
+      focusWindow(id);
+
+    }
+
 
     return;
 
@@ -834,7 +1183,9 @@ function openWindow(id) {
 
 
   const layer =
-    document.querySelector('#windows');
+    document.querySelector(
+      '#windows'
+    );
 
 
   if (!layer) {
@@ -855,12 +1206,26 @@ function openWindow(id) {
     );
 
 
-  /*
-   * Trash is handled separately.
-   */
+  /* -----------------------------------------
+     Trash
+     ----------------------------------------- */
+
   if (id === 'trash') {
 
     openTrashWindow();
+
+    return;
+
+  }
+
+
+  /* -----------------------------------------
+     Settings
+     ----------------------------------------- */
+
+  if (id === 'settings') {
+
+    openSettingsWindow();
 
     return;
 
@@ -872,7 +1237,9 @@ function openWindow(id) {
 
 
   const node =
-    document.createElement('section');
+    document.createElement(
+      'section'
+    );
 
 
   node.className =
@@ -907,20 +1274,52 @@ function openWindow(id) {
 
     <div class="window-chrome">
 
-      <span class="window-title">
-        ${esc(app?.name || id)}
-      </span>
+      <div class="window-title-area">
 
-      <span class="window-state">
-        Tayassuk OS
-      </span>
+        <span class="window-title">
+          ${esc(
+            app?.name ||
+            id
+          )}
+        </span>
+
+        <span class="window-state">
+          Tayassuk OS
+        </span>
+
+      </div>
+
 
       <div class="window-controls">
 
         <button
           type="button"
-          data-win-close
+          class="window-control window-minimize"
+          data-window-action="minimize"
+          aria-label="Minimize window"
+          title="Minimize"
+        >
+          −
+        </button>
+
+
+        <button
+          type="button"
+          class="window-control window-maximize"
+          data-window-action="maximize"
+          aria-label="Maximize window"
+          title="Maximize"
+        >
+          □
+        </button>
+
+
+        <button
+          type="button"
+          class="window-control window-close"
+          data-window-action="close"
           aria-label="Close window"
+          title="Close"
         >
           ×
         </button>
@@ -928,6 +1327,7 @@ function openWindow(id) {
       </div>
 
     </div>
+
 
     <div class="window-body"></div>
 
@@ -958,9 +1358,21 @@ function openWindow(id) {
   renderWindow(id);
 
 
+  wireWindowControls(
+    node,
+    id
+  );
+
+
   wireDrag(
     node,
     id
+  );
+
+
+  node.addEventListener(
+    'pointerdown',
+    () => focusWindow(id)
   );
 
 
@@ -979,9 +1391,26 @@ function openTrashWindow() {
     'trash';
 
 
-  if (state.windows.has(id)) {
+  if (
+    state.windows.has(id)
+  ) {
 
-    focusWindow(id);
+    const win =
+      state.windows.get(id);
+
+
+    if (
+      state.minimizedWindows.has(id)
+    ) {
+
+      restoreWindow(id);
+
+    } else {
+
+      focusWindow(id);
+
+    }
+
 
     return;
 
@@ -989,7 +1418,9 @@ function openTrashWindow() {
 
 
   const layer =
-    document.querySelector('#windows');
+    document.querySelector(
+      '#windows'
+    );
 
 
   if (!layer) return;
@@ -1000,7 +1431,9 @@ function openTrashWindow() {
 
 
   const node =
-    document.createElement('section');
+    document.createElement(
+      'section'
+    );
 
 
   node.className =
@@ -1041,20 +1474,49 @@ function openTrashWindow() {
 
     <div class="window-chrome">
 
-      <span class="window-title">
-        Trash
-      </span>
+      <div class="window-title-area">
 
-      <span class="window-state">
-        Tayassuk OS
-      </span>
+        <span class="window-title">
+          Trash
+        </span>
+
+        <span class="window-state">
+          Tayassuk OS
+        </span>
+
+      </div>
+
 
       <div class="window-controls">
 
         <button
           type="button"
-          data-win-close
+          class="window-control window-minimize"
+          data-window-action="minimize"
+          aria-label="Minimize window"
+          title="Minimize"
+        >
+          −
+        </button>
+
+
+        <button
+          type="button"
+          class="window-control window-maximize"
+          data-window-action="maximize"
+          aria-label="Maximize window"
+          title="Maximize"
+        >
+          □
+        </button>
+
+
+        <button
+          type="button"
+          class="window-control window-close"
+          data-window-action="close"
           aria-label="Close window"
+          title="Close"
         >
           ×
         </button>
@@ -1062,6 +1524,7 @@ function openTrashWindow() {
       </div>
 
     </div>
+
 
     <div class="window-body">
 
@@ -1101,9 +1564,369 @@ function openTrashWindow() {
   );
 
 
+  wireWindowControls(
+    node,
+    id
+  );
+
+
   wireDrag(
     node,
     id
+  );
+
+
+  node.addEventListener(
+    'pointerdown',
+    () => focusWindow(id)
+  );
+
+
+  focusWindow(id);
+
+}
+
+
+/* =========================================================
+   SETTINGS WINDOW
+   ========================================================= */
+
+function openSettingsWindow() {
+
+  const id =
+    'settings';
+
+
+  if (
+    state.windows.has(id)
+  ) {
+
+    const win =
+      state.windows.get(id);
+
+
+    if (
+      state.minimizedWindows.has(id)
+    ) {
+
+      restoreWindow(id);
+
+    } else {
+
+      focusWindow(id);
+
+    }
+
+
+    return;
+
+  }
+
+
+  const layer =
+    document.querySelector(
+      '#windows'
+    );
+
+
+  if (!layer) return;
+
+
+  const position =
+    windowPosition();
+
+
+  const node =
+    document.createElement(
+      'section'
+    );
+
+
+  node.className =
+    'app-window';
+
+
+  node.dataset.app =
+    id;
+
+
+  node.style.left =
+    `${position.left}px`;
+
+
+  node.style.top =
+    `${position.top}px`;
+
+
+  node.style.width =
+    `${Math.min(
+      760,
+      innerWidth - 44
+    )}px`;
+
+
+  node.style.height =
+    `${Math.min(
+      580,
+      innerHeight - 120
+    )}px`;
+
+
+  node.style.zIndex =
+    ++state.z;
+
+
+  node.innerHTML = `
+
+    <div class="window-chrome">
+
+      <div class="window-title-area">
+
+        <span class="window-title">
+          Settings
+        </span>
+
+        <span class="window-state">
+          Tayassuk OS
+        </span>
+
+      </div>
+
+
+      <div class="window-controls">
+
+        <button
+          type="button"
+          class="window-control window-minimize"
+          data-window-action="minimize"
+          aria-label="Minimize window"
+          title="Minimize"
+        >
+          −
+        </button>
+
+
+        <button
+          type="button"
+          class="window-control window-maximize"
+          data-window-action="maximize"
+          aria-label="Maximize window"
+          title="Maximize"
+        >
+          □
+        </button>
+
+
+        <button
+          type="button"
+          class="window-control window-close"
+          data-window-action="close"
+          aria-label="Close window"
+          title="Close"
+        >
+          ×
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <div class="window-body">
+
+      <div class="window-page settings-page">
+
+        <div class="window-page-heading">
+
+          <span class="eyebrow">
+            System Preferences
+          </span>
+
+          <h1>
+            Settings
+          </h1>
+
+          <p>
+            Customize your Tayassuk OS experience.
+          </p>
+
+        </div>
+
+
+        <div class="settings-grid">
+
+          <section class="control-card">
+
+            <div class="settings-card-icon">
+              ◐
+            </div>
+
+            <div>
+
+              <h3>
+                Appearance
+              </h3>
+
+              <p>
+                Choose your preferred interface theme.
+              </p>
+
+            </div>
+
+
+            <div class="settings-actions">
+
+              <button
+                type="button"
+                class="secondary-action"
+                data-settings-theme="dark"
+              >
+                Dark
+              </button>
+
+              <button
+                type="button"
+                class="secondary-action"
+                data-settings-theme="light"
+              >
+                Light
+              </button>
+
+            </div>
+
+          </section>
+
+
+          <section class="control-card">
+
+            <div class="settings-card-icon">
+              ✦
+            </div>
+
+            <div>
+
+              <h3>
+                Interface
+              </h3>
+
+              <p>
+                Tayassuk OS desktop experience.
+              </p>
+
+            </div>
+
+            <span class="settings-status">
+              v2.0
+            </span>
+
+          </section>
+
+
+          <section class="control-card">
+
+            <div class="settings-card-icon">
+              ↻
+            </div>
+
+            <div>
+
+              <h3>
+                Local Storage
+              </h3>
+
+              <p>
+                Whiteboard notes are stored locally on this device.
+              </p>
+
+            </div>
+
+          </section>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  `;
+
+
+  layer.appendChild(node);
+
+
+  state.windows.set(
+    id,
+    {
+      node,
+      body:
+        node.querySelector(
+          '.window-body'
+        )
+    }
+  );
+
+
+  wireWindowControls(
+    node,
+    id
+  );
+
+
+  wireDrag(
+    node,
+    id
+  );
+
+
+  node.addEventListener(
+    'pointerdown',
+    () => focusWindow(id)
+  );
+
+
+  /* -----------------------------------------
+     Theme buttons
+     ----------------------------------------- */
+
+  node.addEventListener(
+    'click',
+    event => {
+
+      const button =
+        event.target.closest(
+          '[data-settings-theme]'
+        );
+
+
+      if (!button) return;
+
+
+      const theme =
+        button.dataset.settingsTheme;
+
+
+      if (
+        theme !== 'dark' &&
+        theme !== 'light'
+      ) {
+        return;
+      }
+
+
+      state.theme =
+        theme;
+
+
+      localStorage.setItem(
+        'tayassuk-os-theme-v2',
+        theme
+      );
+
+
+      document.documentElement.dataset.theme =
+        theme;
+
+    }
   );
 
 
@@ -1127,42 +1950,67 @@ function wireDrag(node, id) {
   if (!chrome) return;
 
 
-  let dragging = false;
+  let dragging =
+    false;
 
-  let startX = 0;
+  let startX =
+    0;
 
-  let startY = 0;
+  let startY =
+    0;
 
-  let startLeft = 0;
+  let startLeft =
+    0;
 
-  let startTop = 0;
+  let startTop =
+    0;
 
 
   chrome.addEventListener(
     'pointerdown',
     event => {
 
+      /* Don't drag from buttons */
+
       if (
         event.target.closest(
           'button'
         )
       ) {
+
         return;
+
       }
 
 
-      dragging = true;
+      /* Don't drag maximized window */
+
+      if (
+        state.maximizedWindows.has(id)
+      ) {
+
+        return;
+
+      }
+
+
+      dragging =
+        true;
+
 
       startX =
         event.clientX;
 
+
       startY =
         event.clientY;
+
 
       startLeft =
         parseFloat(
           node.style.left
         ) || 0;
+
 
       startTop =
         parseFloat(
@@ -1209,7 +2057,7 @@ function wireDrag(node, id) {
 
       const maxTop =
         Math.max(
-          72,
+          64,
           innerHeight -
             node.offsetHeight -
             12
@@ -1230,7 +2078,7 @@ function wireDrag(node, id) {
         Math.min(
           maxTop,
           Math.max(
-            72,
+            64,
             startTop + dy
           )
         );
@@ -1251,7 +2099,9 @@ function wireDrag(node, id) {
     'pointerup',
     event => {
 
-      dragging = false;
+      dragging =
+        false;
+
 
       try {
 
@@ -1260,6 +2110,17 @@ function wireDrag(node, id) {
         );
 
       } catch {}
+
+    }
+  );
+
+
+  chrome.addEventListener(
+    'pointercancel',
+    () => {
+
+      dragging =
+        false;
 
     }
   );
@@ -1292,11 +2153,18 @@ function projectCard(project) {
 
 
   const tech =
-    Array.isArray(technologies)
+    Array.isArray(
+      technologies
+    )
       ? technologies
-      : String(technologies)
+      : String(
+          technologies
+        )
           .split(',')
-          .map(item => item.trim())
+          .map(
+            item =>
+              item.trim()
+          )
           .filter(Boolean);
 
 
@@ -1319,6 +2187,7 @@ function projectCard(project) {
         >
 
       </div>
+
 
       <div class="project-card-content">
 
@@ -1391,11 +2260,18 @@ function renderProjectDetail(project) {
 
 
   const tech =
-    Array.isArray(technologies)
+    Array.isArray(
+      technologies
+    )
       ? technologies
-      : String(technologies)
+      : String(
+          technologies
+        )
           .split(',')
-          .map(item => item.trim())
+          .map(
+            item =>
+              item.trim()
+          )
           .filter(Boolean);
 
 
@@ -1468,33 +2344,50 @@ function renderProjectDetail(project) {
         <div class="project-meta-grid">
 
           <div>
-            <small>Role</small>
+
+            <small>
+              Role
+            </small>
+
             <strong>
               ${esc(
                 project.role ||
                 'Solo Developer'
               )}
             </strong>
+
           </div>
 
+
           <div>
-            <small>Status</small>
+
+            <small>
+              Status
+            </small>
+
             <strong>
               ${esc(
                 project.status ||
                 'Working'
               )}
             </strong>
+
           </div>
 
+
           <div>
-            <small>Dates</small>
+
+            <small>
+              Dates
+            </small>
+
             <strong>
               ${esc(
                 project.dates ||
                 '—'
               )}
             </strong>
+
           </div>
 
         </div>
@@ -1560,8 +2453,6 @@ function renderProjectDetail(project) {
   `;
 
 }
-
-
 /* =========================================================
    WINDOW RENDERER
    ========================================================= */
@@ -1571,7 +2462,6 @@ function renderWindow(id) {
   const win =
     state.windows.get(id);
 
-
   if (!win?.body) return;
 
 
@@ -1579,39 +2469,38 @@ function renderWindow(id) {
 
     case 'projects':
 
-      win.body.innerHTML =
-        `
-          <div class="window-page">
+      win.body.innerHTML = `
+        <div class="window-page">
 
-            <div class="window-page-heading">
+          <div class="window-page-heading">
 
-              <span class="eyebrow">
-                Portfolio
-              </span>
+            <span class="eyebrow">
+              Portfolio
+            </span>
 
-              <h1>
-                Projects
-              </h1>
+            <h1>
+              Projects
+            </h1>
 
-              <p>
-                Built work and future projects.
-              </p>
-
-            </div>
-
-
-            <div class="project-grid">
-
-              ${
-                (portfolio.projects || [])
-                  .map(projectCard)
-                  .join('')
-              }
-
-            </div>
+            <p>
+              Built work and future projects.
+            </p>
 
           </div>
-        `;
+
+
+          <div class="project-grid">
+
+            ${
+              (portfolio.projects || [])
+                .map(projectCard)
+                .join('')
+            }
+
+          </div>
+
+        </div>
+      `;
 
       break;
 
@@ -1664,14 +2553,6 @@ function renderWindow(id) {
       break;
 
 
-    case 'resume':
-
-      win.body.innerHTML =
-        renderResumeWindow();
-
-      break;
-
-
     case 'contact':
 
       win.body.innerHTML =
@@ -1704,30 +2585,26 @@ function renderWindow(id) {
       break;
 
 
-    case 'control':
-
-      win.body.innerHTML =
-        renderControlCenter();
-
-      wireControlCenter(
-        win.body
-      );
-
-      break;
-
-
     default:
 
       win.body.innerHTML = `
         <div class="window-page">
 
-          <h1>
-            ${esc(id)}
-          </h1>
+          <div class="window-page-heading">
 
-          <p>
-            This app is ready.
-          </p>
+            <span class="eyebrow">
+              Tayassuk OS
+            </span>
+
+            <h1>
+              ${esc(id)}
+            </h1>
+
+            <p>
+              This application is ready.
+            </p>
+
+          </div>
 
         </div>
       `;
@@ -1778,6 +2655,7 @@ function renderLearningWindow() {
 
         ${
           items.length
+
             ? items
                 .map(
                   item => `
@@ -1805,28 +2683,59 @@ function renderLearningWindow() {
                       </div>
 
 
-                      <strong>
-                        ${esc(
-                          `${Number(
-                            item.progress
-                          ) || 0}%`
-                        )}
-                      </strong>
+                      <div class="learning-progress">
+
+                        <strong>
+                          ${esc(
+                            `${Number(
+                              item.progress
+                            ) || 0}%`
+                          )}
+                        </strong>
+
+                        <div class="progress-track">
+
+                          <span
+                            style="width:${Math.min(
+                              100,
+                              Math.max(
+                                0,
+                                Number(
+                                  item.progress
+                                ) || 0
+                              )
+                            )}%"
+                          ></span>
+
+                        </div>
+
+                      </div>
 
                     </article>
 
                   `
                 )
                 .join('')
+
             : `
-                <div class="empty-state">
 
-                  <h2>
-                    No learning items yet
-                  </h2>
+              <div class="empty-state">
 
+                <div class="empty-icon">
+                  ✦
                 </div>
-              `
+
+                <h2>
+                  No learning items yet
+                </h2>
+
+                <p>
+                  Add your current learning topics from the Control Center.
+                </p>
+
+              </div>
+
+            `
         }
 
       </div>
@@ -1856,12 +2765,16 @@ function renderSkillsWindow() {
       <div class="window-page-heading">
 
         <span class="eyebrow">
-          Toolkit
+          Technical Toolkit
         </span>
 
         <h1>
           Skills
         </h1>
+
+        <p>
+          Technologies and tools I use while learning and building.
+        </p>
 
       </div>
 
@@ -1875,13 +2788,20 @@ function renderSkillsWindow() {
 
                 <article class="skill-group">
 
-                  <h3>
-                    ${esc(
-                      group.name ||
-                      group.title ||
-                      'Skills'
-                    )}
-                  </h3>
+                  <div class="skill-group-heading">
+
+                    <span class="skill-group-dot"></span>
+
+                    <h3>
+                      ${esc(
+                        group.name ||
+                        group.title ||
+                        'Skills'
+                      )}
+                    </h3>
+
+                  </div>
+
 
                   <div class="skill-tags">
 
@@ -1892,12 +2812,23 @@ function renderSkillsWindow() {
                         []
                       )
                         .map(
-                          skill =>
-                            `<span>${esc(
+                          skill => {
+
+                            const skillName =
                               typeof skill === 'string'
                                 ? skill
-                                : skill.name
-                            )}</span>`
+                                : skill?.name;
+
+                            return `
+                              <span>
+                                ${esc(
+                                  skillName ||
+                                  'Skill'
+                                )}
+                              </span>
+                            `;
+
+                          }
                         )
                         .join('')
                     }
@@ -1945,54 +2876,72 @@ function renderEducationWindow() {
           Education
         </h1>
 
+        <p>
+          My academic background and learning journey.
+        </p>
+
       </div>
 
 
       <div class="timeline">
 
         ${
-          items
-            .map(
-              item => `
+          items.length
 
-                <article class="timeline-item">
+            ? items
+                .map(
+                  item => `
 
-                  <div class="timeline-dot"></div>
+                    <article class="timeline-item">
 
-                  <div>
+                      <div class="timeline-dot"></div>
 
-                    <h3>
-                      ${esc(
-                        item.degree ||
-                        item.title ||
-                        item.name ||
-                        ''
-                      )}
-                    </h3>
+                      <div class="timeline-content">
 
-                    <p>
-                      ${esc(
-                        item.institution ||
-                        item.school ||
-                        ''
-                      )}
-                    </p>
+                        <small class="timeline-year">
+                          ${esc(
+                            item.year ||
+                            item.date ||
+                            ''
+                          )}
+                        </small>
 
-                    <small>
-                      ${esc(
-                        item.year ||
-                        item.date ||
-                        ''
-                      )}
-                    </small>
+                        <h3>
+                          ${esc(
+                            item.degree ||
+                            item.title ||
+                            item.name ||
+                            ''
+                          )}
+                        </h3>
 
-                  </div>
+                        <p>
+                          ${esc(
+                            item.institution ||
+                            item.school ||
+                            ''
+                          )}
+                        </p>
 
-                </article>
+                      </div>
 
-              `
-            )
-            .join('')
+                    </article>
+
+                  `
+                )
+                .join('')
+
+            : `
+
+              <div class="empty-state">
+
+                <h2>
+                  No education records yet
+                </h2>
+
+              </div>
+
+            `
         }
 
       </div>
@@ -2036,18 +2985,20 @@ function renderJourneyWindow() {
       </div>
 
 
-      <div class="timeline">
+      <div class="timeline journey-timeline">
 
         ${
           items
             .map(
-              item => `
+              (item, index) => `
 
                 <article class="timeline-item">
 
-                  <div class="timeline-dot"></div>
+                  <div class="timeline-dot">
+                    ${index + 1}
+                  </div>
 
-                  <div>
+                  <div class="timeline-content">
 
                     <h3>
                       ${esc(
@@ -2092,6 +3043,11 @@ function renderAboutWindow() {
     {};
 
 
+  const about =
+    portfolio.owner?.about ||
+    'I am a Software Engineering student focused on learning, building, and growing through practical projects.';
+
+
   return `
 
     <div class="window-page">
@@ -2119,14 +3075,40 @@ function renderAboutWindow() {
       </div>
 
 
-      <div class="about-content">
+      <div class="about-profile-card">
 
-        <p>
-          ${esc(
-            portfolio.owner?.about ||
-            'I am a Software Engineering student focused on learning, building, and growing through practical projects.'
-          )}
-        </p>
+        <div class="about-avatar">
+
+          <img
+            src="${esc(
+              identity.generatedAvatar ||
+              identity.portrait ||
+              './assets/avatar/tayassuk-generated-avatar.png'
+            )}"
+            alt="Tayassuk Imam"
+          >
+
+        </div>
+
+
+        <div class="about-profile-content">
+
+          <span class="eyebrow">
+            ${esc(
+              identity.profession ||
+              'Software Engineering Student'
+            )}
+          </span>
+
+          <h2>
+            Learning • Building • Growing
+          </h2>
+
+          <p>
+            ${esc(about)}
+          </p>
+
+        </div>
 
       </div>
 
@@ -2162,101 +3144,70 @@ function renderAchievementsWindow() {
           Achievements
         </h1>
 
+        <p>
+          Activities, experiences and milestones.
+        </p>
+
       </div>
 
 
       <div class="achievement-grid">
 
         ${
-          items
-            .map(
-              item => `
+          items.length
 
-                <article class="achievement-card">
+            ? items
+                .map(
+                  item => `
 
-                  <h3>
-                    ${esc(
-                      item.title ||
-                      item.name ||
-                      ''
-                    )}
-                  </h3>
+                    <article class="achievement-card">
 
-                  <p>
-                    ${esc(
-                      item.description ||
-                      item.detail ||
-                      ''
-                    )}
-                  </p>
+                      <div class="achievement-icon">
+                        ✦
+                      </div>
 
-                </article>
+                      <div>
 
-              `
-            )
-            .join('')
+                        <h3>
+                          ${esc(
+                            item.title ||
+                            item.name ||
+                            ''
+                          )}
+                        </h3>
+
+                        <p>
+                          ${esc(
+                            item.description ||
+                            item.detail ||
+                            ''
+                          )}
+                        </p>
+
+                      </div>
+
+                    </article>
+
+                  `
+                )
+                .join('')
+
+            : `
+
+              <div class="empty-state">
+
+                <div class="empty-icon">
+                  ✦
+                </div>
+
+                <h2>
+                  No achievements yet
+                </h2>
+
+              </div>
+
+            `
         }
-
-      </div>
-
-    </div>
-
-  `;
-
-}
-
-
-/* =========================================================
-   RESUME WINDOW
-   ========================================================= */
-
-function renderResumeWindow() {
-
-  const cv =
-    portfolio.owner?.contact?.cv ||
-    './assets/cv/Tayassuk-Imam-CV.pdf';
-
-
-  return `
-
-    <div class="window-page resume-page">
-
-      <div class="window-page-heading">
-
-        <span class="eyebrow">
-          Curriculum Vitae
-        </span>
-
-        <h1>
-          Resume
-        </h1>
-
-        <p>
-          View or open my latest CV.
-        </p>
-
-      </div>
-
-
-      <div class="resume-actions">
-
-        <a
-          href="${esc(cv)}"
-          target="_blank"
-          rel="noreferrer noopener"
-          class="primary-action"
-        >
-          Open CV
-        </a>
-
-
-        <a
-          href="${esc(cv)}"
-          download
-          class="secondary-action"
-        >
-          Download CV
-        </a>
 
       </div>
 
@@ -2292,6 +3243,10 @@ function renderContactWindow() {
           Start a Conversation
         </h1>
 
+        <p>
+          Want to talk about a project, idea or opportunity?
+        </p>
+
       </div>
 
 
@@ -2300,17 +3255,38 @@ function renderContactWindow() {
         ${
           contact.email
             ? `
+
               <a
                 href="mailto:${esc(
                   contact.email
                 )}"
                 class="contact-item"
               >
-                <span>Email</span>
-                <strong>
-                  ${esc(contact.email)}
-                </strong>
+
+                <span class="contact-item-icon">
+                  @
+                </span>
+
+                <div>
+
+                  <span>
+                    Email
+                  </span>
+
+                  <strong>
+                    ${esc(
+                      contact.email
+                    )}
+                  </strong>
+
+                </div>
+
+                <span class="contact-arrow">
+                  →
+                </span>
+
               </a>
+
             `
             : ''
         }
@@ -2319,19 +3295,40 @@ function renderContactWindow() {
         ${
           contact.github
             ? `
+
               <a
                 href="${esc(
-                  safeUrl(contact.github)
+                  safeUrl(
+                    contact.github
+                  )
                 )}"
                 target="_blank"
                 rel="noreferrer noopener"
                 class="contact-item"
               >
-                <span>GitHub</span>
-                <strong>
-                  Open Profile
-                </strong>
+
+                <span class="contact-item-icon">
+                  GH
+                </span>
+
+                <div>
+
+                  <span>
+                    GitHub
+                  </span>
+
+                  <strong>
+                    Open Profile
+                  </strong>
+
+                </div>
+
+                <span class="contact-arrow">
+                  ↗
+                </span>
+
               </a>
+
             `
             : ''
         }
@@ -2340,19 +3337,40 @@ function renderContactWindow() {
         ${
           contact.linkedin
             ? `
+
               <a
                 href="${esc(
-                  safeUrl(contact.linkedin)
+                  safeUrl(
+                    contact.linkedin
+                  )
                 )}"
                 target="_blank"
                 rel="noreferrer noopener"
                 class="contact-item"
               >
-                <span>LinkedIn</span>
-                <strong>
-                  Open Profile
-                </strong>
+
+                <span class="contact-item-icon">
+                  in
+                </span>
+
+                <div>
+
+                  <span>
+                    LinkedIn
+                  </span>
+
+                  <strong>
+                    Open Profile
+                  </strong>
+
+                </div>
+
+                <span class="contact-arrow">
+                  ↗
+                </span>
+
               </a>
+
             `
             : ''
         }
@@ -2392,23 +3410,39 @@ function renderWhiteboardWindow() {
           Whiteboard
         </h1>
 
+        <p>
+          Write something and keep it saved on this device.
+        </p>
+
       </div>
 
 
-      <textarea
-        id="whiteboard-input"
-        class="whiteboard-input"
-        placeholder="Write a note..."
-      >${esc(saved)}</textarea>
+      <div class="whiteboard-shell">
+
+        <textarea
+          id="whiteboard-input"
+          class="whiteboard-input"
+          placeholder="Write a note..."
+        >${esc(saved)}</textarea>
 
 
-      <button
-        type="button"
-        class="primary-action"
-        data-action="save-whiteboard"
-      >
-        Save Note
-      </button>
+        <div class="whiteboard-footer">
+
+          <span class="whiteboard-hint">
+            Saved locally
+          </span>
+
+          <button
+            type="button"
+            class="primary-action"
+            data-action="save-whiteboard"
+          >
+            Save Note
+          </button>
+
+        </div>
+
+      </div>
 
 
       <p
@@ -2448,27 +3482,53 @@ function renderFounderWindow() {
           Working Principles
         </h1>
 
+        <p>
+          The mindset behind the work.
+        </p>
+
       </div>
 
 
-      <div class="founder-content">
+      <div class="founder-terminal">
 
-        ${
-          founder.principles
-            ? `
-              <p>
-                ${esc(
-                  founder.principles
-                )}
-              </p>
-            `
-            : `
-              <p>
-                Learn continuously. Build practically.
-                Stay curious. Keep improving.
-              </p>
-            `
-        }
+        <div class="terminal-top">
+
+          <span></span>
+          <span></span>
+          <span></span>
+
+        </div>
+
+
+        <div class="terminal-body">
+
+          <div class="terminal-line">
+            <span class="terminal-prompt">
+              $
+            </span>
+
+            cat founder.txt
+          </div>
+
+
+          <div class="terminal-text">
+
+            ${
+              founder.principles
+                ? esc(
+                    founder.principles
+                  )
+                : `
+                  Learn continuously.<br>
+                  Build practically.<br>
+                  Stay curious.<br>
+                  Keep improving.
+                `
+            }
+
+          </div>
+
+        </div>
 
       </div>
 
@@ -2490,6 +3550,14 @@ function renderBrowserWindow() {
     {};
 
 
+  const featured =
+    portfolio.projects?.find(
+      project =>
+        project.featured
+    ) ||
+    portfolio.projects?.[0];
+
+
   return `
 
     <div class="window-page">
@@ -2504,6 +3572,23 @@ function renderBrowserWindow() {
           Browser
         </h1>
 
+        <p>
+          Quick access to selected online profiles and projects.
+        </p>
+
+      </div>
+
+
+      <div class="browser-toolbar">
+
+        <span class="browser-lock">
+          🔒
+        </span>
+
+        <span>
+          tayassuk-os.local
+        </span>
+
       </div>
 
 
@@ -2512,15 +3597,31 @@ function renderBrowserWindow() {
         ${
           contact.github
             ? `
+
               <a
                 href="${esc(
-                  safeUrl(contact.github)
+                  safeUrl(
+                    contact.github
+                  )
                 )}"
                 target="_blank"
                 rel="noreferrer noopener"
               >
-                GitHub
+
+                <span>
+                  GitHub
+                </span>
+
+                <small>
+                  Developer profile
+                </small>
+
+                <strong>
+                  ↗
+                </strong>
+
               </a>
+
             `
             : ''
         }
@@ -2529,34 +3630,68 @@ function renderBrowserWindow() {
         ${
           contact.linkedin
             ? `
+
               <a
                 href="${esc(
-                  safeUrl(contact.linkedin)
+                  safeUrl(
+                    contact.linkedin
+                  )
                 )}"
                 target="_blank"
                 rel="noreferrer noopener"
               >
-                LinkedIn
+
+                <span>
+                  LinkedIn
+                </span>
+
+                <small>
+                  Professional profile
+                </small>
+
+                <strong>
+                  ↗
+                </strong>
+
               </a>
+
             `
             : ''
         }
 
 
         ${
-          portfolio.projects?.[0]?.liveUrl
+          featured?.liveUrl
             ? `
+
               <a
                 href="${esc(
                   safeUrl(
-                    portfolio.projects[0].liveUrl
+                    featured.liveUrl
                   )
                 )}"
                 target="_blank"
                 rel="noreferrer noopener"
               >
-                Featured Project
+
+                <span>
+                  Featured Project
+                </span>
+
+                <small>
+                  ${esc(
+                    featured.name ||
+                    featured.title ||
+                    'Live project'
+                  )}
+                </small>
+
+                <strong>
+                  ↗
+                </strong>
+
               </a>
+
             `
             : ''
         }
@@ -2566,6 +3701,190 @@ function renderBrowserWindow() {
     </div>
 
   `;
+
+}
+
+
+/* =========================================================
+   WINDOW ACTIONS
+   ========================================================= */
+
+function wireWindowActions(body) {
+
+  if (!body) return;
+
+
+  body.addEventListener(
+    'click',
+    event => {
+
+
+      /* -----------------------------------------
+         Project details
+         ----------------------------------------- */
+
+      const projectButton =
+        event.target.closest(
+          '[data-action="project-detail"]'
+        );
+
+
+      if (projectButton) {
+
+        const projectId =
+          projectButton.dataset.project;
+
+
+        const project =
+          (portfolio.projects || [])
+            .find(
+              item =>
+                String(
+                  item.id ||
+                  item.name ||
+                  item.title
+                ) ===
+                String(projectId)
+            );
+
+
+        if (!project) return;
+
+
+        const current =
+          projectButton.closest(
+            '.app-window'
+          );
+
+
+        if (
+          current &&
+          state.windows.has(
+            current.dataset.app
+          )
+        ) {
+
+          const win =
+            state.windows.get(
+              current.dataset.app
+            );
+
+
+          if (win?.body) {
+
+            win.body.innerHTML =
+              renderProjectDetail(
+                project
+              );
+
+          }
+
+        }
+
+        return;
+
+      }
+
+
+      /* -----------------------------------------
+         Whiteboard
+         ----------------------------------------- */
+
+      const saveWhiteboard =
+        event.target.closest(
+          '[data-action="save-whiteboard"]'
+        );
+
+
+      if (saveWhiteboard) {
+
+        const input =
+          body.querySelector(
+            '#whiteboard-input'
+          );
+
+
+        const status =
+          body.querySelector(
+            '#whiteboard-status'
+          );
+
+
+        localStorage.setItem(
+          'tayassuk-os-whiteboard',
+          input?.value || ''
+        );
+
+
+        if (status) {
+
+          status.textContent =
+            '✓ Note saved locally.';
+
+        }
+
+        return;
+
+      }
+
+
+      /* -----------------------------------------
+         Admin logout
+         ----------------------------------------- */
+
+      const adminLogout =
+        event.target.closest(
+          '[data-action="admin-logout"]'
+        );
+
+
+      if (adminLogout) {
+
+        handleAdminLogout(
+          body
+        );
+
+        return;
+
+      }
+
+
+      /* -----------------------------------------
+         Admin refresh
+         ----------------------------------------- */
+
+      const adminRefresh =
+        event.target.closest(
+          '[data-action="admin-refresh"]'
+        );
+
+
+      if (adminRefresh) {
+
+        refreshPortfolio()
+          .then(
+            () => {
+
+              body.innerHTML =
+                renderControlCenter();
+
+              wireControlCenter(
+                body
+              );
+
+            }
+          )
+          .catch(
+            error =>
+              console.error(
+                error
+              )
+          );
+
+      }
+
+    }
+  );
 
 }
 /* =========================================================
@@ -2583,6 +3902,7 @@ function renderControlCenter() {
   const contact =
     owner.contact || {};
 
+
   return `
 
     <div class="window-page control-center-page">
@@ -2598,7 +3918,7 @@ function renderControlCenter() {
         </h1>
 
         <p>
-          Manage your portfolio content.
+          Manage your portfolio content and system preferences.
         </p>
 
       </div>
@@ -2621,81 +3941,128 @@ function renderControlCenter() {
 
       ${
         state.adminSession
+
           ? `
 
             <div class="control-grid">
 
               <section class="control-card">
 
-                <h3>
-                  Profile
-                </h3>
+                <div class="control-card-icon">
+                  ◉
+                </div>
 
-                <p>
-                  ${esc(
-                    identity.fullName ||
-                    'Tayassuk Imam'
-                  )}
-                </p>
+                <div>
 
-                <p>
-                  ${esc(
-                    identity.profession ||
-                    'Software Engineering Student'
-                  )}
-                </p>
+                  <h3>
+                    Profile
+                  </h3>
 
-              </section>
+                  <p>
+                    ${esc(
+                      identity.fullName ||
+                      'Tayassuk Imam'
+                    )}
+                  </p>
 
+                  <small>
+                    ${esc(
+                      identity.profession ||
+                      'Software Engineering Student'
+                    )}
+                  </small>
 
-              <section class="control-card">
-
-                <h3>
-                  Projects
-                </h3>
-
-                <p>
-                  ${
-                    (portfolio.projects || [])
-                      .length
-                  }
-                  project(s)
-                </p>
+                </div>
 
               </section>
 
 
               <section class="control-card">
 
-                <h3>
-                  Learning
-                </h3>
+                <div class="control-card-icon">
+                  ◇
+                </div>
 
-                <p>
-                  ${
-                    (
-                      owner.learning ||
-                      []
-                    ).length
-                  }
-                  learning item(s)
-                </p>
+                <div>
+
+                  <h3>
+                    Projects
+                  </h3>
+
+                  <p>
+                    ${
+                      (
+                        portfolio.projects ||
+                        []
+                      ).length
+                    }
+                    project(s)
+                  </p>
+
+                  <small>
+                    Portfolio projects
+                  </small>
+
+                </div>
 
               </section>
 
 
               <section class="control-card">
 
-                <h3>
-                  Contact
-                </h3>
+                <div class="control-card-icon">
+                  ◎
+                </div>
 
-                <p>
-                  ${esc(
-                    contact.email ||
-                    'No email configured'
-                  )}
-                </p>
+                <div>
+
+                  <h3>
+                    Learning
+                  </h3>
+
+                  <p>
+                    ${
+                      (
+                        owner.learning ||
+                        []
+                      ).length
+                    }
+                    learning item(s)
+                  </p>
+
+                  <small>
+                    Current focus
+                  </small>
+
+                </div>
+
+              </section>
+
+
+              <section class="control-card">
+
+                <div class="control-card-icon">
+                  @
+                </div>
+
+                <div>
+
+                  <h3>
+                    Contact
+                  </h3>
+
+                  <p>
+                    ${esc(
+                      contact.email ||
+                      'No email configured'
+                    )}
+                  </p>
+
+                  <small>
+                    Public contact
+                  </small>
+
+                </div>
 
               </section>
 
@@ -2709,7 +4076,7 @@ function renderControlCenter() {
                 class="secondary-action"
                 data-action="admin-refresh"
               >
-                Refresh Data
+                ↻ Refresh Data
               </button>
 
 
@@ -2724,6 +4091,7 @@ function renderControlCenter() {
             </div>
 
           `
+
           : `
 
             <form
@@ -2731,13 +4099,38 @@ function renderControlCenter() {
               id="admin-login-form"
             >
 
+              <div class="login-intro">
+
+                <div class="login-icon">
+                  ◈
+                </div>
+
+                <div>
+
+                  <h3>
+                    Administrator Access
+                  </h3>
+
+                  <p>
+                    Sign in to manage your portfolio.
+                  </p>
+
+                </div>
+
+              </div>
+
+
               <label>
-                Email
+
+                <span>
+                  Email
+                </span>
 
                 <input
                   type="email"
                   name="email"
                   autocomplete="email"
+                  placeholder="admin@example.com"
                   required
                 >
 
@@ -2745,12 +4138,16 @@ function renderControlCenter() {
 
 
               <label>
-                Password
+
+                <span>
+                  Password
+                </span>
 
                 <input
                   type="password"
                   name="password"
                   autocomplete="current-password"
+                  placeholder="••••••••"
                   required
                 >
 
@@ -2797,142 +4194,41 @@ function wireControlCenter(body) {
     );
 
 
-  if (form) {
-
-    form.addEventListener(
-      'submit',
-      async event => {
-
-        event.preventDefault();
+  if (!form) return;
 
 
-        const status =
-          form.querySelector(
-            '#admin-login-status'
-          );
+  form.addEventListener(
+    'submit',
+    async event => {
+
+      event.preventDefault();
 
 
-        const email =
-          form.email?.value?.trim() ||
-          '';
+      const status =
+        form.querySelector(
+          '#admin-login-status'
+        );
 
 
-        const password =
-          form.password?.value ||
-          '';
+      const email =
+        form.email?.value?.trim() ||
+        '';
 
 
-        if (!email || !password) {
+      const password =
+        form.password?.value ||
+        '';
 
-          if (status) {
 
-            status.textContent =
-              'Please enter email and password.';
-
-          }
-
-          return;
-
-        }
-
+      if (
+        !email ||
+        !password
+      ) {
 
         if (status) {
 
           status.textContent =
-            'Signing in...';
-
-        }
-
-
-        try {
-
-          const result =
-            await signIn(
-              email,
-              password
-            );
-
-
-          state.adminSession =
-            result?.session ||
-            result ||
-            null;
-
-
-          if (status) {
-
-            status.textContent =
-              'Signed in successfully.';
-
-          }
-
-
-          body.innerHTML =
-            renderControlCenter();
-
-
-          wireControlCenter(
-            body
-          );
-
-        } catch (error) {
-
-          console.error(
-            'Admin sign-in failed:',
-            error
-          );
-
-
-          if (status) {
-
-            status.textContent =
-              error?.message ||
-              'Sign in failed.';
-
-          }
-
-        }
-
-      }
-    );
-
-  }
-
-}
-
-
-/* =========================================================
-   WINDOW ACTIONS
-   ========================================================= */
-
-function wireWindowActions(body) {
-
-  if (!body) return;
-
-
-  body.addEventListener(
-    'click',
-    event => {
-
-      const closeButton =
-        event.target.closest(
-          '[data-win-close]'
-        );
-
-
-      if (closeButton) {
-
-        const windowNode =
-          closeButton.closest(
-            '.app-window'
-          );
-
-
-        if (windowNode) {
-
-          closeWindow(
-            windowNode.dataset.app
-          );
+            'Please enter email and password.';
 
         }
 
@@ -2941,134 +4237,60 @@ function wireWindowActions(body) {
       }
 
 
-      const projectButton =
-        event.target.closest(
-          '[data-action="project-detail"]'
-        );
+      if (status) {
 
-
-      if (projectButton) {
-
-        const projectId =
-          projectButton.dataset.project;
-
-
-        const project =
-          (portfolio.projects || [])
-            .find(
-              item =>
-                String(
-                  item.id ||
-                  item.name ||
-                  item.title
-                ) ===
-                String(projectId)
-            );
-
-
-        if (!project) return;
-
-
-        const current =
-          state.windows.get(
-            'projects'
-          );
-
-
-        if (current?.body) {
-
-          current.body.innerHTML =
-            renderProjectDetail(
-              project
-            );
-
-          wireWindowActions(
-            current.body
-          );
-
-        }
+        status.textContent =
+          'Signing in...';
 
       }
 
 
-      const saveWhiteboard =
-        event.target.closest(
-          '[data-action="save-whiteboard"]'
+      try {
+
+        const result =
+          await signIn(
+            email,
+            password
+          );
+
+
+        state.adminSession =
+          result?.session ||
+          result ||
+          null;
+
+
+        if (status) {
+
+          status.textContent =
+            'Signed in successfully.';
+
+        }
+
+
+        body.innerHTML =
+          renderControlCenter();
+
+
+        wireControlCenter(
+          body
         );
 
+      } catch (error) {
 
-      if (saveWhiteboard) {
-
-        const input =
-          body.querySelector(
-            '#whiteboard-input'
-          );
-
-
-        const status =
-          body.querySelector(
-            '#whiteboard-status'
-          );
-
-
-        localStorage.setItem(
-          'tayassuk-os-whiteboard',
-          input?.value || ''
+        console.error(
+          'Admin sign-in failed:',
+          error
         );
 
 
         if (status) {
 
           status.textContent =
-            'Note saved locally.';
+            error?.message ||
+            'Sign in failed.';
 
         }
-
-      }
-
-
-      const adminLogout =
-        event.target.closest(
-          '[data-action="admin-logout"]'
-        );
-
-
-      if (adminLogout) {
-
-        handleAdminLogout(
-          body
-        );
-
-      }
-
-
-      const adminRefresh =
-        event.target.closest(
-          '[data-action="admin-refresh"]'
-        );
-
-
-      if (adminRefresh) {
-
-        refreshPortfolio()
-          .then(
-            () => {
-
-              body.innerHTML =
-                renderControlCenter();
-
-              wireControlCenter(
-                body
-              );
-
-            }
-          )
-          .catch(
-            error =>
-              console.error(
-                error
-              )
-          );
 
       }
 
@@ -3123,7 +4345,9 @@ async function handleAdminLogout(body) {
 function searchPortfolio(query) {
 
   const term =
-    String(query || '')
+    String(
+      query || ''
+    )
       .trim()
       .toLowerCase();
 
@@ -3138,6 +4362,10 @@ function searchPortfolio(query) {
   const results = [];
 
 
+  /* -----------------------------------------
+     Search apps
+     ----------------------------------------- */
+
   apps.forEach(
     app => {
 
@@ -3146,13 +4374,20 @@ function searchPortfolio(query) {
           .toLowerCase();
 
 
-      if (text.includes(term)) {
+      if (
+        text.includes(term)
+      ) {
 
         results.push({
+
           type: 'app',
+
           id: app.id,
+
           title: app.name,
+
           description: app.desc
+
         });
 
       }
@@ -3161,17 +4396,27 @@ function searchPortfolio(query) {
   );
 
 
-  (portfolio.projects || [])
+  /* -----------------------------------------
+     Search projects
+     ----------------------------------------- */
+
+  (
+    portfolio.projects ||
+    []
+  )
     .forEach(
       project => {
 
         const text =
           JSON.stringify(
             project
-          ).toLowerCase();
+          )
+            .toLowerCase();
 
 
-        if (text.includes(term)) {
+        if (
+          text.includes(term)
+        ) {
 
           results.push({
 
@@ -3240,12 +4485,32 @@ function renderSearchResults(query) {
             }"
           >
 
-            <strong>
-              ${esc(result.title)}
-            </strong>
+            <span class="search-result-icon">
+              ${
+                result.type === 'project'
+                  ? '◆'
+                  : '◈'
+              }
+            </span>
 
             <span>
-              ${esc(result.description)}
+
+              <strong>
+                ${esc(
+                  result.title
+                )}
+              </strong>
+
+              <small>
+                ${esc(
+                  result.description
+                )}
+              </small>
+
+            </span>
+
+            <span>
+              →
             </span>
 
           </button>
@@ -3255,9 +4520,16 @@ function renderSearchResults(query) {
       .join('');
 
 
-  return output ||
+  return (
+    output ||
+
     `
+
       <div class="empty-state">
+
+        <div class="empty-icon">
+          ⌕
+        </div>
 
         <h3>
           No results found
@@ -3268,7 +4540,9 @@ function renderSearchResults(query) {
         </p>
 
       </div>
-    `;
+
+    `
+  );
 
 }
 
@@ -3297,8 +4571,11 @@ async function refreshPortfolio() {
         ...remote,
 
         owner: {
+
           ...portfolio.owner,
+
           ...(remote.owner || {})
+
         }
 
       };
@@ -3326,25 +4603,15 @@ async function refreshPortfolio() {
 
 function renderAll() {
 
-  /*
-   * IMPORTANT:
-   * Always render the launcher.
-   * This fixes the empty #app-grid issue.
-   */
   renderAppGrid();
-
 
   renderIdentity();
 
-
   updateClock();
-
 
   renderDashboard();
 
-
   renderDock();
-
 
   renderCompanion();
 
@@ -3358,12 +4625,15 @@ function renderAll() {
 function renderDashboard() {
 
   const featured =
-    (portfolio.projects || [])
+    (
+      portfolio.projects ||
+      []
+    )
       .find(
         project =>
           project.featured
       ) ||
-    portfolio.projects?.[0];
+      portfolio.projects?.[0];
 
 
   const featuredName =
@@ -3422,96 +4692,62 @@ function renderDashboard() {
     featuredImageElement.src =
       featuredImage;
 
-  }
-
-
-  const projectButton =
-    document.querySelector(
-      '#featured-project-open'
-    );
-
-
-  if (projectButton) {
-
-    projectButton.dataset.project =
-      featured?.id ||
+    featuredImageElement.alt =
       featuredName;
 
   }
 
 
-  const learning =
-    portfolio.owner?.learning ||
-    [];
-
-
-  const learningContainer =
+  const featuredStatus =
     document.querySelector(
-      '#learning-list'
+      '#featured-project-status'
     );
 
 
-  if (learningContainer) {
+  if (featuredStatus) {
 
-    learningContainer.innerHTML =
-      learning
-        .slice(0, 4)
-        .map(
-          item => `
-
-            <div class="learning-row">
-
-              <span>
-                ${esc(
-                  item.title ||
-                  item.name ||
-                  ''
-                )}
-              </span>
-
-              <strong>
-                ${Number(
-                  item.progress
-                ) || 0}%
-              </strong>
-
-            </div>
-
-          `
-        )
-        .join('');
+    featuredStatus.textContent =
+      featured?.status ||
+      'Working';
 
   }
 
 
-  const skillsContainer =
+  const featuredTech =
     document.querySelector(
-      '#skills-list'
+      '#featured-project-tech'
     );
 
 
-  if (skillsContainer) {
+  if (featuredTech) {
 
-    const flatSkills =
-      (portfolio.skills || [])
-        .flatMap(
-          group =>
-            group.skills ||
-            group.items ||
-            []
-        )
-        .slice(0, 8);
+    const technologies =
+      featured?.technologies ||
+      featured?.stack ||
+      [];
 
 
-    skillsContainer.innerHTML =
-      flatSkills
+    const tech =
+      Array.isArray(
+        technologies
+      )
+        ? technologies
+        : String(
+            technologies
+          )
+            .split(',')
+            .map(
+              item =>
+                item.trim()
+            )
+            .filter(Boolean);
+
+
+    featuredTech.innerHTML =
+      tech
         .map(
-          skill =>
-            `<span>${esc(
-              typeof skill === 'string'
-                ? skill
-                : skill.name
-            )}</span>`
+          item =>
+            `<span>${esc(item)}</span>`
         )
         .join('');
 
@@ -3536,37 +4772,63 @@ function renderDock() {
 
 
   const dockApps =
-    apps.slice(
-      0,
-      7
-    );
+    [
+      'projects',
+      'learning',
+      'skills',
+      'education',
+      'journey',
+      'about',
+      'achievements',
+      'contact',
+      'whiteboard',
+      'browser',
+      'control'
+    ];
 
 
   dock.innerHTML =
     dockApps
       .map(
-        app => `
+        id => {
 
-          <button
-            type="button"
-            class="dock-item"
-            data-action="open"
-            data-app="${esc(app.id)}"
-            title="${esc(app.name)}"
-          >
+          const app =
+            apps.find(
+              item =>
+                item.id === id
+            );
 
-            <img
-              src="${esc(app.logo)}"
-              alt="${esc(app.name)}"
-              class="dock-logo"
-              width="42"
-              height="42"
-              draggable="false"
+
+          if (!app) return '';
+
+
+          return `
+
+            <button
+              type="button"
+              class="dock-item"
+              data-action="open"
+              data-app="${esc(id)}"
+              title="${esc(
+                app.name
+              )}"
             >
 
-          </button>
+              <img
+                src="${esc(
+                  app.logo
+                )}"
+                alt="${esc(
+                  app.name
+                )}"
+                draggable="false"
+              >
 
-        `
+            </button>
+
+          `;
+
+        }
       )
       .join('');
 
@@ -3579,25 +4841,50 @@ function renderDock() {
 
 function renderCompanion() {
 
-  const image =
+  const companion =
     document.querySelector(
-      '#companion-avatar'
+      '#companion'
     );
 
 
-  if (!image) return;
+  if (!companion) return;
 
 
-  const avatar =
-    portfolio.owner?.identity
-      ?.generatedAvatar ||
-    portfolio.owner?.identity
-      ?.portrait ||
-    './assets/avatar/tayassuk-generated-avatar.png';
+  const identity =
+    portfolio.owner?.identity ||
+    {};
 
 
-  image.src =
-    avatar;
+  companion.innerHTML = `
+
+    <div class="companion-avatar">
+
+      <img
+        src="${esc(
+          identity.generatedAvatar ||
+          identity.portrait ||
+          './assets/avatar/tayassuk-generated-avatar.png'
+        )}"
+        alt="Tayassuk"
+        draggable="false"
+      >
+
+    </div>
+
+
+    <div class="companion-copy">
+
+      <span>
+        Currently
+      </span>
+
+      <strong>
+        Learning & Building
+      </strong>
+
+    </div>
+
+  `;
 
 }
 
@@ -3606,355 +4893,144 @@ function renderCompanion() {
    GLOBAL CLICK HANDLER
    ========================================================= */
 
-function wireGlobalEvents() {
+document.addEventListener(
+  'click',
+  event => {
 
-  if (
-    document.documentElement
-      .dataset
-      .tayassukEvents
-  ) {
-    return;
-  }
+    /* -----------------------------------------
+       Open app
+       ----------------------------------------- */
 
-
-  document.documentElement.dataset
-    .tayassukEvents =
-    'true';
+    const openButton =
+      event.target.closest(
+        '[data-action="open"]'
+      );
 
 
-  document.addEventListener(
-    'click',
-    event => {
+    if (openButton) {
 
-      const closeButton =
-        event.target.closest(
-          '[data-win-close]'
-        );
+      const id =
+        openButton.dataset.app;
 
 
-      if (closeButton) {
+      if (id) {
 
-        const node =
-          closeButton.closest(
-            '.app-window'
-          );
-
-
-        if (node) {
-
-          closeWindow(
-            node.dataset.app
-          );
-
-        }
-
-        return;
+        openWindow(id);
 
       }
 
-
-      const openButton =
-        event.target.closest(
-          '[data-action="open"]'
-        );
-
-
-      if (openButton) {
-
-        const id =
-          openButton.dataset.app;
-
-
-        if (id) {
-
-          openWindow(id);
-
-        }
-
-        return;
-
-      }
-
-
-      const projectButton =
-        event.target.closest(
-          '[data-action="project-detail"]'
-        );
-
-
-      if (projectButton) {
-
-        const projectId =
-          projectButton.dataset.project;
-
-
-        const project =
-          (portfolio.projects || [])
-            .find(
-              item =>
-                String(
-                  item.id ||
-                  item.name ||
-                  item.title
-                ) ===
-                String(projectId)
-            );
-
-
-        if (project) {
-
-          openProjectDetailWindow(
-            project
-          );
-
-        }
-
-        return;
-
-      }
-
-
-      const themeButton =
-        event.target.closest(
-          '[data-action="theme"]'
-        );
-
-
-      if (themeButton) {
-
-        toggleTheme();
-
-        return;
-
-      }
-
-
-      const searchButton =
-        event.target.closest(
-          '[data-action="search"]'
-        );
-
-
-      if (searchButton) {
-
-        openSearch();
-
-        return;
-
-      }
+      return;
 
     }
-  );
 
 
-  document.addEventListener(
-    'pointerdown',
-    event => {
+    /* -----------------------------------------
+       Close active window
+       ----------------------------------------- */
+
+    const closeButton =
+      event.target.closest(
+        '[data-win-close]'
+      );
+
+
+    if (closeButton) {
 
       const node =
-        event.target.closest(
+        closeButton.closest(
           '.app-window'
         );
 
 
       if (node) {
 
-        focusWindow(
+        closeWindow(
           node.dataset.app
         );
 
       }
 
+      return;
+
     }
-  );
-
-}
 
 
-/* =========================================================
-   PROJECT DETAIL WINDOW
-   ========================================================= */
+    /* -----------------------------------------
+       Search
+       ----------------------------------------- */
 
-function openProjectDetailWindow(project) {
-
-  const id =
-    `project-detail-${String(
-      project.id ||
-      project.name ||
-      'project'
-    )
-      .toLowerCase()
-      .replace(
-        /[^a-z0-9]+/g,
-        '-'
-      )}`;
+    const searchButton =
+      event.target.closest(
+        '[data-action="search"]'
+      );
 
 
-  if (state.windows.has(id)) {
+    if (searchButton) {
 
-    focusWindow(id);
+      openSearchWindow();
 
-    return;
+      return;
+
+    }
+
+
+    /* -----------------------------------------
+       Theme
+       ----------------------------------------- */
+
+    const themeButton =
+      event.target.closest(
+        '[data-theme]'
+      );
+
+
+    if (themeButton) {
+
+      const theme =
+        themeButton.dataset.theme;
+
+
+      if (
+        theme === 'dark' ||
+        theme === 'light'
+      ) {
+
+        state.theme =
+          theme;
+
+
+        document.documentElement.dataset.theme =
+          theme;
+
+
+        localStorage.setItem(
+          'tayassuk-os-theme-v2',
+          theme
+        );
+
+      }
+
+    }
 
   }
-
-
-  const layer =
-    document.querySelector(
-      '#windows'
-    );
-
-
-  if (!layer) return;
-
-
-  const position =
-    windowPosition();
-
-
-  const node =
-    document.createElement(
-      'section'
-    );
-
-
-  node.className =
-    'app-window';
-
-
-  node.dataset.app =
-    id;
-
-
-  node.style.left =
-    `${position.left}px`;
-
-
-  node.style.top =
-    `${position.top}px`;
-
-
-  node.style.width =
-    `${position.width}px`;
-
-
-  node.style.height =
-    `${position.height}px`;
-
-
-  node.style.zIndex =
-    ++state.z;
-
-
-  node.innerHTML = `
-
-    <div class="window-chrome">
-
-      <span class="window-title">
-        ${esc(
-          project.name ||
-          project.title ||
-          'Project'
-        )}
-      </span>
-
-      <span class="window-state">
-        Project
-      </span>
-
-      <div class="window-controls">
-
-        <button
-          type="button"
-          data-win-close
-          aria-label="Close window"
-        >
-          ×
-        </button>
-
-      </div>
-
-    </div>
-
-    <div class="window-body">
-
-      ${renderProjectDetail(project)}
-
-    </div>
-
-  `;
-
-
-  layer.appendChild(node);
-
-
-  state.windows.set(
-    id,
-    {
-      node,
-      body:
-        node.querySelector(
-          '.window-body'
-        )
-    }
-  );
-
-
-  wireWindowActions(
-    node.querySelector(
-      '.window-body'
-    )
-  );
-
-
-  wireDrag(
-    node,
-    id
-  );
-
-
-  focusWindow(id);
-
-}
-
-
-/* =========================================================
-   THEME
-   ========================================================= */
-
-function toggleTheme() {
-
-  state.theme =
-    state.theme === 'dark'
-      ? 'light'
-      : 'dark';
-
-
-  localStorage.setItem(
-    'tayassuk-os-theme-v2',
-    state.theme
-  );
-
-
-  document.documentElement.dataset.theme =
-    state.theme;
-
-}
+);
 
 
 /* =========================================================
    SEARCH WINDOW
    ========================================================= */
 
-function openSearch() {
+function openSearchWindow() {
 
   const id =
     'search';
 
 
-  if (state.windows.has(id)) {
+  if (
+    state.windows.has(id)
+  ) {
 
-    focusWindow(id);
+    restoreWindow(id);
 
     return;
 
@@ -3968,10 +5044,6 @@ function openSearch() {
 
 
   if (!layer) return;
-
-
-  const position =
-    windowPosition();
 
 
   const node =
@@ -3988,25 +5060,31 @@ function openSearch() {
     id;
 
 
-  node.style.left =
-    `${position.left}px`;
-
-
-  node.style.top =
-    `${position.top}px`;
-
-
   node.style.width =
     `${Math.min(
-      720,
-      innerWidth - 44
+      680,
+      innerWidth - 40
     )}px`;
 
 
   node.style.height =
     `${Math.min(
-      560,
+      520,
       innerHeight - 120
+    )}px`;
+
+
+  node.style.left =
+    `${Math.max(
+      20,
+      (innerWidth - 680) / 2
+    )}px`;
+
+
+  node.style.top =
+    `${Math.max(
+      72,
+      (innerHeight - 520) / 2
     )}px`;
 
 
@@ -4018,20 +5096,46 @@ function openSearch() {
 
     <div class="window-chrome">
 
-      <span class="window-title">
-        Search
-      </span>
+      <div class="window-title-area">
 
-      <span class="window-state">
-        Tayassuk OS
-      </span>
+        <span class="window-title">
+          Search
+        </span>
+
+        <span class="window-state">
+          Tayassuk OS
+        </span>
+
+      </div>
+
 
       <div class="window-controls">
 
         <button
           type="button"
-          data-win-close
-          aria-label="Close window"
+          class="window-control window-minimize"
+          data-window-action="minimize"
+          title="Minimize"
+        >
+          −
+        </button>
+
+
+        <button
+          type="button"
+          class="window-control window-maximize"
+          data-window-action="maximize"
+          title="Maximize"
+        >
+          □
+        </button>
+
+
+        <button
+          type="button"
+          class="window-control window-close"
+          data-window-action="close"
+          title="Close"
         >
           ×
         </button>
@@ -4045,23 +5149,39 @@ function openSearch() {
 
       <div class="search-page">
 
-        <input
-          id="portfolio-search-input"
-          type="search"
-          placeholder="Search portfolio..."
-          autocomplete="off"
-        >
+        <div class="search-input-wrap">
+
+          <span>
+            ⌕
+          </span>
+
+          <input
+            type="search"
+            id="portfolio-search-input"
+            placeholder="Search apps and projects..."
+            autocomplete="off"
+          >
+
+        </div>
 
 
         <div
-          id="portfolio-search-results"
           class="search-results"
+          id="portfolio-search-results"
         >
+
           <div class="empty-state">
+
+            <div class="empty-icon">
+              ⌕
+            </div>
+
             <p>
-              Type something to search.
+              Start typing to search.
             </p>
+
           </div>
+
         </div>
 
       </div>
@@ -4071,7 +5191,9 @@ function openSearch() {
   `;
 
 
-  layer.appendChild(node);
+  layer.appendChild(
+    node
+  );
 
 
   state.windows.set(
@@ -4083,6 +5205,24 @@ function openSearch() {
           '.window-body'
         )
     }
+  );
+
+
+  wireWindowControls(
+    node,
+    id
+  );
+
+
+  wireDrag(
+    node,
+    id
+  );
+
+
+  node.addEventListener(
+    'pointerdown',
+    () => focusWindow(id)
   );
 
 
@@ -4098,38 +5238,28 @@ function openSearch() {
     );
 
 
-  input?.addEventListener(
-    'input',
-    () => {
+  if (input && results) {
 
-      results.innerHTML =
-        renderSearchResults(
-          input.value
-        );
+    input.addEventListener(
+      'input',
+      () => {
 
-    }
-  );
+        results.innerHTML =
+          renderSearchResults(
+            input.value
+          );
 
+      }
+    );
 
-  wireWindowActions(
-    node.querySelector(
-      '.window-body'
-    )
-  );
-
-
-  wireDrag(
-    node,
-    id
-  );
+  }
 
 
   focusWindow(id);
 
 
-  setTimeout(
-    () => input?.focus(),
-    50
+  requestAnimationFrame(
+    () => input?.focus()
   );
 
 }
@@ -4139,74 +5269,189 @@ function openSearch() {
    KEYBOARD SHORTCUTS
    ========================================================= */
 
-function wireKeyboard() {
+document.addEventListener(
+  'keydown',
+  event => {
 
-  document.addEventListener(
-    'keydown',
-    event => {
+    /* ESC → close focused window */
+
+    if (
+      event.key === 'Escape'
+    ) {
+
+      const openWindows =
+        Array.from(
+          state.windows.values()
+        )
+          .filter(
+            win =>
+              win?.node &&
+              !win.node.hidden
+          );
+
 
       if (
-        event.key === 'Escape'
+        openWindows.length
       ) {
 
-        const ids =
-          [...state.windows.keys()];
+        const active =
+          openWindows
+            .sort(
+              (a, b) =>
+                Number(
+                  b.node.style.zIndex
+                ) -
+                Number(
+                  a.node.style.zIndex
+                )
+            )[0];
 
 
-        const last =
-          ids.at(-1);
-
-
-        if (last) {
+        if (active) {
 
           closeWindow(
-            last
+            active.node.dataset.app
           );
 
         }
 
-        return;
-
-      }
-
-
-      if (
-        event.ctrlKey &&
-        event.key.toLowerCase() === 'k'
-      ) {
-
-        event.preventDefault();
-
-        openSearch();
-
       }
 
     }
-  );
 
-}
+
+    /* CTRL + K → Search */
+
+    if (
+      (event.ctrlKey ||
+        event.metaKey) &&
+      event.key.toLowerCase() === 'k'
+    ) {
+
+      event.preventDefault();
+
+      openSearchWindow();
+
+    }
+
+  }
+);
 
 
 /* =========================================================
-   AUTH + REMOTE DATA
+   WINDOW RESIZE
+   ========================================================= */
+
+window.addEventListener(
+  'resize',
+  () => {
+
+    state.windows.forEach(
+      (win, id) => {
+
+        if (!win?.node) return;
+
+
+        if (
+          state.maximizedWindows.has(id)
+        ) {
+
+          win.node.style.left =
+            '16px';
+
+          win.node.style.top =
+            '64px';
+
+          win.node.style.width =
+            'calc(100vw - 32px)';
+
+          win.node.style.height =
+            'calc(100vh - 82px)';
+
+          return;
+
+        }
+
+
+        const maxLeft =
+          Math.max(
+            12,
+            innerWidth -
+              win.node.offsetWidth -
+              12
+          );
+
+
+        const maxTop =
+          Math.max(
+            64,
+            innerHeight -
+              win.node.offsetHeight -
+              12
+          );
+
+
+        const currentLeft =
+          parseFloat(
+            win.node.style.left
+          ) || 12;
+
+
+        const currentTop =
+          parseFloat(
+            win.node.style.top
+          ) || 64;
+
+
+        win.node.style.left =
+          `${Math.min(
+            maxLeft,
+            Math.max(
+              12,
+              currentLeft
+            )
+          )}px`;
+
+
+        win.node.style.top =
+          `${Math.min(
+            maxTop,
+            Math.max(
+              64,
+              currentTop
+            )
+          )}px`;
+
+      }
+    );
+
+  }
+);
+
+
+/* =========================================================
+   INITIALIZE REMOTE DATA
    ========================================================= */
 
 async function initRemoteData() {
 
   try {
 
-    state.adminSession =
+    const session =
       await getSession();
+
+
+    state.adminSession =
+      session?.session ||
+      session ||
+      null;
 
   } catch (error) {
 
     console.warn(
-      'Could not get auth session:',
+      'Session initialization failed:',
       error
     );
-
-    state.adminSession =
-      null;
 
   }
 
@@ -4243,7 +5488,7 @@ async function initRemoteData() {
   } catch (error) {
 
     console.warn(
-      'Remote portfolio unavailable. Using fallback data.',
+      'Remote portfolio initialization failed:',
       error
     );
 
@@ -4256,29 +5501,26 @@ async function initRemoteData() {
 
 
 /* =========================================================
-   INITIALIZE
+   STARTUP
    ========================================================= */
 
 function initialize() {
 
-  /*
-   * These are deliberately called BEFORE
-   * the async Supabase request.
-   * So the public portfolio remains interactive
-   * even when Supabase is slow/unavailable.
-   */
+  document.documentElement.dataset.theme =
+    state.theme;
 
-  wireGlobalEvents();
-
-  wireKeyboard();
 
   renderAll();
 
 
-  /*
-   * Then load CMS data.
-   */
-  initRemoteData();
+  initRemoteData()
+    .catch(
+      error =>
+        console.error(
+          'Portfolio initialization failed:',
+          error
+        )
+    );
 
 }
 
@@ -4288,8 +5530,7 @@ function initialize() {
    ========================================================= */
 
 if (
-  document.readyState ===
-  'loading'
+  document.readyState === 'loading'
 ) {
 
   document.addEventListener(
@@ -4305,106 +5546,3 @@ if (
   initialize();
 
 }
-/* =========================================================
-   CUSTOM DOCK APP LOGOS
-   ========================================================= */
-
-function replaceDockIcons() {
-  const dockItems = document.querySelectorAll(
-    '.dock .dock-item'
-  );
-
-  const dockLogos = [
-    './assets/icons/about.png',
-    './assets/icons/projects.png',
-    './assets/icons/learning.png',
-    './assets/icons/skills.png',
-    './assets/icons/education.png',
-    './assets/icons/journey.png',
-    './assets/icons/achievements.png',
-    './assets/icons/resume.png',
-    './assets/icons/contact.png',
-    './assets/icons/whiteboard.png',
-    './assets/icons/founder.png',
-    './assets/icons/control-center.png'
-  ];
-
-  dockItems.forEach((item, index) => {
-    const logo = dockLogos[index];
-
-    if (!logo) return;
-
-    item.innerHTML = `
-      <img
-        src="${logo}"
-        alt="Dock App"
-        class="dock-app-logo"
-      />
-    `;
-  });
-}
-
-
-/* Run after page loads */
-if (document.readyState === 'loading') {
-  document.addEventListener(
-    'DOMContentLoaded',
-    replaceDockIcons
-  );
-} else {
-  replaceDockIcons();
-}
-/* =========================================================
-   WINDOW CONTROLS
-   ========================================================= */
-
-document.addEventListener("click", function (event) {
-
-  const button =
-    event.target.closest("[data-window-action]");
-
-  if (!button) return;
-
-  const windowNode =
-    button.closest(".app-window");
-
-  if (!windowNode) return;
-
-  const action =
-    button.dataset.windowAction;
-
-
-  /* ---------- CLOSE ---------- */
-
-  if (action === "close") {
-
-    windowNode.remove();
-
-    return;
-  }
-
-
-  /* ---------- MINIMIZE ---------- */
-
-  if (action === "minimize") {
-
-    windowNode.classList.toggle(
-      "window-minimized"
-    );
-
-    return;
-  }
-
-
-  /* ---------- MAXIMIZE ---------- */
-
-  if (action === "maximize") {
-
-    windowNode.classList.toggle(
-      "window-maximized"
-    );
-
-    return;
-  }
-
-});
