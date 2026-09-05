@@ -4404,99 +4404,90 @@ function renderControlCenter() {
         </div>
 
 
-        <div class="control-grid">
+     <div class="control-grid">
 
-          <button
-            type="button"
-            class="control-card cms-section-button"
-            data-action="cms-open-section"
-            data-section="skills"
-          >
-            <h3>Skills</h3>
-            <small>Add / Edit / Delete</small>
-          </button>
-
-
-          <button
-            type="button"
-            class="control-card cms-section-button"
-            data-action="cms-open-section"
-            data-section="education"
-          >
-            <h3>Education</h3>
-            <small>Add / Edit / Delete</small>
-          </button>
+  <div class="control-card">
+    <h3>Skills</h3>
+    <small>Add / Edit / Delete</small>
+    <div class="control-card-actions">
+      <button type="button" data-action="cms-add-section" data-section="skills">Add</button>
+      <button type="button" data-action="cms-edit-section" data-section="skills">Edit</button>
+      <button type="button" data-action="cms-delete-section" data-section="skills">Delete</button>
+    </div>
+  </div>
 
 
-          <button
-            type="button"
-            class="control-card cms-section-button"
-            data-action="cms-open-section"
-            data-section="achievements"
-          >
-            <h3>Achievements</h3>
-            <small>Add / Edit / Delete</small>
-          </button>
+  <div class="control-card">
+    <h3>Education</h3>
+    <small>Add / Edit / Delete</small>
+    <div class="control-card-actions">
+      <button type="button" data-action="cms-add-section" data-section="education">Add</button>
+      <button type="button" data-action="cms-edit-section" data-section="education">Edit</button>
+      <button type="button" data-action="cms-delete-section" data-section="education">Delete</button>
+    </div>
+  </div>
 
 
-          <button
-            type="button"
-            class="control-card cms-section-button"
-            data-action="cms-open-section"
-            data-section="journey"
-          >
-            <h3>Journey</h3>
-            <small>Add / Edit / Delete</small>
-          </button>
+  <div class="control-card">
+    <h3>Achievements</h3>
+    <small>Add / Edit / Delete</small>
+    <div class="control-card-actions">
+      <button type="button" data-action="cms-add-section" data-section="achievements">Add</button>
+      <button type="button" data-action="cms-edit-section" data-section="achievements">Edit</button>
+      <button type="button" data-action="cms-delete-section" data-section="achievements">Delete</button>
+    </div>
+  </div>
 
 
-          <button
-            type="button"
-            class="control-card cms-section-button"
-            data-action="cms-open-section"
-            data-section="notes"
-          >
-            <h3>Quick Notes</h3>
-            <small>Edit content</small>
-          </button>
+  <div class="control-card">
+    <h3>Journey</h3>
+    <small>Add / Edit / Delete</small>
+    <div class="control-card-actions">
+      <button type="button" data-action="cms-add-section" data-section="journey">Add</button>
+      <button type="button" data-action="cms-edit-section" data-section="journey">Edit</button>
+      <button type="button" data-action="cms-delete-section" data-section="journey">Delete</button>
+    </div>
+  </div>
 
 
-          <button
-            type="button"
-            class="control-card cms-section-button"
-            data-action="cms-open-section"
-            data-section="goals"
-          >
-            <h3>Next Goals</h3>
-            <small>Edit content</small>
-          </button>
+  <div class="control-card">
+    <h3>Quick Notes</h3>
+    <small>Edit content</small>
+    <div class="control-card-actions">
+      <button type="button" data-action="cms-edit-section" data-section="notes">Edit</button>
+    </div>
+  </div>
 
 
-          <button
-            type="button"
-            class="control-card cms-section-button"
-            data-action="cms-open-section"
-            data-section="quote"
-          >
-            <h3>Quote</h3>
-            <small>Edit content</small>
-          </button>
+  <div class="control-card">
+    <h3>Next Goals</h3>
+    <small>Edit content</small>
+    <div class="control-card-actions">
+      <button type="button" data-action="cms-edit-section" data-section="goals">Edit</button>
+    </div>
+  </div>
 
 
-          <button
-            type="button"
-            class="control-card cms-section-button"
-            data-action="cms-open-section"
-            data-section="activity"
-          >
-            <h3>Recent Activity</h3>
-            <small>Add / Edit / Delete</small>
-          </button>
+  <div class="control-card">
+    <h3>Quote</h3>
+    <small>Edit content</small>
+    <div class="control-card-actions">
+      <button type="button" data-action="cms-edit-section" data-section="quote">Edit</button>
+    </div>
+  </div>
 
-        </div>
 
-      </section>
+  <div class="control-card">
+    <h3>Recent Activity</h3>
+    <small>Add / Edit / Delete</small>
+    <div class="control-card-actions">
+      <button type="button" data-action="cms-add-section" data-section="activity">Add</button>
+      <button type="button" data-action="cms-edit-section" data-section="activity">Edit</button>
+      <button type="button" data-action="cms-delete-section" data-section="activity">Delete</button>
+    </div>
+  </div>
 
+</div>
 
       <!-- SYSTEM ACTIONS -->
 
@@ -5197,13 +5188,120 @@ function wireControlCenter(body) {
       );
     }
   );
-  /* =========================
+   /* =========================
      OTHER SECTIONS
      ========================= */
 
   body
     .querySelectorAll(
-      '[data-action="cms-open-section"]'
+      '[data-action="cms-add-section"]'
+    )
+    .forEach(button => {
+
+      button.addEventListener(
+        'click',
+        async () => {
+
+          const section =
+            button.dataset.section;
+
+          let current = [];
+
+          if (section === 'skills') {
+            current = portfolio.skills || [];
+          }
+
+          else if (section === 'education') {
+            current = portfolio.education || [];
+          }
+
+          else if (section === 'achievements') {
+            current = portfolio.achievements || [];
+          }
+
+          else if (section === 'journey') {
+            current = portfolio.journey || [];
+          }
+
+          else if (section === 'activity') {
+            current =
+              portfolio.recentActivity ||
+              portfolio.activity ||
+              [];
+          }
+
+          const value =
+            prompt(
+              `Add new ${section} item as JSON:`,
+              '{}'
+            );
+
+          if (value === null) return;
+
+          try {
+
+            const parsed =
+              JSON.parse(value);
+
+            current.push(parsed);
+
+            if (section === 'skills') {
+              portfolio.skills = current;
+            }
+
+            else if (section === 'education') {
+              portfolio.education = current;
+            }
+
+            else if (section === 'achievements') {
+              portfolio.achievements = current;
+            }
+
+            else if (section === 'journey') {
+              portfolio.journey = current;
+            }
+
+            else if (section === 'activity') {
+              portfolio.recentActivity = current;
+            }
+
+            await saveRemotePortfolio(
+              portfolio
+            );
+
+            alert(
+              `${section} added successfully.`
+            );
+
+            body.innerHTML =
+              renderControlCenter();
+
+            wireControlCenter(body);
+
+          }
+
+          catch (error) {
+
+            alert(
+              'Invalid JSON. Nothing was added.'
+            );
+
+            console.error(
+              'CMS add failed:',
+              error
+            );
+
+          }
+
+        }
+      );
+
+    });
+
+
+  body
+    .querySelectorAll(
+      '[data-action="cms-edit-section"]'
     )
     .forEach(button => {
 
@@ -5217,23 +5315,19 @@ function wireControlCenter(body) {
           let current;
 
           if (section === 'skills') {
-            current =
-              portfolio.skills || [];
+            current = portfolio.skills || [];
           }
 
           else if (section === 'education') {
-            current =
-              portfolio.education || [];
+            current = portfolio.education || [];
           }
 
           else if (section === 'achievements') {
-            current =
-              portfolio.achievements || [];
+            current = portfolio.achievements || [];
           }
 
           else if (section === 'journey') {
-            current =
-              portfolio.journey || [];
+            current = portfolio.journey || [];
           }
 
           else if (section === 'notes') {
@@ -5252,8 +5346,7 @@ function wireControlCenter(body) {
 
           else if (section === 'quote') {
             current =
-              portfolio.quote ||
-              '';
+              portfolio.quote || '';
           }
 
           else if (section === 'activity') {
@@ -5262,7 +5355,6 @@ function wireControlCenter(body) {
               portfolio.activity ||
               [];
           }
-
 
           const edited =
             prompt(
@@ -5274,15 +5366,12 @@ function wireControlCenter(body) {
               )
             );
 
-
           if (edited === null) return;
-
 
           try {
 
             const parsed =
               JSON.parse(edited);
-
 
             if (section === 'skills') {
               portfolio.skills = parsed;
@@ -5316,35 +5405,150 @@ function wireControlCenter(body) {
               portfolio.recentActivity = parsed;
             }
 
-
             await saveRemotePortfolio(
               portfolio
             );
 
-
             alert(
-              `${section} saved successfully.`
+              `${section} updated successfully.`
             );
-
 
             body.innerHTML =
               renderControlCenter();
 
             wireControlCenter(body);
 
+          }
 
-          } catch (error) {
+          catch (error) {
 
             alert(
               'Invalid JSON. Nothing was changed.'
             );
 
             console.error(
-              'CMS section update failed:',
+              'CMS edit failed:',
               error
             );
 
           }
+
+        }
+      );
+
+    });
+
+
+  body
+    .querySelectorAll(
+      '[data-action="cms-delete-section"]'
+    )
+    .forEach(button => {
+
+      button.addEventListener(
+        'click',
+        async () => {
+
+          const section =
+            button.dataset.section;
+
+          let current = [];
+
+          if (section === 'skills') {
+            current = portfolio.skills || [];
+          }
+
+          else if (section === 'education') {
+            current = portfolio.education || [];
+          }
+
+          else if (section === 'achievements') {
+            current = portfolio.achievements || [];
+          }
+
+          else if (section === 'journey') {
+            current = portfolio.journey || [];
+          }
+
+          else if (section === 'activity') {
+            current =
+              portfolio.recentActivity ||
+              portfolio.activity ||
+              [];
+          }
+
+          if (!current.length) {
+            alert(
+              `No ${section} items available.`
+            );
+            return;
+          }
+
+          const index =
+            prompt(
+              `Enter the index to delete (0 - ${current.length - 1}):`
+            );
+
+          if (index === null) return;
+
+          const itemIndex =
+            Number(index);
+
+          if (
+            !Number.isInteger(itemIndex) ||
+            itemIndex < 0 ||
+            itemIndex >= current.length
+          ) {
+            alert(
+              'Invalid index.'
+            );
+            return;
+          }
+
+          const confirmed =
+            confirm(
+              `Delete ${section} item ${itemIndex}?`
+            );
+
+          if (!confirmed) return;
+
+          current.splice(
+            itemIndex,
+            1
+          );
+
+          if (section === 'skills') {
+            portfolio.skills = current;
+          }
+
+          else if (section === 'education') {
+            portfolio.education = current;
+          }
+
+          else if (section === 'achievements') {
+            portfolio.achievements = current;
+          }
+
+          else if (section === 'journey') {
+            portfolio.journey = current;
+          }
+
+          else if (section === 'activity') {
+            portfolio.recentActivity = current;
+          }
+
+          await saveRemotePortfolio(
+            portfolio
+          );
+
+          alert(
+            `${section} deleted successfully.`
+          );
+
+          body.innerHTML =
+            renderControlCenter();
+
+          wireControlCenter(body);
 
         }
       );
