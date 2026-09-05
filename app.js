@@ -5632,3 +5632,182 @@ if (
   initialize();
 
 }
+/* =====================================================
+   FINAL SMALL FIX
+   1. Remove duplicate Trash from bottom dock
+   2. Fix missing Settings + Trash launcher icons
+   3. Keep newly opened windows inside/center of screen
+   ===================================================== */
+
+(function () {
+
+  function fixTayassukOS() {
+
+    /* ---------- 1. REMOVE DUPLICATE TRASH ---------- */
+
+    document
+      .querySelectorAll(
+        '.dock [data-app="trash"],' +
+        '.bottom-dock [data-app="trash"],' +
+        '[data-dock] [data-app="trash"]'
+      )
+      .forEach(function (item) {
+        item.style.display = 'none';
+      });
+
+
+    /* ---------- 2. FIX SETTINGS + TRASH ICON ---------- */
+
+    const settingsSVG =
+      'data:image/svg+xml;charset=UTF-8,' +
+      encodeURIComponent(`
+        <svg xmlns="http://www.w3.org/2000/svg"
+             viewBox="0 0 100 100">
+          <rect x="8" y="8" width="84" height="84" rx="22"
+                fill="#102b43" stroke="#55cfff" stroke-width="3"/>
+          <circle cx="50" cy="50" r="18"
+                  fill="none" stroke="#d8f5ff" stroke-width="6"/>
+          <path d="M50 20v10M50 70v10M20 50h10M70 50h10
+                   M29 29l7 7M64 64l7 7M71 29l-7 7M36 64l-7 7"
+                stroke="#d8f5ff"
+                stroke-width="6"
+                stroke-linecap="round"/>
+        </svg>
+      `);
+
+    const trashSVG =
+      'data:image/svg+xml;charset=UTF-8,' +
+      encodeURIComponent(`
+        <svg xmlns="http://www.w3.org/2000/svg"
+             viewBox="0 0 100 100">
+          <rect x="8" y="8" width="84" height="84" rx="22"
+                fill="#102b43" stroke="#55cfff" stroke-width="3"/>
+          <path d="M32 34h36M40 34v-7h20v7
+                   M37 40v29M50 40v29M63 40v29
+                   M31 34l4 40h30l4-40"
+                fill="none"
+                stroke="#d8f5ff"
+                stroke-width="5"
+                stroke-linecap="round"
+                stroke-linejoin="round"/>
+        </svg>
+      `);
+
+    document
+      .querySelectorAll('.launcher-app[data-app="settings"] img')
+      .forEach(function (img) {
+        if (!img.complete || img.naturalWidth === 0) {
+          img.src = settingsSVG;
+        }
+      });
+
+    document
+      .querySelectorAll('.launcher-app[data-app="trash"] img')
+      .forEach(function (img) {
+        if (!img.complete || img.naturalWidth === 0) {
+          img.src = trashSVG;
+        }
+      });
+
+
+    /* ---------- 3. KEEP NEW WINDOWS INSIDE SCREEN ---------- */
+
+    document
+      .querySelectorAll('.app-window')
+      .forEach(function (win) {
+
+        if (win.dataset.safePositionFixed === 'yes') {
+          return;
+        }
+
+        const rect = win.getBoundingClientRect();
+
+        const width = Math.min(
+          rect.width || 900,
+          window.innerWidth - 40
+        );
+
+        const height = Math.min(
+          rect.height || 650,
+          window.innerHeight - 100
+        );
+
+        const left = Math.max(
+          20,
+          (window.innerWidth - width) / 2
+        );
+
+        const top = Math.max(
+          70,
+          (window.innerHeight - height) / 2
+        );
+
+        win.style.setProperty(
+          'position',
+          'fixed',
+          'important'
+        );
+
+        win.style.setProperty(
+          'left',
+          left + 'px',
+          'important'
+        );
+
+        win.style.setProperty(
+          'top',
+          top + 'px',
+          'important'
+        );
+
+        win.style.setProperty(
+          'width',
+          width + 'px',
+          'important'
+        );
+
+        win.style.setProperty(
+          'height',
+          height + 'px',
+          'important'
+        );
+
+        win.style.setProperty(
+          'margin',
+          '0',
+          'important'
+        );
+
+        win.style.setProperty(
+          'transform',
+          'none',
+          'important'
+        );
+
+        win.dataset.safePositionFixed = 'yes';
+      });
+  }
+
+
+  /* Run after page loads */
+  if (document.readyState === 'loading') {
+    document.addEventListener(
+      'DOMContentLoaded',
+      fixTayassukOS
+    );
+  } else {
+    fixTayassukOS();
+  }
+
+
+  /* Detect newly opened windows */
+  const observer = new MutationObserver(function () {
+    fixTayassukOS();
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+
+})();
