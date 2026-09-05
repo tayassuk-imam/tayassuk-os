@@ -7631,64 +7631,106 @@ if (
     forceDockPNGIcons
   );
 /* =========================================================
-   FLOATING PORTRAIT DRAG
+   COMPANION DRAG
    ========================================================= */
 
 (() => {
-  const initFloatingPortrait = () => {
-    const portrait = document.getElementById('floating-portrait');
+  const initCompanionDrag = () => {
+    const companion =
+      document.getElementById('companion');
 
-    if (!portrait) return;
+    if (!companion) return;
 
     let isDragging = false;
     let offsetX = 0;
     let offsetY = 0;
 
-    portrait.addEventListener('pointerdown', (event) => {
-      isDragging = true;
+    companion.addEventListener(
+      'pointerdown',
+      (event) => {
+        isDragging = true;
 
-      const rect = portrait.getBoundingClientRect();
+        const rect =
+          companion.getBoundingClientRect();
 
-      offsetX = event.clientX - rect.left;
-      offsetY = event.clientY - rect.top;
+        offsetX =
+          event.clientX - rect.left;
 
-      portrait.style.right = 'auto';
-      portrait.style.cursor = 'grabbing';
+        offsetY =
+          event.clientY - rect.top;
 
-      portrait.setPointerCapture(event.pointerId);
-    });
+        companion.style.right = 'auto';
+        companion.style.bottom = 'auto';
+        companion.style.cursor = 'grabbing';
 
-    portrait.addEventListener('pointermove', (event) => {
-      if (!isDragging) return;
+        companion.setPointerCapture(
+          event.pointerId
+        );
+      }
+    );
 
-      let x = event.clientX - offsetX;
-      let y = event.clientY - offsetY;
+    companion.addEventListener(
+      'pointermove',
+      (event) => {
+        if (!isDragging) return;
 
-      const maxX = window.innerWidth - portrait.offsetWidth;
-      const maxY = window.innerHeight - portrait.offsetHeight;
+        let x =
+          event.clientX - offsetX;
 
-      x = Math.max(0, Math.min(x, maxX));
-      y = Math.max(0, Math.min(y, maxY));
+        let y =
+          event.clientY - offsetY;
 
-      portrait.style.left = `${x}px`;
-      portrait.style.top = `${y}px`;
-    });
+        const maxX =
+          window.innerWidth -
+          companion.offsetWidth;
 
-    portrait.addEventListener('pointerup', () => {
-      isDragging = false;
-      portrait.style.cursor = 'grab';
-    });
+        const maxY =
+          window.innerHeight -
+          companion.offsetHeight;
 
-    portrait.addEventListener('pointercancel', () => {
-      isDragging = false;
-      portrait.style.cursor = 'grab';
-    });
+        x = Math.max(
+          0,
+          Math.min(x, maxX)
+        );
+
+        y = Math.max(
+          0,
+          Math.min(y, maxY)
+        );
+
+        companion.style.left =
+          `${x}px`;
+
+        companion.style.top =
+          `${y}px`;
+      }
+    );
+
+    companion.addEventListener(
+      'pointerup',
+      () => {
+        isDragging = false;
+        companion.style.cursor = 'grab';
+      }
+    );
+
+    companion.addEventListener(
+      'pointercancel',
+      () => {
+        isDragging = false;
+        companion.style.cursor = 'grab';
+      }
+    );
   };
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initFloatingPortrait);
+  if (
+    document.readyState === 'loading'
+  ) {
+    document.addEventListener(
+      'DOMContentLoaded',
+      initCompanionDrag
+    );
   } else {
-    initFloatingPortrait();
+    initCompanionDrag();
   }
-})();
 })();
