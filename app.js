@@ -5796,80 +5796,116 @@ if (
 
 })();
 /* =====================================================
-   DOCK ICONS ONLY — FINAL FIX
+   FINAL DOCK PNG ICON FIX — ONLY
    ===================================================== */
 
 (function () {
 
-  const dockLogoMap = {
-    projects: './assets/icons/projects.png',
-    learning: './assets/icons/learning.png',
-    skills: './assets/icons/skills.png',
-    education: './assets/icons/education.png',
-    journey: './assets/icons/journey.png',
-    about: './assets/icons/about.png',
-    achievements: './assets/icons/achievements.png',
-    contact: './assets/icons/contact.png',
-    whiteboard: './assets/icons/whiteboard.png',
-    browser: './assets/icons/browser.png',
-    control: './assets/icons/control-center.png'
-  };
-
-  function fixDockIconsOnly() {
+  function forceDockPNGIcons() {
 
     const dock = document.querySelector('#dock');
 
     if (!dock) return;
 
+    const iconMap = {
+      projects: './assets/icons/projects.png',
+      learning: './assets/icons/learning.png',
+      skills: './assets/icons/skills.png',
+      education: './assets/icons/education.png',
+      journey: './assets/icons/journey.png',
+      about: './assets/icons/about.png',
+      achievements: './assets/icons/achievements.png',
+      contact: './assets/icons/contact.png',
+      whiteboard: './assets/icons/whiteboard.png',
+      browser: './assets/icons/browser.png',
+      control: './assets/icons/control-center.png'
+    };
+
     dock.querySelectorAll('.dock-item').forEach(function (item) {
 
-      const id = item.dataset.app;
-      const logo = dockLogoMap[id];
+      const appId = item.getAttribute('data-app');
+
+      const logo = iconMap[appId];
 
       if (!logo) return;
 
-      let img = item.querySelector('img');
+      item.innerHTML = '';
 
-      if (!img) {
-        img = document.createElement('img');
-        item.innerHTML = '';
-        item.appendChild(img);
-      }
+      const img = document.createElement('img');
 
       img.src = logo;
-      img.alt = id;
-      img.draggable = false;
+      img.alt = appId;
+      img.className = 'dock-logo';
 
-      img.style.setProperty('width', '42px', 'important');
-      img.style.setProperty('height', '42px', 'important');
-      img.style.setProperty('object-fit', 'contain', 'important');
-      img.style.setProperty('display', 'block', 'important');
-      img.style.setProperty('visibility', 'visible', 'important');
-      img.style.setProperty('opacity', '1', 'important');
+      img.setAttribute('draggable', 'false');
+
+      img.style.setProperty(
+        'width',
+        '42px',
+        'important'
+      );
+
+      img.style.setProperty(
+        'height',
+        '42px',
+        'important'
+      );
+
+      img.style.setProperty(
+        'object-fit',
+        'contain',
+        'important'
+      );
+
+      img.style.setProperty(
+        'display',
+        'block',
+        'important'
+      );
+
+      img.style.setProperty(
+        'visibility',
+        'visible',
+        'important'
+      );
+
+      item.appendChild(img);
+
     });
+
   }
 
-  /* Run now */
-  fixDockIconsOnly();
+
+  /* Run after everything is rendered */
+  window.addEventListener(
+    'load',
+    forceDockPNGIcons
+  );
+
 
   /* Run after DOM is ready */
   document.addEventListener(
     'DOMContentLoaded',
-    fixDockIconsOnly
+    forceDockPNGIcons
   );
 
-  /* Run whenever renderDock recreates the icons */
-  const dockObserver = new MutationObserver(function () {
-    fixDockIconsOnly();
-  });
+
+  /* Protect against old dock icon code */
+  const observer = new MutationObserver(
+    function () {
+      forceDockPNGIcons();
+    }
+  );
 
   const dock = document.querySelector('#dock');
 
   if (dock) {
-    dockObserver.observe(dock, {
+
+    observer.observe(dock, {
       childList: true,
       subtree: true
     });
+
   }
 
 })();
