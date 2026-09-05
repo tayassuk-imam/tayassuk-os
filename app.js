@@ -1269,7 +1269,29 @@ function openWindow(id) {
 
   node.style.zIndex =
     ++state.z;
-  /* FIX: Keep app windows inside the desktop */
+/* =========================================================
+   FIX: KEEP APP WINDOW INSIDE VIEWPORT
+   ========================================================= */
+
+const safeWidth = Math.min(
+  position.width,
+  window.innerWidth - 40
+);
+
+const safeHeight = Math.min(
+  position.height,
+  window.innerHeight - 100
+);
+
+const safeLeft = Math.max(
+  20,
+  (window.innerWidth - safeWidth) / 2
+);
+
+const safeTop = Math.max(
+  70,
+  (window.innerHeight - safeHeight) / 2
+);
 
 node.style.setProperty(
   'position',
@@ -1279,40 +1301,45 @@ node.style.setProperty(
 
 node.style.setProperty(
   'left',
-  `${position.left}px`,
+  `${safeLeft}px`,
   'important'
 );
 
 node.style.setProperty(
   'top',
-  `${position.top}px`,
+  `${safeTop}px`,
   'important'
 );
 
 node.style.setProperty(
   'width',
-  `${position.width}px`,
+  `${safeWidth}px`,
   'important'
 );
 
 node.style.setProperty(
   'height',
-  `${position.height}px`,
+  `${safeHeight}px`,
   'important'
 );
 
 node.style.setProperty(
-  'max-width',
-  'calc(100vw - 44px)',
+  'margin',
+  '0',
   'important'
 );
 
 node.style.setProperty(
-  'max-height',
-  'calc(100vh - 120px)',
+  'transform',
+  'none',
   'important'
 );
 
+node.style.setProperty(
+  'z-index',
+  `${++state.z}`,
+  'important'
+);
 
   node.innerHTML = `
 
