@@ -3988,289 +3988,541 @@ function wireWindowActions(body) {
 
 function renderControlCenter() {
 
-  const owner =
-    portfolio.owner || {};
+  const owner = portfolio.owner || {};
+  const identity = owner.identity || {};
+  const contact = owner.contact || {};
 
-  const identity =
-    owner.identity || {};
+  if (!state.adminSession) {
+    return `
+      <div class="window-page control-center-page">
 
-  const contact =
-    owner.contact || {};
+        <div class="window-page-heading">
+          <span class="eyebrow">Private Workspace</span>
+          <h1>Control Center</h1>
+          <p>Sign in to manage your portfolio.</p>
+        </div>
+
+        <div class="admin-status">
+          <span class="status-dot"></span>
+          <span>Visitor mode</span>
+        </div>
+
+        <form class="admin-login-form" id="admin-login-form">
+
+          <div class="login-intro">
+            <div class="login-icon">◈</div>
+
+            <div>
+              <h3>Administrator Access</h3>
+              <p>Sign in to manage your portfolio.</p>
+            </div>
+          </div>
+
+          <label>
+            <span>Email</span>
+            <input
+              type="email"
+              name="email"
+              autocomplete="email"
+              placeholder="admin@example.com"
+              required
+            >
+          </label>
+
+          <label>
+            <span>Password</span>
+            <input
+              type="password"
+              name="password"
+              autocomplete="current-password"
+              placeholder="••••••••"
+              required
+            >
+          </label>
+
+          <button
+            type="submit"
+            class="primary-action"
+          >
+            Sign In
+          </button>
+
+          <p
+            class="form-status"
+            id="admin-login-status"
+          ></p>
+
+        </form>
+
+      </div>
+    `;
+  }
 
 
   return `
-
     <div class="window-page control-center-page">
 
       <div class="window-page-heading">
+        <span class="eyebrow">Private Workspace</span>
 
-        <span class="eyebrow">
-          Private Workspace
-        </span>
-
-        <h1>
-          Control Center
-        </h1>
+        <h1>Control Center</h1>
 
         <p>
-          Manage your portfolio content and system preferences.
+          Manage all portfolio content without editing GitHub files.
         </p>
-
       </div>
 
 
       <div class="admin-status">
-
         <span class="status-dot"></span>
-
-        <span>
-          ${
-            state.adminSession
-              ? 'Admin authenticated'
-              : 'Visitor mode'
-          }
-        </span>
-
+        <span>Admin authenticated</span>
       </div>
 
 
-      ${
-        state.adminSession
+      <!-- PROFILE -->
 
-          ? `
+      <section class="control-editor-card">
 
-            <div class="control-grid">
-
-              <section class="control-card">
-
-                <div class="control-card-icon">
-                  ◉
-                </div>
-
-                <div>
-
-                  <h3>
-                    Profile
-                  </h3>
-
-                  <p>
-                    ${esc(
-                      identity.fullName ||
-                      'Tayassuk Imam'
-                    )}
-                  </p>
-
-                  <small>
-                    ${esc(
-                      identity.profession ||
-                      'Software Engineering Student'
-                    )}
-                  </small>
-
-                </div>
-
-              </section>
+        <div class="control-editor-header">
+          <div>
+            <span class="eyebrow">PROFILE</span>
+            <h2>Profile Information</h2>
+          </div>
+        </div>
 
 
-              <section class="control-card">
+        <div class="control-form-grid">
 
-                <div class="control-card-icon">
-                  ◇
-                </div>
-
-                <div>
-
-                  <h3>
-                    Projects
-                  </h3>
-
-                  <p>
-                    ${
-                      (
-                        portfolio.projects ||
-                        []
-                      ).length
-                    }
-                    project(s)
-                  </p>
-
-                  <small>
-                    Portfolio projects
-                  </small>
-
-                </div>
-
-              </section>
-
-
-              <section class="control-card">
-
-                <div class="control-card-icon">
-                  ◎
-                </div>
-
-                <div>
-
-                  <h3>
-                    Learning
-                  </h3>
-
-                  <p>
-                    ${
-                      (
-                        owner.learning ||
-                        []
-                      ).length
-                    }
-                    learning item(s)
-                  </p>
-
-                  <small>
-                    Current focus
-                  </small>
-
-                </div>
-
-              </section>
-
-
-              <section class="control-card">
-
-                <div class="control-card-icon">
-                  @
-                </div>
-
-                <div>
-
-                  <h3>
-                    Contact
-                  </h3>
-
-                  <p>
-                    ${esc(
-                      contact.email ||
-                      'No email configured'
-                    )}
-                  </p>
-
-                  <small>
-                    Public contact
-                  </small>
-
-                </div>
-
-              </section>
-
-            </div>
-
-
-            <div class="control-actions">
-
-              <button
-                type="button"
-                class="secondary-action"
-                data-action="admin-refresh"
-              >
-                ↻ Refresh Data
-              </button>
-
-
-              <button
-                type="button"
-                class="primary-action"
-                data-action="admin-logout"
-              >
-                Sign Out
-              </button>
-
-            </div>
-
-          `
-
-          : `
-
-            <form
-              class="admin-login-form"
-              id="admin-login-form"
+          <label>
+            <span>Full Name</span>
+            <input
+              type="text"
+              id="cms-fullName"
+              value="${esc(identity.fullName || '')}"
             >
+          </label>
 
-              <div class="login-intro">
 
-                <div class="login-icon">
-                  ◈
+          <label>
+            <span>Profession</span>
+            <input
+              type="text"
+              id="cms-profession"
+              value="${esc(identity.profession || '')}"
+            >
+          </label>
+
+
+          <label class="control-form-wide">
+            <span>Headline</span>
+            <input
+              type="text"
+              id="cms-headline"
+              value="${esc(identity.headline || '')}"
+            >
+          </label>
+
+
+          <label>
+            <span>Location</span>
+            <input
+              type="text"
+              id="cms-location"
+              value="${esc(contact.location || '')}"
+            >
+          </label>
+
+
+          <label>
+            <span>Email</span>
+            <input
+              type="email"
+              id="cms-email"
+              value="${esc(contact.email || '')}"
+            >
+          </label>
+
+
+          <label>
+            <span>Phone</span>
+            <input
+              type="text"
+              id="cms-phone"
+              value="${esc(contact.phone || '')}"
+            >
+          </label>
+
+
+          <label>
+            <span>GitHub</span>
+            <input
+              type="url"
+              id="cms-github"
+              value="${esc(contact.github || '')}"
+              placeholder="https://github.com/..."
+            >
+          </label>
+
+
+          <label>
+            <span>LinkedIn</span>
+            <input
+              type="url"
+              id="cms-linkedin"
+              value="${esc(contact.linkedin || '')}"
+              placeholder="https://linkedin.com/in/..."
+            >
+          </label>
+
+
+          <label class="control-form-wide">
+            <span>Bio</span>
+            <textarea
+              id="cms-bio"
+              rows="5"
+            >${esc(identity.bio || owner.bio || '')}</textarea>
+          </label>
+
+        </div>
+
+
+        <div class="control-actions">
+
+          <button
+            type="button"
+            class="primary-action"
+            data-action="cms-save-profile"
+          >
+            Save Profile
+          </button>
+
+          <span
+            class="form-status"
+            id="cms-profile-status"
+          ></span>
+
+        </div>
+
+      </section>
+
+
+      <!-- PROJECTS -->
+
+      <section class="control-editor-card">
+
+        <div class="control-editor-header">
+
+          <div>
+            <span class="eyebrow">PROJECTS</span>
+            <h2>Projects</h2>
+            <p>
+              Add, edit or remove portfolio projects.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            class="primary-action"
+            data-action="cms-add-project"
+          >
+            + Add Project
+          </button>
+
+        </div>
+
+
+        <div id="cms-project-list">
+
+          ${
+            (portfolio.projects || []).length
+              ? portfolio.projects.map((project, index) => `
+                
+                <div class="cms-list-item">
+
+                  <div>
+                    <strong>
+                      ${esc(
+                        project.title ||
+                        project.name ||
+                        `Project ${index + 1}`
+                      )}
+                    </strong>
+
+                    <small>
+                      ${esc(
+                        project.description ||
+                        project.summary ||
+                        ''
+                      )}
+                    </small>
+                  </div>
+
+
+                  <div class="cms-item-actions">
+
+                    <button
+                      type="button"
+                      class="secondary-action"
+                      data-action="cms-edit-project"
+                      data-index="${index}"
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      type="button"
+                      class="secondary-action"
+                      data-action="cms-delete-project"
+                      data-index="${index}"
+                    >
+                      Delete
+                    </button>
+
+                  </div>
+
                 </div>
 
-                <div>
+              `).join('')
+              : `
+                <div class="cms-empty">
+                  No projects added yet.
+                </div>
+              `
+          }
 
-                  <h3>
-                    Administrator Access
-                  </h3>
+        </div>
 
-                  <p>
-                    Sign in to manage your portfolio.
-                  </p>
+      </section>
+
+
+      <!-- LEARNING -->
+
+      <section class="control-editor-card">
+
+        <div class="control-editor-header">
+
+          <div>
+            <span class="eyebrow">LEARNING</span>
+            <h2>Currently Learning</h2>
+            <p>
+              Manage your current learning topics.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            class="primary-action"
+            data-action="cms-add-learning"
+          >
+            + Add Learning
+          </button>
+
+        </div>
+
+
+        <div id="cms-learning-list">
+
+          ${
+            (owner.learning || []).length
+              ? owner.learning.map((item, index) => `
+                
+                <div class="cms-list-item">
+
+                  <div>
+                    <strong>
+                      ${esc(
+                        item.title ||
+                        item.name ||
+                        item.topic ||
+                        `Learning ${index + 1}`
+                      )}
+                    </strong>
+
+                    <small>
+                      ${esc(
+                        item.description ||
+                        item.status ||
+                        ''
+                      )}
+                    </small>
+                  </div>
+
+
+                  <div class="cms-item-actions">
+
+                    <button
+                      type="button"
+                      class="secondary-action"
+                      data-action="cms-edit-learning"
+                      data-index="${index}"
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      type="button"
+                      class="secondary-action"
+                      data-action="cms-delete-learning"
+                      data-index="${index}"
+                    >
+                      Delete
+                    </button>
+
+                  </div>
 
                 </div>
 
-              </div>
+              `).join('')
+              : `
+                <div class="cms-empty">
+                  No learning items added yet.
+                </div>
+              `
+          }
+
+        </div>
+
+      </section>
 
 
-              <label>
+      <!-- ALL OTHER CONTENT -->
 
-                <span>
-                  Email
-                </span>
+      <section class="control-editor-card">
 
-                <input
-                  type="email"
-                  name="email"
-                  autocomplete="email"
-                  placeholder="admin@example.com"
-                  required
-                >
+        <div class="control-editor-header">
 
-              </label>
+          <div>
+            <span class="eyebrow">PORTFOLIO DATA</span>
 
+            <h2>Other Sections</h2>
 
-              <label>
+            <p>
+              Manage the remaining portfolio sections.
+            </p>
+          </div>
 
-                <span>
-                  Password
-                </span>
-
-                <input
-                  type="password"
-                  name="password"
-                  autocomplete="current-password"
-                  placeholder="••••••••"
-                  required
-                >
-
-              </label>
+        </div>
 
 
-              <button
-                type="submit"
-                class="primary-action"
-              >
-                Sign In
-              </button>
+        <div class="control-grid">
+
+          <button
+            type="button"
+            class="control-card cms-section-button"
+            data-action="cms-open-section"
+            data-section="skills"
+          >
+            <h3>Skills</h3>
+            <small>Add / Edit / Delete</small>
+          </button>
 
 
-              <p
-                class="form-status"
-                id="admin-login-status"
-              ></p>
+          <button
+            type="button"
+            class="control-card cms-section-button"
+            data-action="cms-open-section"
+            data-section="education"
+          >
+            <h3>Education</h3>
+            <small>Add / Edit / Delete</small>
+          </button>
 
-            </form>
 
-          `
-      }
+          <button
+            type="button"
+            class="control-card cms-section-button"
+            data-action="cms-open-section"
+            data-section="achievements"
+          >
+            <h3>Achievements</h3>
+            <small>Add / Edit / Delete</small>
+          </button>
+
+
+          <button
+            type="button"
+            class="control-card cms-section-button"
+            data-action="cms-open-section"
+            data-section="journey"
+          >
+            <h3>Journey</h3>
+            <small>Add / Edit / Delete</small>
+          </button>
+
+
+          <button
+            type="button"
+            class="control-card cms-section-button"
+            data-action="cms-open-section"
+            data-section="notes"
+          >
+            <h3>Quick Notes</h3>
+            <small>Edit content</small>
+          </button>
+
+
+          <button
+            type="button"
+            class="control-card cms-section-button"
+            data-action="cms-open-section"
+            data-section="goals"
+          >
+            <h3>Next Goals</h3>
+            <small>Edit content</small>
+          </button>
+
+
+          <button
+            type="button"
+            class="control-card cms-section-button"
+            data-action="cms-open-section"
+            data-section="quote"
+          >
+            <h3>Quote</h3>
+            <small>Edit content</small>
+          </button>
+
+
+          <button
+            type="button"
+            class="control-card cms-section-button"
+            data-action="cms-open-section"
+            data-section="activity"
+          >
+            <h3>Recent Activity</h3>
+            <small>Add / Edit / Delete</small>
+          </button>
+
+        </div>
+
+      </section>
+
+
+      <!-- SYSTEM ACTIONS -->
+
+      <div class="control-actions">
+
+        <button
+          type="button"
+          class="secondary-action"
+          data-action="admin-refresh"
+        >
+          ↻ Refresh Data
+        </button>
+
+
+        <button
+          type="button"
+          class="primary-action"
+          data-action="admin-logout"
+        >
+          Sign Out
+        </button>
+
+      </div>
 
     </div>
-
   `;
-
 }
 
 
