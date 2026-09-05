@@ -4535,117 +4535,327 @@ function wireControlCenter(body) {
   if (!body) return;
 
 
+  /* =========================
+     ADMIN LOGIN
+     ========================= */
+
   const form =
-    body.querySelector(
-      '#admin-login-form'
-    );
+    body.querySelector('#admin-login-form');
 
 
-  if (!form) return;
+  if (form) {
+
+    form.addEventListener(
+      'submit',
+      async event => {
+
+        event.preventDefault();
+
+        const status =
+          form.querySelector('#admin-login-status');
+
+        const email =
+          form.email?.value?.trim() || '';
+
+        const password =
+          form.password?.value || '';
 
 
-  form.addEventListener(
-    'submit',
-    async event => {
+        if (!email || !password) {
 
-      event.preventDefault();
+          if (status) {
+            status.textContent =
+              'Please enter email and password.';
+          }
 
-
-      const status =
-        form.querySelector(
-          '#admin-login-status'
-        );
-
-
-      const email =
-        form.email?.value?.trim() ||
-        '';
-
-
-      const password =
-        form.password?.value ||
-        '';
-
-
-      if (
-        !email ||
-        !password
-      ) {
-
-        if (status) {
-
-          status.textContent =
-            'Please enter email and password.';
-
+          return;
         }
 
-        return;
 
-      }
-
-
-      if (status) {
-
-        status.textContent =
-          'Signing in...';
-
-      }
+        if (status) {
+          status.textContent =
+            'Signing in...';
+        }
 
 
-      try {
+        try {
 
-        const result =
-          await signIn(
-            email,
-            password
+          const result =
+            await signIn(email, password);
+
+
+          state.adminSession =
+            result?.session ||
+            result ||
+            null;
+
+
+          body.innerHTML =
+            renderControlCenter();
+
+          wireControlCenter(body);
+
+
+        } catch (error) {
+
+          console.error(
+            'Admin sign-in failed:',
+            error
           );
 
 
-        state.adminSession =
-          result?.session ||
-          result ||
-          null;
-
-
-        if (status) {
-
-          status.textContent =
-            'Signed in successfully.';
+          if (status) {
+            status.textContent =
+              error?.message ||
+              'Sign in failed.';
+          }
 
         }
+
+      }
+    );
+
+  }
+
+
+  /* =========================
+     SAVE PROFILE
+     ========================= */
+
+  const saveProfile =
+    body.querySelector(
+      '[data-action="cms-save-profile"]'
+    );
+
+
+  if (saveProfile) {
+
+    saveProfile.addEventListener(
+      'click',
+      async () => {
+
+        const status =
+          body.querySelector(
+            '#cms-profile-status'
+          );
+
+
+        try {
+
+          saveProfile.disabled = true;
+
+
+          if (status) {
+            status.textContent =
+              'Saving...';
+          }
+
+
+          portfolio.owner =
+            portfolio.owner || {};
+
+
+          portfolio.owner.identity =
+            portfolio.owner.identity || {};
+
+
+          portfolio.owner.contact =
+            portfolio.owner.contact || {};
+
+
+          portfolio.owner.identity.fullName =
+            body.querySelector(
+              '#cms-fullName'
+            )?.value || '';
+
+
+          portfolio.owner.identity.profession =
+            body.querySelector(
+              '#cms-profession'
+            )?.value || '';
+
+
+          portfolio.owner.identity.headline =
+            body.querySelector(
+              '#cms-headline'
+            )?.value || '';
+
+
+          portfolio.owner.identity.bio =
+            body.querySelector(
+              '#cms-bio'
+            )?.value || '';
+
+
+          portfolio.owner.contact.location =
+            body.querySelector(
+              '#cms-location'
+            )?.value || '';
+
+
+          portfolio.owner.contact.email =
+            body.querySelector(
+              '#cms-email'
+            )?.value || '';
+
+
+          portfolio.owner.contact.phone =
+            body.querySelector(
+              '#cms-phone'
+            )?.value || '';
+
+
+          portfolio.owner.contact.github =
+            body.querySelector(
+              '#cms-github'
+            )?.value || '';
+
+
+          portfolio.owner.contact.linkedin =
+            body.querySelector(
+              '#cms-linkedin'
+            )?.value || '';
+
+
+          await saveRemotePortfolio(
+            portfolio
+          );
+
+
+          if (status) {
+            status.textContent =
+              'Profile saved successfully.';
+          }
+
+
+        } catch (error) {
+
+          console.error(
+            'Profile save failed:',
+            error
+          );
+
+
+          if (status) {
+            status.textContent =
+              error?.message ||
+              'Failed to save profile.';
+          }
+
+
+        } finally {
+
+          saveProfile.disabled = false;
+
+        }
+
+      }
+    );
+
+  }
+
+
+  /* =========================
+     REFRESH DATA
+     ========================= */
+
+  const refreshButton =
+    body.querySelector(
+      '[data-action="admin-refresh"]'
+    );
+
+
+  if (refreshButton) {
+
+    refreshButton.addEventListener(
+      'click',
+      async () => {
+
+        try {
+
+          refreshButton.disabled = true;
+
+
+          const result =
+            await loadRemotePortfolio();
+
+
+          if (result?.data) {
+            portfolio = result.data;
+          }
+
+
+          body.innerHTML =
+            renderControlCenter();
+
+          wireControlCenter(body);
+
+
+        } catch (error) {
+
+          console.error(
+            'Portfolio refresh failed:',
+            error
+          );
+
+
+        } finally {
+
+          refreshButton.disabled = false;
+
+        }
+
+      }
+    );
+
+  }
+
+
+  /* =========================
+     SIGN OUT
+     ========================= */
+
+  const logoutButton =
+    body.querySelector(
+      '[data-action="admin-logout"]'
+    );
+
+
+  if (logoutButton) {
+
+    logoutButton.addEventListener(
+      'click',
+      async () => {
+
+        try {
+
+          await signOut();
+
+        } catch (error) {
+
+          console.error(
+            'Sign out failed:',
+            error
+          );
+
+        }
+
+
+        state.adminSession =
+          null;
 
 
         body.innerHTML =
           renderControlCenter();
 
-
-        wireControlCenter(
-          body
-        );
-
-      } catch (error) {
-
-        console.error(
-          'Admin sign-in failed:',
-          error
-        );
-
-
-        if (status) {
-
-          status.textContent =
-            error?.message ||
-            'Sign in failed.';
-
-        }
+        wireControlCenter(body);
 
       }
+    );
 
-    }
-  );
+  }
 
 }
-
 
 /* =========================================================
    ADMIN LOGOUT
