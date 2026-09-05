@@ -3278,7 +3278,20 @@ function renderAchievementsWindow() {
                             ''
                           )}
                         </p>
-
+${
+  item.certificate
+    ? `
+      <a
+        href="${esc(item.certificate)}"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="certificate-button"
+      >
+        View Certificate
+      </a>
+    `
+    : ''
+}
                       </div>
 
                     </article>
