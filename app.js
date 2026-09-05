@@ -5201,89 +5201,75 @@ function wireControlCenter(body) {
       );
     }
   );
-   /* =========================
-     OTHER SECTIONS
-     ========================= */
+  /* =========================
+   OTHER SECTIONS
+   ========================= */
 
-  body
-    .querySelectorAll(
-      '[data-action="cms-add-section"]'
-    )
-    .forEach(button => {
 
-      button.addEventListener(
-        'click',
-        async () => {
+/* =========================
+   ADD SECTION
+   ========================= */
 
-          const section =
-            button.dataset.section;
+body
+  .querySelectorAll(
+    '[data-action="cms-add-section"]'
+  )
+  .forEach(button => {
 
-          let current = [];
+    button.addEventListener(
+      'click',
+      async () => {
 
-          if (section === 'skills') {
-            current = portfolio.skills || [];
-          }
+        const section =
+          button.dataset.section;
 
-          else if (section === 'education') {
-            current = portfolio.education || [];
-          }
 
-          else if (section === 'achievements') {
-            current = portfolio.achievements || [];
-          }
+        /* ACHIEVEMENTS */
 
-          else if (section === 'journey') {
-            current = portfolio.journey || [];
-          }
+        if (section === 'achievements') {
 
-          else if (section === 'activity') {
-            current =
-              portfolio.recentActivity ||
-              portfolio.activity ||
-              [];
-          }
-
-          const value =
+          const title =
             prompt(
-              `Add new ${section} item as JSON:`,
-              '{}'
+              'Achievement Title:'
             );
 
-          if (value === null) return;
+          if (title === null) return;
+
+          const description =
+            prompt(
+              'Achievement Description:'
+            );
+
+          if (description === null) return;
+
+          const certificate =
+            prompt(
+              'Certificate URL:'
+            );
+
+          if (certificate === null) return;
+
+
+          if (!portfolio.achievements) {
+            portfolio.achievements = [];
+          }
+
+
+          portfolio.achievements.push({
+            title: title,
+            description: description,
+            certificate: certificate
+          });
+
 
           try {
-
-            const parsed =
-              JSON.parse(value);
-
-            current.push(parsed);
-
-            if (section === 'skills') {
-              portfolio.skills = current;
-            }
-
-            else if (section === 'education') {
-              portfolio.education = current;
-            }
-
-            else if (section === 'achievements') {
-              portfolio.achievements = current;
-            }
-
-            else if (section === 'journey') {
-              portfolio.journey = current;
-            }
-
-            else if (section === 'activity') {
-              portfolio.recentActivity = current;
-            }
 
             await saveRemotePortfolio(
               portfolio
             );
 
             alert(
-              `${section} added successfully.`
+              'Achievement added successfully.'
             );
 
             body.innerHTML =
@@ -5296,267 +5282,112 @@ function wireControlCenter(body) {
           catch (error) {
 
             alert(
-              'Invalid JSON. Nothing was added.'
+              'Failed to save achievement.'
             );
 
             console.error(
-              'CMS add failed:',
+              'Achievement add failed:',
               error
             );
 
           }
 
+          return;
         }
-      );
-
-    });
 
 
-  body
-    .querySelectorAll(
-      '[data-action="cms-edit-section"]'
-    )
-    .forEach(button => {
+        /* OTHER ARRAY SECTIONS */
 
-      button.addEventListener(
-        'click',
-        async () => {
+        let current = [];
 
-          const section =
-            button.dataset.section;
 
-          let current;
+        if (section === 'skills') {
 
-          if (section === 'skills') {
-            current = portfolio.skills || [];
-          }
-
-          else if (section === 'education') {
-            current = portfolio.education || [];
-          }
-
-          else if (section === 'achievements') {
-            current = portfolio.achievements || [];
-          }
-
-          else if (section === 'journey') {
-            current = portfolio.journey || [];
-          }
-
-          else if (section === 'notes') {
-            current =
-              portfolio.quickNotes ||
-              portfolio.notes ||
-              [];
-          }
-
-          else if (section === 'goals') {
-            current =
-              portfolio.nextGoals ||
-              portfolio.goals ||
-              [];
-          }
-
-          else if (section === 'quote') {
-            current =
-              portfolio.quote || '';
-          }
-
-          else if (section === 'activity') {
-            current =
-              portfolio.recentActivity ||
-              portfolio.activity ||
-              [];
-          }
-
-          const edited =
-            prompt(
-              `Edit ${section} data as JSON:`,
-              JSON.stringify(
-                current,
-                null,
-                2
-              )
-            );
-
-          if (edited === null) return;
-
-          try {
-
-            const parsed =
-              JSON.parse(edited);
-
-            if (section === 'skills') {
-              portfolio.skills = parsed;
-            }
-
-            else if (section === 'education') {
-              portfolio.education = parsed;
-            }
-
-            else if (section === 'achievements') {
-              portfolio.achievements = parsed;
-            }
-
-            else if (section === 'journey') {
-              portfolio.journey = parsed;
-            }
-
-            else if (section === 'notes') {
-              portfolio.quickNotes = parsed;
-            }
-
-            else if (section === 'goals') {
-              portfolio.nextGoals = parsed;
-            }
-
-            else if (section === 'quote') {
-              portfolio.quote = parsed;
-            }
-
-            else if (section === 'activity') {
-              portfolio.recentActivity = parsed;
-            }
-
-            await saveRemotePortfolio(
-              portfolio
-            );
-
-            alert(
-              `${section} updated successfully.`
-            );
-
-            body.innerHTML =
-              renderControlCenter();
-
-            wireControlCenter(body);
-
-          }
-
-          catch (error) {
-
-            alert(
-              'Invalid JSON. Nothing was changed.'
-            );
-
-            console.error(
-              'CMS edit failed:',
-              error
-            );
-
-          }
+          current =
+            portfolio.skills || [];
 
         }
-      );
 
-    });
+        else if (section === 'education') {
+
+          current =
+            portfolio.education || [];
+
+        }
+
+        else if (section === 'journey') {
+
+          current =
+            portfolio.journey || [];
+
+        }
+
+        else if (section === 'activity') {
+
+          current =
+            portfolio.recentActivity ||
+            portfolio.activity ||
+            [];
+
+        }
 
 
-  body
-    .querySelectorAll(
-      '[data-action="cms-delete-section"]'
-    )
-    .forEach(button => {
-
-      button.addEventListener(
-        'click',
-        async () => {
-
-          const section =
-            button.dataset.section;
-
-          let current = [];
-
-          if (section === 'skills') {
-            current = portfolio.skills || [];
-          }
-
-          else if (section === 'education') {
-            current = portfolio.education || [];
-          }
-
-          else if (section === 'achievements') {
-            current = portfolio.achievements || [];
-          }
-
-          else if (section === 'journey') {
-            current = portfolio.journey || [];
-          }
-
-          else if (section === 'activity') {
-            current =
-              portfolio.recentActivity ||
-              portfolio.activity ||
-              [];
-          }
-
-          if (!current.length) {
-            alert(
-              `No ${section} items available.`
-            );
-            return;
-          }
-
-          const index =
-            prompt(
-              `Enter the index to delete (0 - ${current.length - 1}):`
-            );
-
-          if (index === null) return;
-
-          const itemIndex =
-            Number(index);
-
-          if (
-            !Number.isInteger(itemIndex) ||
-            itemIndex < 0 ||
-            itemIndex >= current.length
-          ) {
-            alert(
-              'Invalid index.'
-            );
-            return;
-          }
-
-          const confirmed =
-            confirm(
-              `Delete ${section} item ${itemIndex}?`
-            );
-
-          if (!confirmed) return;
-
-          current.splice(
-            itemIndex,
-            1
+        const value =
+          prompt(
+            `Add new ${section} item as JSON:`,
+            '{}'
           );
 
+
+        if (value === null) return;
+
+
+        try {
+
+          const parsed =
+            JSON.parse(value);
+
+          current.push(parsed);
+
+
           if (section === 'skills') {
-            portfolio.skills = current;
+
+            portfolio.skills =
+              current;
+
           }
 
           else if (section === 'education') {
-            portfolio.education = current;
-          }
 
-          else if (section === 'achievements') {
-            portfolio.achievements = current;
+            portfolio.education =
+              current;
+
           }
 
           else if (section === 'journey') {
-            portfolio.journey = current;
+
+            portfolio.journey =
+              current;
+
           }
 
           else if (section === 'activity') {
-            portfolio.recentActivity = current;
+
+            portfolio.recentActivity =
+              current;
+
           }
+
 
           await saveRemotePortfolio(
             portfolio
           );
 
+
           alert(
-            `${section} deleted successfully.`
+            `${section} added successfully.`
           );
+
 
           body.innerHTML =
             renderControlCenter();
@@ -5564,9 +5395,530 @@ function wireControlCenter(body) {
           wireControlCenter(body);
 
         }
-      );
 
-    });
+        catch (error) {
+
+          alert(
+            'Invalid JSON. Nothing was added.'
+          );
+
+          console.error(
+            'CMS add failed:',
+            error
+          );
+
+        }
+
+      }
+    );
+
+  });
+
+
+
+/* =========================
+   EDIT SECTION
+   ========================= */
+
+body
+  .querySelectorAll(
+    '[data-action="cms-edit-section"]'
+  )
+  .forEach(button => {
+
+    button.addEventListener(
+      'click',
+      async () => {
+
+        const section =
+          button.dataset.section;
+
+
+        /* ACHIEVEMENTS */
+
+        if (section === 'achievements') {
+
+          const current =
+            portfolio.achievements || [];
+
+
+          if (!current.length) {
+
+            alert(
+              'No achievements available.'
+            );
+
+            return;
+          }
+
+
+          const index =
+            prompt(
+              `Enter achievement index to edit (0 - ${current.length - 1}):`
+            );
+
+
+          if (index === null) return;
+
+
+          const itemIndex =
+            Number(index);
+
+
+          if (
+            !Number.isInteger(itemIndex) ||
+            itemIndex < 0 ||
+            itemIndex >= current.length
+          ) {
+
+            alert(
+              'Invalid index.'
+            );
+
+            return;
+          }
+
+
+          const item =
+            current[itemIndex];
+
+
+          const title =
+            prompt(
+              'Achievement Title:',
+              item.title || ''
+            );
+
+
+          if (title === null) return;
+
+
+          const description =
+            prompt(
+              'Achievement Description:',
+              item.description ||
+              item.detail ||
+              ''
+            );
+
+
+          if (description === null) return;
+
+
+          const certificate =
+            prompt(
+              'Certificate URL:',
+              item.certificate || ''
+            );
+
+
+          if (certificate === null) return;
+
+
+          current[itemIndex] = {
+
+            ...item,
+
+            title: title,
+
+            description: description,
+
+            certificate: certificate
+
+          };
+
+
+          portfolio.achievements =
+            current;
+
+
+          try {
+
+            await saveRemotePortfolio(
+              portfolio
+            );
+
+
+            alert(
+              'Achievement updated successfully.'
+            );
+
+
+            body.innerHTML =
+              renderControlCenter();
+
+            wireControlCenter(body);
+
+          }
+
+          catch (error) {
+
+            alert(
+              'Failed to update achievement.'
+            );
+
+            console.error(
+              'Achievement edit failed:',
+              error
+            );
+
+          }
+
+          return;
+        }
+
+
+        /* OTHER SECTIONS */
+
+        let current;
+
+
+        if (section === 'skills') {
+
+          current =
+            portfolio.skills || [];
+
+        }
+
+        else if (section === 'education') {
+
+          current =
+            portfolio.education || [];
+
+        }
+
+        else if (section === 'journey') {
+
+          current =
+            portfolio.journey || [];
+
+        }
+
+        else if (section === 'notes') {
+
+          current =
+            portfolio.quickNotes ||
+            portfolio.notes ||
+            [];
+
+        }
+
+        else if (section === 'goals') {
+
+          current =
+            portfolio.nextGoals ||
+            portfolio.goals ||
+            [];
+
+        }
+
+        else if (section === 'quote') {
+
+          current =
+            portfolio.quote || '';
+
+        }
+
+        else if (section === 'activity') {
+
+          current =
+            portfolio.recentActivity ||
+            portfolio.activity ||
+            [];
+
+        }
+
+
+        const edited =
+          prompt(
+            `Edit ${section} data as JSON:`,
+            JSON.stringify(
+              current,
+              null,
+              2
+            )
+          );
+
+
+        if (edited === null) return;
+
+
+        try {
+
+          const parsed =
+            JSON.parse(edited);
+
+
+          if (section === 'skills') {
+
+            portfolio.skills =
+              parsed;
+
+          }
+
+          else if (section === 'education') {
+
+            portfolio.education =
+              parsed;
+
+          }
+
+          else if (section === 'journey') {
+
+            portfolio.journey =
+              parsed;
+
+          }
+
+          else if (section === 'notes') {
+
+            portfolio.quickNotes =
+              parsed;
+
+          }
+
+          else if (section === 'goals') {
+
+            portfolio.nextGoals =
+              parsed;
+
+          }
+
+          else if (section === 'quote') {
+
+            portfolio.quote =
+              parsed;
+
+          }
+
+          else if (section === 'activity') {
+
+            portfolio.recentActivity =
+              parsed;
+
+          }
+
+
+          await saveRemotePortfolio(
+            portfolio
+          );
+
+
+          alert(
+            `${section} updated successfully.`
+          );
+
+
+          body.innerHTML =
+            renderControlCenter();
+
+          wireControlCenter(body);
+
+        }
+
+        catch (error) {
+
+          alert(
+            'Invalid JSON. Nothing was changed.'
+          );
+
+          console.error(
+            'CMS edit failed:',
+            error
+          );
+
+        }
+
+      }
+    );
+
+  });
+
+
+
+/* =========================
+   DELETE SECTION
+   ========================= */
+
+body
+  .querySelectorAll(
+    '[data-action="cms-delete-section"]'
+  )
+  .forEach(button => {
+
+    button.addEventListener(
+      'click',
+      async () => {
+
+        const section =
+          button.dataset.section;
+
+
+        let current = [];
+
+
+        if (section === 'skills') {
+
+          current =
+            portfolio.skills || [];
+
+        }
+
+        else if (section === 'education') {
+
+          current =
+            portfolio.education || [];
+
+        }
+
+        else if (section === 'achievements') {
+
+          current =
+            portfolio.achievements || [];
+
+        }
+
+        else if (section === 'journey') {
+
+          current =
+            portfolio.journey || [];
+
+        }
+
+        else if (section === 'activity') {
+
+          current =
+            portfolio.recentActivity ||
+            portfolio.activity ||
+            [];
+
+        }
+
+
+        if (!current.length) {
+
+          alert(
+            `No ${section} items available.`
+          );
+
+          return;
+        }
+
+
+        const index =
+          prompt(
+            `Enter the index to delete (0 - ${current.length - 1}):`
+          );
+
+
+        if (index === null) return;
+
+
+        const itemIndex =
+          Number(index);
+
+
+        if (
+          !Number.isInteger(itemIndex) ||
+          itemIndex < 0 ||
+          itemIndex >= current.length
+        ) {
+
+          alert(
+            'Invalid index.'
+          );
+
+          return;
+        }
+
+
+        const confirmed =
+          confirm(
+            `Delete ${section} item ${itemIndex}?`
+          );
+
+
+        if (!confirmed) return;
+
+
+        current.splice(
+          itemIndex,
+          1
+        );
+
+
+        if (section === 'skills') {
+
+          portfolio.skills =
+            current;
+
+        }
+
+        else if (section === 'education') {
+
+          portfolio.education =
+            current;
+
+        }
+
+        else if (section === 'achievements') {
+
+          portfolio.achievements =
+            current;
+
+        }
+
+        else if (section === 'journey') {
+
+          portfolio.journey =
+            current;
+
+        }
+
+        else if (section === 'activity') {
+
+          portfolio.recentActivity =
+            current;
+
+        }
+
+
+        try {
+
+          await saveRemotePortfolio(
+            portfolio
+          );
+
+
+          alert(
+            `${section} deleted successfully.`
+          );
+
+
+          body.innerHTML =
+            renderControlCenter();
+
+          wireControlCenter(body);
+
+        }
+
+        catch (error) {
+
+          alert(
+            `Failed to delete ${section}.`
+          );
+
+          console.error(
+            'CMS delete failed:',
+            error
+          );
+
+        }
+
+      }
+    );
+
+  });
   /* =========================
      REFRESH DATA
      ========================= */
