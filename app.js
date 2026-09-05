@@ -5271,14 +5271,67 @@ body
 
           if (description === null) return;
 
-          const certificate =
-            prompt(
-              'Certificate URL:'
-            );
+          const certificateFile =
+  await new Promise(resolve => {
 
-          if (certificate === null) return;
+    const input =
+      document.createElement('input');
+
+    input.type = 'file';
+
+    input.accept =
+      '.pdf,.jpg,.jpeg,.png,.webp';
+
+    input.onchange = () => {
+
+      resolve(
+        input.files?.[0] || null
+      );
+
+    };
+
+    input.click();
+
+  });
 
 
+if (!certificateFile) {
+
+  alert(
+    'Please select a certificate file.'
+  );
+
+  return;
+
+}
+
+
+let certificate = '';
+
+try {
+
+  certificate =
+    await uploadCertificate(
+      certificateFile
+    );
+
+}
+
+catch (error) {
+
+  alert(
+    'Certificate upload failed: ' +
+    error.message
+  );
+
+  console.error(
+    'Certificate upload failed:',
+    error
+  );
+
+  return;
+
+}
           if (!portfolio.achievements) {
             portfolio.achievements = [];
           }
@@ -5534,14 +5587,66 @@ body
           if (description === null) return;
 
 
-          const certificate =
-            prompt(
-              'Certificate URL:',
-              item.certificate || ''
-            );
+          /* CERTIFICATE FILE */
+
+          const certificateFile =
+            await new Promise(resolve => {
+
+              const input =
+                document.createElement('input');
+
+              input.type = 'file';
+
+              input.accept =
+                '.pdf,.jpg,.jpeg,.png,.webp';
+
+              input.onchange = () => {
+
+                resolve(
+                  input.files?.[0] || null
+                );
+
+              };
+
+              input.click();
+
+            });
 
 
-          if (certificate === null) return;
+          let certificate =
+            item.certificate || '';
+
+
+          /* Upload only if a new file is selected */
+
+          if (certificateFile) {
+
+            try {
+
+              certificate =
+                await uploadCertificate(
+                  certificateFile
+                );
+
+            }
+
+            catch (error) {
+
+              alert(
+                'Certificate upload failed: ' +
+                error.message
+              );
+
+              console.error(
+                'Certificate upload failed:',
+                error
+              );
+
+              return;
+
+            }
+
+          }
 
 
           current[itemIndex] = {
@@ -5762,9 +5867,6 @@ body
     );
 
   });
-
-
-
 /* =========================
    DELETE SECTION
    ========================= */
