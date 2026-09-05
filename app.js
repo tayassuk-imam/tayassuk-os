@@ -7645,47 +7645,64 @@ if (
     forceDockPNGIcons
   );
 /* =========================================================
-   DRAGGABLE PORTRAIT
+   FLOATING PORTRAIT DRAG
    ========================================================= */
 
-const draggablePortrait =
-  document.querySelector('#hero-portrait');
+(() => {
+  const initFloatingPortrait = () => {
+    const portrait = document.getElementById('floating-portrait');
 
-if (draggablePortrait) {
-  let isDragging = false;
-  let offsetX = 0;
-  let offsetY = 0;
+    if (!portrait) return;
 
-  draggablePortrait.style.position = 'fixed';
-  draggablePortrait.style.zIndex = '9999';
-  draggablePortrait.style.cursor = 'grab';
+    let isDragging = false;
+    let offsetX = 0;
+    let offsetY = 0;
 
-  draggablePortrait.addEventListener('pointerdown', (event) => {
-    isDragging = true;
+    portrait.addEventListener('pointerdown', (event) => {
+      isDragging = true;
 
-    const rect =
-      draggablePortrait.getBoundingClientRect();
+      const rect = portrait.getBoundingClientRect();
 
-    offsetX = event.clientX - rect.left;
-    offsetY = event.clientY - rect.top;
+      offsetX = event.clientX - rect.left;
+      offsetY = event.clientY - rect.top;
 
-    draggablePortrait.style.cursor = 'grabbing';
-    draggablePortrait.setPointerCapture(event.pointerId);
-  });
+      portrait.style.right = 'auto';
+      portrait.style.cursor = 'grabbing';
 
-  draggablePortrait.addEventListener('pointermove', (event) => {
-    if (!isDragging) return;
+      portrait.setPointerCapture(event.pointerId);
+    });
 
-    draggablePortrait.style.left =
-      `${event.clientX - offsetX}px`;
+    portrait.addEventListener('pointermove', (event) => {
+      if (!isDragging) return;
 
-    draggablePortrait.style.top =
-      `${event.clientY - offsetY}px`;
-  });
+      let x = event.clientX - offsetX;
+      let y = event.clientY - offsetY;
 
-  draggablePortrait.addEventListener('pointerup', () => {
-    isDragging = false;
-    draggablePortrait.style.cursor = 'grab';
-  });
-}
+      const maxX = window.innerWidth - portrait.offsetWidth;
+      const maxY = window.innerHeight - portrait.offsetHeight;
+
+      x = Math.max(0, Math.min(x, maxX));
+      y = Math.max(0, Math.min(y, maxY));
+
+      portrait.style.left = `${x}px`;
+      portrait.style.top = `${y}px`;
+    });
+
+    portrait.addEventListener('pointerup', () => {
+      isDragging = false;
+      portrait.style.cursor = 'grab';
+    });
+
+    portrait.addEventListener('pointercancel', () => {
+      isDragging = false;
+      portrait.style.cursor = 'grab';
+    });
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initFloatingPortrait);
+  } else {
+    initFloatingPortrait();
+  }
+})();
 })();
