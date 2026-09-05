@@ -5693,22 +5693,6 @@ if (
         </svg>
       `);
 
-    document
-      .querySelectorAll('.launcher-app[data-app="settings"] img')
-      .forEach(function (img) {
-        if (!img.complete || img.naturalWidth === 0) {
-          img.src = settingsSVG;
-        }
-      });
-
-    document
-      .querySelectorAll('.launcher-app[data-app="trash"] img')
-      .forEach(function (img) {
-        if (!img.complete || img.naturalWidth === 0) {
-          img.src = trashSVG;
-        }
-      });
-
 
     /* ---------- 3. KEEP NEW WINDOWS INSIDE SCREEN ---------- */
 
