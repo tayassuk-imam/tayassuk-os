@@ -3252,53 +3252,83 @@ function renderAchievementsWindow() {
           items.length
 
             ? items
-                .map(
-                  item => `
+          .map(
+  item => {
 
-                    <article class="achievement-card">
+    const title =
+      typeof item === 'string'
+        ? item
+        : (
+            item.title ||
+            item.name ||
+            'Achievement'
+          );
 
-                      <div class="achievement-icon">
-                        ✦
-                      </div>
+    const description =
+      typeof item === 'string'
+        ? ''
+        : (
+            item.description ||
+            item.detail ||
+            ''
+          );
 
-                      <div>
+    const certificate =
+      typeof item === 'string'
+        ? ''
+        : (
+            item.certificate ||
+            ''
+          );
 
-                        <h3>
-                          ${esc(
-                            item.title ||
-                            item.name ||
-                            ''
-                          )}
-                        </h3>
+    return `
 
-                        <p>
-                          ${esc(
-                            item.description ||
-                            item.detail ||
-                            ''
-                          )}
-                        </p>
-${
-  item.certificate
-    ? `
-      <a
-        href="${esc(item.certificate)}"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="certificate-button"
-      >
-        View Certificate
-      </a>
-    `
-    : ''
-}
-                      </div>
+      <article class="achievement-card">
 
-                    </article>
+        <div class="achievement-icon">
+          ✦
+        </div>
 
-                  `
-                )
-                .join('')
+        <div>
+
+          <h3>
+            ${esc(title)}
+          </h3>
+
+          ${
+            description
+              ? `
+                <p>
+                  ${esc(description)}
+                </p>
+              `
+              : ''
+          }
+
+          ${
+            certificate
+              ? `
+                <a
+                  href="${esc(certificate)}"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="certificate-button"
+                >
+                  View Certificate
+                </a>
+              `
+              : ''
+          }
+
+        </div>
+
+      </article>
+
+    `;
+
+  }
+)
+.join('')
 
             : `
 
