@@ -778,17 +778,15 @@ setInterval(
 
 function windowPosition() {
 
-  const width =
-    Math.min(
-      940,
-      innerWidth - 44
-    );
+  const width = Math.min(
+    940,
+    window.innerWidth - 44
+  );
 
-  const height =
-    Math.min(
-      700,
-      innerHeight - 120
-    );
+  const height = Math.min(
+    700,
+    window.innerHeight - 120
+  );
 
   const offset =
     state.windows.size % 4;
@@ -796,27 +794,30 @@ function windowPosition() {
   const vertical =
     state.windows.size % 3;
 
+  const left = Math.max(
+    22,
+    Math.min(
+      (window.innerWidth - width) / 2 +
+        offset * 16,
+      window.innerWidth - width - 22
+    )
+  );
+
+  const top = Math.max(
+    72,
+    Math.min(
+      (window.innerHeight - height) / 2 +
+        vertical * 12,
+      window.innerHeight - height - 22
+    )
+  );
+
   return {
-
-    left:
-      Math.max(
-        12,
-        (innerWidth - width) / 2 +
-          offset * 16
-      ),
-
-    top:
-      Math.max(
-        72,
-        (innerHeight - height) / 2 +
-          vertical * 12
-      ),
-
+    left,
+    top,
     width,
     height
-
   };
-
 }
 
 
@@ -1268,6 +1269,49 @@ function openWindow(id) {
 
   node.style.zIndex =
     ++state.z;
+  /* FIX: Keep app windows inside the desktop */
+
+node.style.setProperty(
+  'position',
+  'fixed',
+  'important'
+);
+
+node.style.setProperty(
+  'left',
+  `${position.left}px`,
+  'important'
+);
+
+node.style.setProperty(
+  'top',
+  `${position.top}px`,
+  'important'
+);
+
+node.style.setProperty(
+  'width',
+  `${position.width}px`,
+  'important'
+);
+
+node.style.setProperty(
+  'height',
+  `${position.height}px`,
+  'important'
+);
+
+node.style.setProperty(
+  'max-width',
+  'calc(100vw - 44px)',
+  'important'
+);
+
+node.style.setProperty(
+  'max-height',
+  'calc(100vh - 120px)',
+  'important'
+);
 
 
   node.innerHTML = `
