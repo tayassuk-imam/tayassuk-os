@@ -4327,3 +4327,18 @@ body {
     height: calc(100vh - 10px) !important;
   }
 }
+html {
+  overflow-y: auto !important;
+}
+
+body {
+  min-height: 100vh;
+  overflow-y: auto !important;
+}
+
+.desktop {
+  min-height: 100vh !important;
+  height: auto !important;
+  overflow-y: visible !important;
+  padding-bottom: 150px !important;
+}
