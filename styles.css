@@ -3301,3 +3301,84 @@ img {
     bottom: 82px !important;
   }
 }
+/* =========================================
+   FINAL DOCK OVERLAP FIX
+   ========================================= */
+
+/* Reserve space for the bottom dock */
+.desktop {
+  box-sizing: border-box;
+  padding-bottom: 125px !important;
+}
+
+/* Dock stays outside the content area */
+.dock {
+  position: fixed !important;
+
+  left: 50% !important;
+  right: auto !important;
+  bottom: 14px !important;
+
+  transform: translateX(-50%) !important;
+
+  width: max-content !important;
+  max-width: calc(100vw - 40px) !important;
+
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  gap: 7px !important;
+  padding: 9px 12px !important;
+
+  z-index: 9999 !important;
+
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+
+  border-radius: 20px !important;
+}
+
+/* Keep dock buttons inside dock */
+.dock-item {
+  flex: 0 0 48px !important;
+  width: 48px !important;
+  height: 48px !important;
+}
+
+/* Companion must stay above/away from dock */
+.companion {
+  bottom: 100px !important;
+  z-index: 9998 !important;
+}
+
+/* Tablet */
+@media (max-width: 1100px) {
+  .desktop {
+    padding-bottom: 130px !important;
+  }
+}
+
+/* Mobile */
+@media (max-width: 760px) {
+  .desktop {
+    padding-bottom: 105px !important;
+  }
+
+  .dock {
+    left: 12px !important;
+    right: 12px !important;
+    bottom: 10px !important;
+
+    width: auto !important;
+    max-width: none !important;
+
+    transform: none !important;
+
+    justify-content: flex-start !important;
+  }
+
+  .companion {
+    bottom: 82px !important;
+  }
+}
