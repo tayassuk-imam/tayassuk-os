@@ -5197,7 +5197,159 @@ function wireControlCenter(body) {
       );
     }
   );
+  /* =========================
+     OTHER SECTIONS
+     ========================= */
 
+  body
+    .querySelectorAll(
+      '[data-action="cms-open-section"]'
+    )
+    .forEach(button => {
+
+      button.addEventListener(
+        'click',
+        async () => {
+
+          const section =
+            button.dataset.section;
+
+          let current;
+
+          if (section === 'skills') {
+            current =
+              portfolio.skills || [];
+          }
+
+          else if (section === 'education') {
+            current =
+              portfolio.education || [];
+          }
+
+          else if (section === 'achievements') {
+            current =
+              portfolio.achievements || [];
+          }
+
+          else if (section === 'journey') {
+            current =
+              portfolio.journey || [];
+          }
+
+          else if (section === 'notes') {
+            current =
+              portfolio.quickNotes ||
+              portfolio.notes ||
+              [];
+          }
+
+          else if (section === 'goals') {
+            current =
+              portfolio.nextGoals ||
+              portfolio.goals ||
+              [];
+          }
+
+          else if (section === 'quote') {
+            current =
+              portfolio.quote ||
+              '';
+          }
+
+          else if (section === 'activity') {
+            current =
+              portfolio.recentActivity ||
+              portfolio.activity ||
+              [];
+          }
+
+
+          const edited =
+            prompt(
+              `Edit ${section} data as JSON:`,
+              JSON.stringify(
+                current,
+                null,
+                2
+              )
+            );
+
+
+          if (edited === null) return;
+
+
+          try {
+
+            const parsed =
+              JSON.parse(edited);
+
+
+            if (section === 'skills') {
+              portfolio.skills = parsed;
+            }
+
+            else if (section === 'education') {
+              portfolio.education = parsed;
+            }
+
+            else if (section === 'achievements') {
+              portfolio.achievements = parsed;
+            }
+
+            else if (section === 'journey') {
+              portfolio.journey = parsed;
+            }
+
+            else if (section === 'notes') {
+              portfolio.quickNotes = parsed;
+            }
+
+            else if (section === 'goals') {
+              portfolio.nextGoals = parsed;
+            }
+
+            else if (section === 'quote') {
+              portfolio.quote = parsed;
+            }
+
+            else if (section === 'activity') {
+              portfolio.recentActivity = parsed;
+            }
+
+
+            await saveRemotePortfolio(
+              portfolio
+            );
+
+
+            alert(
+              `${section} saved successfully.`
+            );
+
+
+            body.innerHTML =
+              renderControlCenter();
+
+            wireControlCenter(body);
+
+
+          } catch (error) {
+
+            alert(
+              'Invalid JSON. Nothing was changed.'
+            );
+
+            console.error(
+              'CMS section update failed:',
+              error
+            );
+
+          }
+
+        }
+      );
+
+    });
   /* =========================
      REFRESH DATA
      ========================= */
