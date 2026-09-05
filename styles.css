@@ -5525,3 +5525,13 @@ body {
     grid-template-columns: 1fr;
   }
 }
+/* Draggable floating portrait */
+.draggable-portrait {
+  width: 520px;
+  height: auto;
+  left: 58%;
+  top: 180px;
+  object-fit: contain;
+  user-select: none;
+  touch-action: none;
+}
