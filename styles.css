@@ -5410,10 +5410,7 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-/* =====================================================
-   DOCK ICONS — PNG ONLY
-   Only fixes dock icons
-   ===================================================== */
+/* ===== DOCK PNG ICONS ONLY ===== */
 
 #dock .dock-item::before,
 #dock .dock-item::after {
@@ -5421,19 +5418,23 @@ body {
   display: none !important;
 }
 
-#dock .dock-item {
-  font-size: 0 !important;
+#dock .dock-item .icon,
+#dock .dock-item .app-icon,
+#dock .dock-item span {
+  display: none !important;
 }
 
+#dock .dock-item img,
 #dock .dock-item .dock-logo,
-#dock .dock-item img {
+#dock .dock-item .dock-app-logo {
   display: block !important;
   width: 42px !important;
   height: 42px !important;
+  min-width: 42px !important;
+  min-height: 42px !important;
   max-width: 42px !important;
   max-height: 42px !important;
   object-fit: contain !important;
   visibility: visible !important;
   opacity: 1 !important;
-  background: transparent !important;
 }
