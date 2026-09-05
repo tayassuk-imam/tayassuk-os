@@ -5795,56 +5795,81 @@ if (
   });
 
 })();
-/* ===== FIX DOCK ICONS ONLY ===== */
+/* =====================================================
+   DOCK ICONS ONLY — FINAL FIX
+   ===================================================== */
 
 (function () {
 
-  function fixDockIcons() {
+  const dockLogoMap = {
+    projects: './assets/icons/projects.png',
+    learning: './assets/icons/learning.png',
+    skills: './assets/icons/skills.png',
+    education: './assets/icons/education.png',
+    journey: './assets/icons/journey.png',
+    about: './assets/icons/about.png',
+    achievements: './assets/icons/achievements.png',
+    contact: './assets/icons/contact.png',
+    whiteboard: './assets/icons/whiteboard.png',
+    browser: './assets/icons/browser.png',
+    control: './assets/icons/control-center.png'
+  };
+
+  function fixDockIconsOnly() {
 
     const dock = document.querySelector('#dock');
 
     if (!dock) return;
 
-    const dockItems = dock.querySelectorAll('.dock-item');
+    dock.querySelectorAll('.dock-item').forEach(function (item) {
 
-    dockItems.forEach(function (item) {
+      const id = item.dataset.app;
+      const logo = dockLogoMap[id];
 
-      const appId = item.dataset.app;
+      if (!logo) return;
 
-      const app = apps.find(function (a) {
-        return a.id === appId;
-      });
+      let img = item.querySelector('img');
 
-      if (!app || !app.logo) return;
+      if (!img) {
+        img = document.createElement('img');
+        item.innerHTML = '';
+        item.appendChild(img);
+      }
 
-      const img = item.querySelector('img');
+      img.src = logo;
+      img.alt = id;
+      img.draggable = false;
 
-      if (!img) return;
-
-      img.src = app.logo;
-      img.alt = app.name;
-
-      img.style.width = '42px';
-      img.style.height = '42px';
-      img.style.objectFit = 'contain';
-      img.style.display = 'block';
-
+      img.style.setProperty('width', '42px', 'important');
+      img.style.setProperty('height', '42px', 'important');
+      img.style.setProperty('object-fit', 'contain', 'important');
+      img.style.setProperty('display', 'block', 'important');
+      img.style.setProperty('visibility', 'visible', 'important');
+      img.style.setProperty('opacity', '1', 'important');
     });
-
   }
 
-  if (document.readyState === 'loading') {
+  /* Run now */
+  fixDockIconsOnly();
 
-    document.addEventListener(
-      'DOMContentLoaded',
-      fixDockIcons
-    );
+  /* Run after DOM is ready */
+  document.addEventListener(
+    'DOMContentLoaded',
+    fixDockIconsOnly
+  );
 
-  } else {
+  /* Run whenever renderDock recreates the icons */
+  const dockObserver = new MutationObserver(function () {
+    fixDockIconsOnly();
+  });
 
-    fixDockIcons();
+  const dock = document.querySelector('#dock');
 
+  if (dock) {
+    dockObserver.observe(dock, {
+      childList: true,
+      subtree: true
+    });
   }
 
 })();
-
