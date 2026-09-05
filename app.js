@@ -4753,7 +4753,450 @@ function wireControlCenter(body) {
     );
 
   }
+  /* =========================
+     PROJECTS
+     ========================= */
 
+  const addProjectButton =
+    body.querySelector(
+      '[data-action="cms-add-project"]'
+    );
+
+  if (addProjectButton) {
+    addProjectButton.addEventListener(
+      'click',
+      async () => {
+
+        const title =
+          prompt('Project title:');
+
+        if (!title) return;
+
+        const description =
+          prompt('Project description:') || '';
+
+        const technologies =
+          prompt('Technologies:') || '';
+
+        const liveUrl =
+          prompt('Live URL:') || '';
+
+        portfolio.projects =
+          portfolio.projects || [];
+
+        portfolio.projects.push({
+          title,
+          description,
+          technologies,
+          liveUrl,
+          role: 'Solo Developer',
+          status: 'Working / Live'
+        });
+
+        try {
+
+          await saveRemotePortfolio(
+            portfolio
+          );
+
+          body.innerHTML =
+            renderControlCenter();
+
+          wireControlCenter(body);
+
+          alert(
+            'Project added successfully.'
+          );
+
+        } catch (error) {
+
+          console.error(
+            'Project save failed:',
+            error
+          );
+
+          alert(
+            error?.message ||
+            'Failed to save project.'
+          );
+        }
+      }
+    );
+  }
+
+
+  /* =========================
+     EDIT PROJECT
+     ========================= */
+
+  const editProjectButtons =
+    body.querySelectorAll(
+      '[data-action="cms-edit-project"]'
+    );
+
+  editProjectButtons.forEach(
+    button => {
+
+      button.addEventListener(
+        'click',
+        async () => {
+
+          const index =
+            Number(
+              button.dataset.index
+            );
+
+          const project =
+            portfolio.projects?.[index];
+
+          if (!project) return;
+
+          const title =
+            prompt(
+              'Project title:',
+              project.title || ''
+            );
+
+          if (!title) return;
+
+          const description =
+            prompt(
+              'Project description:',
+              project.description || ''
+            ) || '';
+
+          const technologies =
+            prompt(
+              'Technologies:',
+              project.technologies || ''
+            ) || '';
+
+          const liveUrl =
+            prompt(
+              'Live URL:',
+              project.liveUrl || ''
+            ) || '';
+
+          portfolio.projects[index] = {
+            ...project,
+            title,
+            description,
+            technologies,
+            liveUrl
+          };
+
+          try {
+
+            await saveRemotePortfolio(
+              portfolio
+            );
+
+            body.innerHTML =
+              renderControlCenter();
+
+            wireControlCenter(body);
+
+            alert(
+              'Project updated successfully.'
+            );
+
+          } catch (error) {
+
+            console.error(
+              'Project update failed:',
+              error
+            );
+
+            alert(
+              error?.message ||
+              'Failed to update project.'
+            );
+          }
+        }
+      );
+    }
+  );
+
+
+  /* =========================
+     DELETE PROJECT
+     ========================= */
+
+  const deleteProjectButtons =
+    body.querySelectorAll(
+      '[data-action="cms-delete-project"]'
+    );
+
+  deleteProjectButtons.forEach(
+    button => {
+
+      button.addEventListener(
+        'click',
+        async () => {
+
+          const index =
+            Number(
+              button.dataset.index
+            );
+
+          if (
+            !confirm(
+              'Are you sure you want to delete this project?'
+            )
+          ) {
+            return;
+          }
+
+          portfolio.projects.splice(
+            index,
+            1
+          );
+
+          try {
+
+            await saveRemotePortfolio(
+              portfolio
+            );
+
+            body.innerHTML =
+              renderControlCenter();
+
+            wireControlCenter(body);
+
+            alert(
+              'Project deleted successfully.'
+            );
+
+          } catch (error) {
+
+            console.error(
+              'Project delete failed:',
+              error
+            );
+
+            alert(
+              error?.message ||
+              'Failed to delete project.'
+            );
+          }
+        }
+      );
+    }
+  );
+
+
+  /* =========================
+     LEARNING
+     ========================= */
+
+  const addLearningButton =
+    body.querySelector(
+      '[data-action="cms-add-learning"]'
+    );
+
+  if (addLearningButton) {
+
+    addLearningButton.addEventListener(
+      'click',
+      async () => {
+
+        const title =
+          prompt('Learning title:');
+
+        if (!title) return;
+
+        const description =
+          prompt(
+            'Learning description:'
+          ) || '';
+
+        portfolio.owner =
+          portfolio.owner || {};
+
+        portfolio.owner.learning =
+          portfolio.owner.learning || [];
+
+        portfolio.owner.learning.push({
+          title,
+          description
+        });
+
+        try {
+
+          await saveRemotePortfolio(
+            portfolio
+          );
+
+          body.innerHTML =
+            renderControlCenter();
+
+          wireControlCenter(body);
+
+          alert(
+            'Learning item added successfully.'
+          );
+
+        } catch (error) {
+
+          console.error(
+            'Learning save failed:',
+            error
+          );
+
+          alert(
+            error?.message ||
+            'Failed to save learning item.'
+          );
+        }
+      }
+    );
+  }
+
+
+  /* =========================
+     EDIT LEARNING
+     ========================= */
+
+  const editLearningButtons =
+    body.querySelectorAll(
+      '[data-action="cms-edit-learning"]'
+    );
+
+  editLearningButtons.forEach(
+    button => {
+
+      button.addEventListener(
+        'click',
+        async () => {
+
+          const index =
+            Number(
+              button.dataset.index
+            );
+
+          const learning =
+            portfolio.owner?.learning?.[index];
+
+          if (!learning) return;
+
+          const title =
+            prompt(
+              'Learning title:',
+              learning.title || ''
+            );
+
+          if (!title) return;
+
+          const description =
+            prompt(
+              'Learning description:',
+              learning.description || ''
+            ) || '';
+
+          portfolio.owner.learning[index] = {
+            ...learning,
+            title,
+            description
+          };
+
+          try {
+
+            await saveRemotePortfolio(
+              portfolio
+            );
+
+            body.innerHTML =
+              renderControlCenter();
+
+            wireControlCenter(body);
+
+            alert(
+              'Learning item updated successfully.'
+            );
+
+          } catch (error) {
+
+            console.error(
+              'Learning update failed:',
+              error
+            );
+
+            alert(
+              error?.message ||
+              'Failed to update learning item.'
+            );
+          }
+        }
+      );
+    }
+  );
+
+
+  /* =========================
+     DELETE LEARNING
+     ========================= */
+
+  const deleteLearningButtons =
+    body.querySelectorAll(
+      '[data-action="cms-delete-learning"]'
+    );
+
+  deleteLearningButtons.forEach(
+    button => {
+
+      button.addEventListener(
+        'click',
+        async () => {
+
+          const index =
+            Number(
+              button.dataset.index
+            );
+
+          if (
+            !confirm(
+              'Are you sure you want to delete this learning item?'
+            )
+          ) {
+            return;
+          }
+
+          portfolio.owner.learning.splice(
+            index,
+            1
+          );
+
+          try {
+
+            await saveRemotePortfolio(
+              portfolio
+            );
+
+            body.innerHTML =
+              renderControlCenter();
+
+            wireControlCenter(body);
+
+            alert(
+              'Learning item deleted successfully.'
+            );
+
+          } catch (error) {
+
+            console.error(
+              'Learning delete failed:',
+              error
+            );
+
+            alert(
+              error?.message ||
+              'Failed to delete learning item.'
+            );
+          }
+        }
+      );
+    }
+  );
 
   /* =========================
      REFRESH DATA
