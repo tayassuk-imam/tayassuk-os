@@ -2670,7 +2670,16 @@ function renderWindow(id) {
 
       break;
 
+case 'control':
 
+  win.body.innerHTML =
+    renderControlCenter();
+
+  wireControlCenter(
+    win.body
+  );
+
+  break;
     default:
 
       win.body.innerHTML = `
