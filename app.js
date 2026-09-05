@@ -4305,3 +4305,52 @@ if (
   initialize();
 
 }
+/* =========================================================
+   CUSTOM DOCK APP LOGOS
+   ========================================================= */
+
+function replaceDockIcons() {
+  const dockItems = document.querySelectorAll(
+    '.dock .dock-item'
+  );
+
+  const dockLogos = [
+    './assets/icons/about.png',
+    './assets/icons/projects.png',
+    './assets/icons/learning.png',
+    './assets/icons/skills.png',
+    './assets/icons/education.png',
+    './assets/icons/journey.png',
+    './assets/icons/achievements.png',
+    './assets/icons/resume.png',
+    './assets/icons/contact.png',
+    './assets/icons/whiteboard.png',
+    './assets/icons/founder.png',
+    './assets/icons/control-center.png'
+  ];
+
+  dockItems.forEach((item, index) => {
+    const logo = dockLogos[index];
+
+    if (!logo) return;
+
+    item.innerHTML = `
+      <img
+        src="${logo}"
+        alt="Dock App"
+        class="dock-app-logo"
+      />
+    `;
+  });
+}
+
+
+/* Run after page loads */
+if (document.readyState === 'loading') {
+  document.addEventListener(
+    'DOMContentLoaded',
+    replaceDockIcons
+  );
+} else {
+  replaceDockIcons();
+}
