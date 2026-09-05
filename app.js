@@ -101,8 +101,9 @@ const state = {
 /* =========================================================
    APPS
    =========================================================
-   
+
    EXACT 14 APPS
+
    1. Journey
    2. Projects
    3. Learning
@@ -117,7 +118,7 @@ const state = {
    12. Settings
    13. Browser
    14. Whiteboard
-   
+
    ========================================================= */
 
 const apps = [
@@ -271,9 +272,11 @@ function renderAppGrid() {
     document.getElementById('app-grid');
 
   if (!el) {
+
     console.warn(
       'App grid #app-grid not found'
     );
+
     return;
   }
 
@@ -788,2411 +791,518 @@ setInterval(
   1000
 );
 /* =========================================================
-   WINDOW POSITION
+   PROJECTS
    ========================================================= */
 
-function windowPosition() {
+function renderProjects() {
 
-  const width = Math.min(
-    940,
-    window.innerWidth - 44
-  );
+  const projects =
+    portfolio.projects || [];
 
-  const height = Math.min(
-    700,
-    window.innerHeight - 120
-  );
+  if (!projects.length) {
 
-  const offset =
-    state.windows.size % 4;
-
-  const vertical =
-    state.windows.size % 3;
-
-  const left = Math.max(
-    22,
-    Math.min(
-      (window.innerWidth - width) / 2 +
-        offset * 16,
-      window.innerWidth - width - 22
-    )
-  );
-
-  const top = Math.max(
-    72,
-    Math.min(
-      (window.innerHeight - height) / 2 +
-        vertical * 12,
-      window.innerHeight - height - 22
-    )
-  );
-
-  return {
-    left,
-    top,
-    width,
-    height
-  };
-}
-
-
-/* =========================================================
-   WINDOW FOCUS
-   ========================================================= */
-
-function focusWindow(id) {
-
-  const win =
-    state.windows.get(id);
-
-  if (!win?.node) return;
-
-  win.node.style.zIndex =
-    ++state.z;
-
-}
-
-
-/* =========================================================
-   RESTORE MINIMIZED WINDOW
-   ========================================================= */
-
-function restoreWindow(id) {
-
-  const win =
-    state.windows.get(id);
-
-  if (!win?.node) return;
-
-  state.minimizedWindows.delete(id);
-
-  win.node.hidden = false;
-
-  win.node.classList.remove(
-    'window-minimized'
-  );
-
-  focusWindow(id);
-
-}
-
-
-/* =========================================================
-   MINIMIZE WINDOW
-   ========================================================= */
-
-function minimizeWindow(id) {
-
-  const win =
-    state.windows.get(id);
-
-  if (!win?.node) return;
-
-  state.minimizedWindows.add(id);
-
-  win.node.classList.add(
-    'window-minimized'
-  );
-
-  win.node.hidden = true;
-
-}
-
-
-/* =========================================================
-   MAXIMIZE WINDOW
-   ========================================================= */
-
-function maximizeWindow(id) {
-
-  const win =
-    state.windows.get(id);
-
-  if (!win?.node) return;
-
-
-  /* -----------------------------------------
-     If already maximized → restore
-     ----------------------------------------- */
-
-  if (
-    state.maximizedWindows.has(id)
-  ) {
-
-    restoreWindowSize(id);
-
-    return;
-  }
-
-
-  /* -----------------------------------------
-     Save current dimensions
-     ----------------------------------------- */
-
-  state.windowRestoreState.set(
-    id,
-    {
-      left:
-        win.node.style.left,
-
-      top:
-        win.node.style.top,
-
-      width:
-        win.node.style.width,
-
-      height:
-        win.node.style.height
-    }
-  );
-
-
-  state.maximizedWindows.add(id);
-
-
-  win.node.classList.add(
-    'window-maximized'
-  );
-
-
-  win.node.style.left =
-    '16px';
-
-  win.node.style.top =
-    '64px';
-
-  win.node.style.width =
-    'calc(100vw - 32px)';
-
-  win.node.style.height =
-    'calc(100vh - 82px)';
-
-
-  const button =
-    win.node.querySelector(
-      '[data-window-action="maximize"]'
-    );
-
-
-  if (button) {
-
-    button.setAttribute(
-      'aria-label',
-      'Restore window'
-    );
-
-    button.title =
-      'Restore';
-
-    button.textContent =
-      '❐';
-
-  }
-
-
-  focusWindow(id);
-
-}
-
-
-/* =========================================================
-   RESTORE WINDOW SIZE
-   ========================================================= */
-
-function restoreWindowSize(id) {
-
-  const win =
-    state.windows.get(id);
-
-  if (!win?.node) return;
-
-
-  const previous =
-    state.windowRestoreState.get(id);
-
-
-  state.maximizedWindows.delete(id);
-
-
-  win.node.classList.remove(
-    'window-maximized'
-  );
-
-
-  if (previous) {
-
-    win.node.style.left =
-      previous.left;
-
-    win.node.style.top =
-      previous.top;
-
-    win.node.style.width =
-      previous.width;
-
-    win.node.style.height =
-      previous.height;
-
-  }
-
-
-  const button =
-    win.node.querySelector(
-      '[data-window-action="maximize"]'
-    );
-
-
-  if (button) {
-
-    button.setAttribute(
-      'aria-label',
-      'Maximize window'
-    );
-
-    button.title =
-      'Maximize';
-
-    button.textContent =
-      '□';
-
-  }
-
-
-  focusWindow(id);
-
-}
-
-
-/* =========================================================
-   CLOSE WINDOW
-   ========================================================= */
-
-function closeWindow(id) {
-
-  const win =
-    state.windows.get(id);
-
-  if (!win) return;
-
-
-  win.node.remove();
-
-
-  state.windows.delete(id);
-
-  state.minimizedWindows.delete(id);
-
-  state.maximizedWindows.delete(id);
-
-  state.windowRestoreState.delete(id);
-
-}
-
-
-/* =========================================================
-   WINDOW CONTROLS
-   ========================================================= */
-
-function wireWindowControls(node, id) {
-
-  if (!node) return;
-
-
-  const controls =
-    node.querySelector(
-      '.window-controls'
-    );
-
-
-  if (!controls) return;
-
-
-  controls.addEventListener(
-    'click',
-    event => {
-
-      const button =
-        event.target.closest(
-          '[data-window-action]'
-        );
-
-
-      if (!button) return;
-
-
-      event.preventDefault();
-
-      event.stopPropagation();
-
-
-      const action =
-        button.dataset.windowAction;
-
-
-      if (action === 'minimize') {
-
-        minimizeWindow(id);
-
-        return;
-
-      }
-
-
-      if (action === 'maximize') {
-
-        maximizeWindow(id);
-
-        return;
-
-      }
-
-
-      if (action === 'close') {
-
-        closeWindow(id);
-
-      }
-
-    }
-  );
-
-}
-
-
-/* =========================================================
-   OPEN WINDOW
-   ========================================================= */
-
-function openWindow(id) {
-
-  if (!id) return;
-
-
-  /* -----------------------------------------
-     Already open
-     ----------------------------------------- */
-
-  if (
-    state.windows.has(id)
-  ) {
-
-    const win =
-      state.windows.get(id);
-
-
-    if (
-      state.minimizedWindows.has(id)
-    ) {
-
-      restoreWindow(id);
-
-    } else {
-
-      focusWindow(id);
-
-    }
-
-
-    return;
-
-  }
-
-
-  const layer =
-    document.querySelector(
-      '#windows'
-    );
-
-
-  if (!layer) {
-
-    console.error(
-      'Window layer #windows not found.'
-    );
-
-    return;
-
-  }
-
-
-  const app =
-    apps.find(
-      item =>
-        item.id === id
-    );
-
-
-  /* -----------------------------------------
-     Trash
-     ----------------------------------------- */
-
-  if (id === 'trash') {
-
-    openTrashWindow();
-
-    return;
-
-  }
-
-
-  /* -----------------------------------------
-     Settings
-     ----------------------------------------- */
-
-  if (id === 'settings') {
-
-    openSettingsWindow();
-
-    return;
-
-  }
-
-
-  const position =
-    windowPosition();
-
-
-  const node =
-    document.createElement(
-      'section'
-    );
-
-
-  node.className =
-    'app-window';
-
-
-  node.dataset.app =
-    id;
-
-
-  node.style.left =
-    `${position.left}px`;
-
-
-  node.style.top =
-    `${position.top}px`;
-
-
-  node.style.width =
-    `${position.width}px`;
-
-
-  node.style.height =
-    `${position.height}px`;
-
-
-  node.style.zIndex =
-    ++state.z;
-/* =========================================================
-   FIX: KEEP APP WINDOW INSIDE VIEWPORT
-   ========================================================= */
-
-const safeWidth = Math.min(
-  position.width,
-  window.innerWidth - 40
-);
-
-const safeHeight = Math.min(
-  position.height,
-  window.innerHeight - 100
-);
-
-const safeLeft = Math.max(
-  20,
-  (window.innerWidth - safeWidth) / 2
-);
-
-const safeTop = Math.max(
-  70,
-  (window.innerHeight - safeHeight) / 2
-);
-
-node.style.setProperty(
-  'position',
-  'fixed',
-  'important'
-);
-
-node.style.setProperty(
-  'left',
-  `${safeLeft}px`,
-  'important'
-);
-
-node.style.setProperty(
-  'top',
-  `${safeTop}px`,
-  'important'
-);
-
-node.style.setProperty(
-  'width',
-  `${safeWidth}px`,
-  'important'
-);
-
-node.style.setProperty(
-  'height',
-  `${safeHeight}px`,
-  'important'
-);
-
-node.style.setProperty(
-  'margin',
-  '0',
-  'important'
-);
-
-node.style.setProperty(
-  'transform',
-  'none',
-  'important'
-);
-
-node.style.setProperty(
-  'z-index',
-  `${++state.z}`,
-  'important'
-);
-
-  node.innerHTML = `
-
-    <div class="window-chrome">
-
-      <div class="window-title-area">
-
-        <span class="window-title">
-          ${esc(
-            app?.name ||
-            id
-          )}
-        </span>
-
-        <span class="window-state">
-          Tayassuk OS
-        </span>
-
-      </div>
-
-
-      <div class="window-controls">
-
-        <button
-          type="button"
-          class="window-control window-minimize"
-          data-window-action="minimize"
-          aria-label="Minimize window"
-          title="Minimize"
-        >
-          −
-        </button>
-
-
-        <button
-          type="button"
-          class="window-control window-maximize"
-          data-window-action="maximize"
-          aria-label="Maximize window"
-          title="Maximize"
-        >
-          □
-        </button>
-
-
-        <button
-          type="button"
-          class="window-control window-close"
-          data-window-action="close"
-          aria-label="Close window"
-          title="Close"
-        >
-          ×
-        </button>
-
-      </div>
-
-    </div>
-
-
-    <div class="window-body"></div>
-
-  `;
-
-
-  layer.appendChild(node);
-
-
-  const win = {
-
-    node,
-
-    body:
-      node.querySelector(
-        '.window-body'
-      )
-
-  };
-
-
-  state.windows.set(
-    id,
-    win
-  );
-
-
-  renderWindow(id);
-
-
-  wireWindowControls(
-    node,
-    id
-  );
-
-
-  wireDrag(
-    node,
-    id
-  );
-
-
-  node.addEventListener(
-    'pointerdown',
-    () => focusWindow(id)
-  );
-
-
-  focusWindow(id);
-
-}
-
-
-/* =========================================================
-   TRASH WINDOW
-   ========================================================= */
-
-function openTrashWindow() {
-
-  const id =
-    'trash';
-
-
-  if (
-    state.windows.has(id)
-  ) {
-
-    const win =
-      state.windows.get(id);
-
-
-    if (
-      state.minimizedWindows.has(id)
-    ) {
-
-      restoreWindow(id);
-
-    } else {
-
-      focusWindow(id);
-
-    }
-
-
-    return;
-
-  }
-
-
-  const layer =
-    document.querySelector(
-      '#windows'
-    );
-
-
-  if (!layer) return;
-
-
-  const position =
-    windowPosition();
-
-
-  const node =
-    document.createElement(
-      'section'
-    );
-
-
-  node.className =
-    'app-window';
-
-
-  node.dataset.app =
-    id;
-
-
-  node.style.left =
-    `${position.left}px`;
-
-
-  node.style.top =
-    `${position.top}px`;
-
-
-  node.style.width =
-    `${Math.min(
-      760,
-      innerWidth - 44
-    )}px`;
-
-
-  node.style.height =
-    `${Math.min(
-      560,
-      innerHeight - 120
-    )}px`;
-
-
-  node.style.zIndex =
-    ++state.z;
-
-
-  node.innerHTML = `
-
-    <div class="window-chrome">
-
-      <div class="window-title-area">
-
-        <span class="window-title">
-          Trash
-        </span>
-
-        <span class="window-state">
-          Tayassuk OS
-        </span>
-
-      </div>
-
-
-      <div class="window-controls">
-
-        <button
-          type="button"
-          class="window-control window-minimize"
-          data-window-action="minimize"
-          aria-label="Minimize window"
-          title="Minimize"
-        >
-          −
-        </button>
-
-
-        <button
-          type="button"
-          class="window-control window-maximize"
-          data-window-action="maximize"
-          aria-label="Maximize window"
-          title="Maximize"
-        >
-          □
-        </button>
-
-
-        <button
-          type="button"
-          class="window-control window-close"
-          data-window-action="close"
-          aria-label="Close window"
-          title="Close"
-        >
-          ×
-        </button>
-
-      </div>
-
-    </div>
-
-
-    <div class="window-body">
-
+    return `
       <div class="empty-state">
-
-        <div class="empty-icon">
-          🗑️
-        </div>
-
-        <h2>
-          Trash is Empty
-        </h2>
-
-        <p>
-          There are no deleted portfolio items.
-        </p>
-
+        No projects available yet.
       </div>
-
-    </div>
-
-  `;
-
-
-  layer.appendChild(node);
-
-
-  state.windows.set(
-    id,
-    {
-      node,
-      body:
-        node.querySelector(
-          '.window-body'
-        )
-    }
-  );
-
-
-  wireWindowControls(
-    node,
-    id
-  );
-
-
-  wireDrag(
-    node,
-    id
-  );
-
-
-  node.addEventListener(
-    'pointerdown',
-    () => focusWindow(id)
-  );
-
-
-  focusWindow(id);
-
-}
-
-
-/* =========================================================
-   SETTINGS WINDOW
-   ========================================================= */
-
-function openSettingsWindow() {
-
-  const id =
-    'settings';
-
-
-  if (
-    state.windows.has(id)
-  ) {
-
-    const win =
-      state.windows.get(id);
-
-
-    if (
-      state.minimizedWindows.has(id)
-    ) {
-
-      restoreWindow(id);
-
-    } else {
-
-      focusWindow(id);
-
-    }
-
-
-    return;
+    `;
 
   }
 
-
-  const layer =
-    document.querySelector(
-      '#windows'
-    );
-
-
-  if (!layer) return;
-
-
-  const position =
-    windowPosition();
-
-
-  const node =
-    document.createElement(
-      'section'
-    );
-
-
-  node.className =
-    'app-window';
-
-
-  node.dataset.app =
-    id;
-
-
-  node.style.left =
-    `${position.left}px`;
-
-
-  node.style.top =
-    `${position.top}px`;
-
-
-  node.style.width =
-    `${Math.min(
-      760,
-      innerWidth - 44
-    )}px`;
-
-
-  node.style.height =
-    `${Math.min(
-      580,
-      innerHeight - 120
-    )}px`;
-
-
-  node.style.zIndex =
-    ++state.z;
-
-
-  node.innerHTML = `
-
-    <div class="window-chrome">
-
-      <div class="window-title-area">
-
-        <span class="window-title">
-          Settings
-        </span>
-
-        <span class="window-state">
-          Tayassuk OS
-        </span>
-
-      </div>
-
-
-      <div class="window-controls">
-
-        <button
-          type="button"
-          class="window-control window-minimize"
-          data-window-action="minimize"
-          aria-label="Minimize window"
-          title="Minimize"
-        >
-          −
-        </button>
-
-
-        <button
-          type="button"
-          class="window-control window-maximize"
-          data-window-action="maximize"
-          aria-label="Maximize window"
-          title="Maximize"
-        >
-          □
-        </button>
-
-
-        <button
-          type="button"
-          class="window-control window-close"
-          data-window-action="close"
-          aria-label="Close window"
-          title="Close"
-        >
-          ×
-        </button>
-
-      </div>
-
-    </div>
-
-
-    <div class="window-body">
-
-      <div class="window-page settings-page">
-
-        <div class="window-page-heading">
-
-          <span class="eyebrow">
-            System Preferences
-          </span>
-
-          <h1>
-            Settings
-          </h1>
-
-          <p>
-            Customize your Tayassuk OS experience.
-          </p>
-
-        </div>
-
-
-        <div class="settings-grid">
-
-          <section class="control-card">
-
-            <div class="settings-card-icon">
-              ◐
-            </div>
-
-            <div>
-
-              <h3>
-                Appearance
-              </h3>
-
-              <p>
-                Choose your preferred interface theme.
-              </p>
-
-            </div>
-
-
-            <div class="settings-actions">
-
-              <button
-                type="button"
-                class="secondary-action"
-                data-settings-theme="dark"
-              >
-                Dark
-              </button>
-
-              <button
-                type="button"
-                class="secondary-action"
-                data-settings-theme="light"
-              >
-                Light
-              </button>
-
-            </div>
-
-          </section>
-
-
-          <section class="control-card">
-
-            <div class="settings-card-icon">
-              ✦
-            </div>
-
-            <div>
-
-              <h3>
-                Interface
-              </h3>
-
-              <p>
-                Tayassuk OS desktop experience.
-              </p>
-
-            </div>
-
-            <span class="settings-status">
-              v2.0
-            </span>
-
-          </section>
-
-
-          <section class="control-card">
-
-            <div class="settings-card-icon">
-              ↻
-            </div>
-
-            <div>
-
-              <h3>
-                Local Storage
-              </h3>
-
-              <p>
-                Whiteboard notes are stored locally on this device.
-              </p>
-
-            </div>
-
-          </section>
-
-        </div>
-
-      </div>
-
-    </div>
-
-  `;
-
-
-  layer.appendChild(node);
-
-
-  state.windows.set(
-    id,
-    {
-      node,
-      body:
-        node.querySelector(
-          '.window-body'
-        )
-    }
-  );
-
-
-  wireWindowControls(
-    node,
-    id
-  );
-
-
-  wireDrag(
-    node,
-    id
-  );
-
-
-  node.addEventListener(
-    'pointerdown',
-    () => focusWindow(id)
-  );
-
-
-  /* -----------------------------------------
-     Theme buttons
-     ----------------------------------------- */
-
-  node.addEventListener(
-    'click',
-    event => {
-
-      const button =
-        event.target.closest(
-          '[data-settings-theme]'
-        );
-
-
-      if (!button) return;
-
-
-      const theme =
-        button.dataset.settingsTheme;
-
-
-      if (
-        theme !== 'dark' &&
-        theme !== 'light'
-      ) {
-        return;
-      }
-
-
-      state.theme =
-        theme;
-
-
-      localStorage.setItem(
-        'tayassuk-os-theme-v2',
-        theme
-      );
-
-
-      document.documentElement.dataset.theme =
-        theme;
-
-    }
-  );
-
-
-  focusWindow(id);
-
-}
-
-
-/* =========================================================
-   WINDOW DRAG
-   ========================================================= */
-
-function wireDrag(node, id) {
-
-  const chrome =
-    node.querySelector(
-      '.window-chrome'
-    );
-
-
-  if (!chrome) return;
-
-
-  let dragging =
-    false;
-
-  let startX =
-    0;
-
-  let startY =
-    0;
-
-  let startLeft =
-    0;
-
-  let startTop =
-    0;
-
-
-  chrome.addEventListener(
-    'pointerdown',
-    event => {
-
-      /* Don't drag from buttons */
-
-      if (
-        event.target.closest(
-          'button'
-        )
-      ) {
-
-        return;
-
-      }
-
-
-      /* Don't drag maximized window */
-
-      if (
-        state.maximizedWindows.has(id)
-      ) {
-
-        return;
-
-      }
-
-
-      dragging =
-        true;
-
-
-      startX =
-        event.clientX;
-
-
-      startY =
-        event.clientY;
-
-
-      startLeft =
-        parseFloat(
-          node.style.left
-        ) || 0;
-
-
-      startTop =
-        parseFloat(
-          node.style.top
-        ) || 0;
-
-
-      focusWindow(id);
-
-
-      chrome.setPointerCapture(
-        event.pointerId
-      );
-
-    }
-  );
-
-
-  chrome.addEventListener(
-    'pointermove',
-    event => {
-
-      if (!dragging) return;
-
-
-      const dx =
-        event.clientX -
-        startX;
-
-
-      const dy =
-        event.clientY -
-        startY;
-
-
-      const maxLeft =
-        Math.max(
-          12,
-          innerWidth -
-            node.offsetWidth -
-            12
-        );
-
-
-      const maxTop =
-        Math.max(
-          64,
-          innerHeight -
-            node.offsetHeight -
-            12
-        );
-
-
-      const nextLeft =
-        Math.min(
-          maxLeft,
-          Math.max(
-            12,
-            startLeft + dx
-          )
-        );
-
-
-      const nextTop =
-        Math.min(
-          maxTop,
-          Math.max(
-            64,
-            startTop + dy
-          )
-        );
-
-
-      node.style.left =
-        `${nextLeft}px`;
-
-
-      node.style.top =
-        `${nextTop}px`;
-
-    }
-  );
-
-
-  chrome.addEventListener(
-    'pointerup',
-    event => {
-
-      dragging =
-        false;
-
-
-      try {
-
-        chrome.releasePointerCapture(
-          event.pointerId
-        );
-
-      } catch {}
-
-    }
-  );
-
-
-  chrome.addEventListener(
-    'pointercancel',
-    () => {
-
-      dragging =
-        false;
-
-    }
-  );
-
-}
-
-
-/* =========================================================
-   PROJECT CARD
-   ========================================================= */
-
-function projectCard(project) {
-
-  const name =
-    project.name ||
-    project.title ||
-    'Untitled Project';
-
-
-  const description =
-    project.description ||
-    project.desc ||
-    'Project details coming soon.';
-
-
-  const technologies =
-    project.technologies ||
-    project.stack ||
-    [];
-
-
-  const tech =
-    Array.isArray(
-      technologies
-    )
-      ? technologies
-      : String(
-          technologies
-        )
-          .split(',')
-          .map(
-            item =>
-              item.trim()
-          )
-          .filter(Boolean);
-
-
-  const image =
-    project.image ||
-    './assets/projects/garage-management-system.jpg';
-
-
-  return `
-
-    <article class="project-card">
-
-      <div class="project-image-wrap">
-
-        <img
-          class="project-image"
-          src="${esc(image)}"
-          alt="${esc(name)}"
-          loading="lazy"
-        >
-
-      </div>
-
-
-      <div class="project-card-content">
-
-        <div class="project-card-top">
-
-          <h3>
-            ${esc(name)}
-          </h3>
-
-          <span class="project-status">
-            ${esc(
-              project.status ||
-              'Working'
-            )}
-          </span>
-
-        </div>
-
-
-        <p>
-          ${esc(description)}
-        </p>
-
-
-        <div class="project-tech">
-
-          ${
-            tech
-              .map(
-                item =>
-                  `<span>${esc(item)}</span>`
-              )
-              .join('')
-          }
-
-        </div>
-
-
-        <button
-          type="button"
-          class="project-open"
-          data-action="project-detail"
-          data-project="${esc(
-            project.id ||
-            name
-          )}"
-        >
-          Open Project
-        </button>
-
-      </div>
-
-    </article>
-
-  `;
-
-}
-
-
-/* =========================================================
-   PROJECT DETAIL
-   ========================================================= */
-
-function renderProjectDetail(project) {
-
-  const technologies =
-    project.technologies ||
-    project.stack ||
-    [];
-
-
-  const tech =
-    Array.isArray(
-      technologies
-    )
-      ? technologies
-      : String(
-          technologies
-        )
-          .split(',')
-          .map(
-            item =>
-              item.trim()
-          )
-          .filter(Boolean);
-
-
-  const image =
-    project.image ||
-    './assets/projects/garage-management-system.jpg';
-
-
-  const liveUrl =
-    project.liveUrl ||
-    project.url ||
-    '';
-
-
-  const githubUrl =
-    project.githubUrl ||
-    project.repository ||
-    '';
-
-
-  return `
-
-    <div class="project-detail">
-
-      <div class="project-detail-image">
-
-        <img
-          src="${esc(image)}"
-          alt="${esc(
-            project.name ||
-            project.title ||
-            'Project'
-          )}"
-        >
-
-      </div>
-
-
-      <div class="project-detail-content">
-
-        <div class="project-detail-heading">
-
-          <span class="eyebrow">
-            ${esc(
-              project.category ||
-              'Project'
-            )}
-          </span>
-
-          <h1>
-            ${esc(
-              project.name ||
-              project.title ||
-              'Untitled Project'
-            )}
-          </h1>
-
-        </div>
-
-
-        <p class="project-detail-description">
-          ${esc(
-            project.description ||
-            project.desc ||
-            'No description available.'
-          )}
-        </p>
-
-
-        <div class="project-meta-grid">
-
-          <div>
-
-            <small>
-              Role
-            </small>
-
-            <strong>
-              ${esc(
-                project.role ||
-                'Solo Developer'
-              )}
-            </strong>
-
-          </div>
-
-
-          <div>
-
-            <small>
-              Status
-            </small>
-
-            <strong>
-              ${esc(
-                project.status ||
-                'Working'
-              )}
-            </strong>
-
-          </div>
-
-
-          <div>
-
-            <small>
-              Dates
-            </small>
-
-            <strong>
-              ${esc(
-                project.dates ||
-                '—'
-              )}
-            </strong>
-
-          </div>
-
-        </div>
-
-
-        <div class="project-tech">
-
-          ${
-            tech
-              .map(
-                item =>
-                  `<span>${esc(item)}</span>`
-              )
-              .join('')
-          }
-
-        </div>
-
-
-        <div class="project-actions">
-
-          ${
-            liveUrl
-              ? `
-                <a
-                  href="${esc(
-                    safeUrl(liveUrl)
-                  )}"
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  class="primary-action"
-                >
-                  Live Project
-                </a>
-              `
-              : ''
-          }
-
-
-          ${
-            githubUrl
-              ? `
-                <a
-                  href="${esc(
-                    safeUrl(githubUrl)
-                  )}"
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  class="secondary-action"
-                >
-                  GitHub
-                </a>
-              `
-              : ''
-          }
-
-        </div>
-
-      </div>
-
-    </div>
-
-  `;
-
-}
-/* =========================================================
-   WINDOW RENDERER
-   ========================================================= */
-
-function renderWindow(id) {
-
-  const win =
-    state.windows.get(id);
-
-  if (!win?.body) return;
-
-
-  switch (id) {
-
-    case 'projects':
-
-      win.body.innerHTML = `
-        <div class="window-page">
-
-          <div class="window-page-heading">
-
-            <span class="eyebrow">
-              Portfolio
-            </span>
-
-            <h1>
-              Projects
-            </h1>
-
-            <p>
-              Built work and future projects.
-            </p>
-
-          </div>
-
-
-          <div class="project-grid">
-
-            ${
-              (portfolio.projects || [])
-                .map(projectCard)
-                .join('')
-            }
-
-          </div>
-
-        </div>
-      `;
-
-      break;
-
-
-    case 'learning':
-
-      win.body.innerHTML =
-        renderLearningWindow();
-
-      break;
-
-
-    case 'skills':
-
-      win.body.innerHTML =
-        renderSkillsWindow();
-
-      break;
-
-
-    case 'education':
-
-      win.body.innerHTML =
-        renderEducationWindow();
-
-      break;
-
-
-    case 'journey':
-
-      win.body.innerHTML =
-        renderJourneyWindow();
-
-      break;
-
-
-    case 'about':
-
-      win.body.innerHTML =
-        renderAboutWindow();
-
-      break;
-
-
-    case 'achievements':
-
-      win.body.innerHTML =
-        renderAchievementsWindow();
-
-      break;
-
-
-    case 'contact':
-
-      win.body.innerHTML =
-        renderContactWindow();
-
-      break;
-
-
-    case 'whiteboard':
-
-      win.body.innerHTML =
-        renderWhiteboardWindow();
-
-      break;
-
-
-    case 'founder':
-
-      win.body.innerHTML =
-        renderFounderWindow();
-
-      break;
-
-
-    case 'browser':
-
-      win.body.innerHTML =
-        renderBrowserWindow();
-
-      break;
-
-
-    default:
-
-      win.body.innerHTML = `
-        <div class="window-page">
-
-          <div class="window-page-heading">
-
-            <span class="eyebrow">
-              Tayassuk OS
-            </span>
-
-            <h1>
-              ${esc(id)}
-            </h1>
-
-            <p>
-              This application is ready.
-            </p>
-
-          </div>
-
-        </div>
-      `;
-
-  }
-
-
-  wireWindowActions(
-    win.body
-  );
-
-}
-
-
-/* =========================================================
-   LEARNING WINDOW
-   ========================================================= */
-
-function renderLearningWindow() {
-
-  const items =
-    portfolio.owner?.learning ||
-    [];
-
-
-  return `
-
-    <div class="window-page">
-
-      <div class="window-page-heading">
-
-        <span class="eyebrow">
-          Current Focus
-        </span>
-
-        <h1>
-          Learning
-        </h1>
-
-        <p>
-          Things I am currently studying and practicing.
-        </p>
-
-      </div>
-
-
-      <div class="learning-list">
-
-        ${
-          items.length
-
-            ? items
-                .map(
-                  item => `
-
-                    <article class="learning-item">
-
-                      <div>
-
-                        <h3>
-                          ${esc(
-                            item.title ||
-                            item.name ||
-                            'Learning'
-                          )}
-                        </h3>
-
-                        <p>
-                          ${esc(
-                            item.detail ||
-                            item.description ||
-                            ''
-                          )}
-                        </p>
-
-                      </div>
-
-
-                      <div class="learning-progress">
-
-                        <strong>
-                          ${esc(
-                            `${Number(
-                              item.progress
-                            ) || 0}%`
-                          )}
-                        </strong>
-
-                        <div class="progress-track">
-
-                          <span
-                            style="width:${Math.min(
-                              100,
-                              Math.max(
-                                0,
-                                Number(
-                                  item.progress
-                                ) || 0
-                              )
-                            )}%"
-                          ></span>
-
-                        </div>
-
-                      </div>
-
-                    </article>
-
-                  `
-                )
-                .join('')
-
-            : `
-
-              <div class="empty-state">
-
-                <div class="empty-icon">
-                  ✦
-                </div>
-
-                <h2>
-                  No learning items yet
-                </h2>
-
-                <p>
-                  Add your current learning topics from the Control Center.
-                </p>
+  return projects
+    .map(
+      project => {
+
+        const technologies =
+          project.technologies ||
+          project.tech ||
+          [];
+
+        return `
+
+          <article
+            class="project-item"
+            data-project-id="${esc(
+              project.id || ''
+            )}"
+          >
+
+            <div class="project-item-header">
+
+              <div>
+
+                <span class="project-status">
+                  ${esc(
+                    project.status ||
+                    'Working'
+                  )}
+                </span>
+
+                <h3>
+                  ${esc(
+                    project.title ||
+                    project.name ||
+                    'Untitled Project'
+                  )}
+                </h3>
 
               </div>
 
-            `
-        }
-
-      </div>
-
-    </div>
-
-  `;
-
-}
+            </div>
 
 
-/* =========================================================
-   SKILLS WINDOW
-   ========================================================= */
-
-function renderSkillsWindow() {
-
-  const groups =
-    portfolio.skills ||
-    [];
+            <p>
+              ${esc(
+                project.description ||
+                ''
+              )}
+            </p>
 
 
-  return `
-
-    <div class="window-page">
-
-      <div class="window-page-heading">
-
-        <span class="eyebrow">
-          Technical Toolkit
-        </span>
-
-        <h1>
-          Skills
-        </h1>
-
-        <p>
-          Technologies and tools I use while learning and building.
-        </p>
-
-      </div>
-
-
-      <div class="skills-window-grid">
-
-        ${
-          groups
-            .map(
-              group => `
-
-                <article class="skill-group">
-
-                  <div class="skill-group-heading">
-
-                    <span class="skill-group-dot"></span>
-
-                    <h3>
-                      ${esc(
-                        group.name ||
-                        group.title ||
-                        'Skills'
-                      )}
-                    </h3>
-
-                  </div>
-
-
-                  <div class="skill-tags">
+            ${
+              technologies.length
+                ? `
+                  <div class="chip-row">
 
                     ${
-                      (
-                        group.skills ||
-                        group.items ||
-                        []
-                      )
+                      technologies
                         .map(
-                          skill => {
-
-                            const skillName =
-                              typeof skill === 'string'
-                                ? skill
-                                : skill?.name;
-
-                            return `
-                              <span>
-                                ${esc(
-                                  skillName ||
-                                  'Skill'
-                                )}
-                              </span>
-                            `;
-
-                          }
+                          tech =>
+                            `<span>
+                              ${esc(tech)}
+                            </span>`
                         )
                         .join('')
                     }
 
                   </div>
-
-                </article>
-
-              `
-            )
-            .join('')
-        }
-
-      </div>
-
-    </div>
-
-  `;
-
-}
+                `
+                : ''
+            }
 
 
-/* =========================================================
-   EDUCATION WINDOW
-   ========================================================= */
+            <div class="project-actions">
 
-function renderEducationWindow() {
-
-  const items =
-    portfolio.education ||
-    [];
-
-
-  return `
-
-    <div class="window-page">
-
-      <div class="window-page-heading">
-
-        <span class="eyebrow">
-          Academic Timeline
-        </span>
-
-        <h1>
-          Education
-        </h1>
-
-        <p>
-          My academic background and learning journey.
-        </p>
-
-      </div>
-
-
-      <div class="timeline">
-
-        ${
-          items.length
-
-            ? items
-                .map(
-                  item => `
-
-                    <article class="timeline-item">
-
-                      <div class="timeline-dot"></div>
-
-                      <div class="timeline-content">
-
-                        <small class="timeline-year">
-                          ${esc(
-                            item.year ||
-                            item.date ||
-                            ''
-                          )}
-                        </small>
-
-                        <h3>
-                          ${esc(
-                            item.degree ||
-                            item.title ||
-                            item.name ||
-                            ''
-                          )}
-                        </h3>
-
-                        <p>
-                          ${esc(
-                            item.institution ||
-                            item.school ||
-                            ''
-                          )}
-                        </p>
-
-                      </div>
-
-                    </article>
-
+              ${
+                project.liveUrl
+                  ? `
+                    <a
+                      href="${esc(
+                        safeUrl(
+                          project.liveUrl
+                        )
+                      )}"
+                      target="_blank"
+                      rel="noreferrer noopener"
+                      class="primary mini-btn"
+                    >
+                      Live Demo
+                    </a>
                   `
-                )
-                .join('')
+                  : ''
+              }
 
-            : `
+              <button
+                type="button"
+                class="secondary mini-btn"
+                data-action="project-detail"
+                data-project="${
+                  esc(
+                    project.id ||
+                    project.slug ||
+                    ''
+                  )
+                }"
+              >
+                View Details
+              </button>
 
-              <div class="empty-state">
+            </div>
 
-                <h2>
-                  No education records yet
-                </h2>
+          </article>
 
-              </div>
+        `;
 
-            `
-        }
-
-      </div>
-
-    </div>
-
-  `;
-
-}
-
-
-/* =========================================================
-   JOURNEY WINDOW
-   ========================================================= */
-
-function renderJourneyWindow() {
-
-  const items =
-    portfolio.journey ||
-    [];
-
-
-  return `
-
-    <div class="window-page">
-
-      <div class="window-page-heading">
-
-        <span class="eyebrow">
-          Growth
-        </span>
-
-        <h1>
-          Journey
-        </h1>
-
-        <p>
-          My software engineering journey.
-        </p>
-
-      </div>
-
-
-      <div class="timeline journey-timeline">
-
-        ${
-          items
-            .map(
-              (item, index) => `
-
-                <article class="timeline-item">
-
-                  <div class="timeline-dot">
-                    ${index + 1}
-                  </div>
-
-                  <div class="timeline-content">
-
-                    <h3>
-                      ${esc(
-                        item.title ||
-                        ''
-                      )}
-                    </h3>
-
-                    <p>
-                      ${esc(
-                        item.detail ||
-                        ''
-                      )}
-                    </p>
-
-                  </div>
-
-                </article>
-
-              `
-            )
-            .join('')
-        }
-
-      </div>
-
-    </div>
-
-  `;
+      }
+    )
+    .join('');
 
 }
 
 
 /* =========================================================
-   ABOUT WINDOW
+   EDUCATION
    ========================================================= */
 
-function renderAboutWindow() {
+function renderEducation() {
+
+  const education =
+    portfolio.education || [];
+
+  if (!education.length) {
+
+    return `
+      <div class="empty-state">
+        No education information available.
+      </div>
+    `;
+
+  }
+
+  return education
+    .map(
+      item => `
+
+        <article class="timeline-item">
+
+          <div class="timeline-dot"></div>
+
+          <div class="timeline-content">
+
+            <span class="timeline-date">
+              ${esc(
+                item.year ||
+                item.date ||
+                ''
+              )}
+            </span>
+
+            <h3>
+              ${esc(
+                item.degree ||
+                item.title ||
+                ''
+              )}
+            </h3>
+
+            <strong>
+              ${esc(
+                item.institution ||
+                item.school ||
+                ''
+              )}
+            </strong>
+
+            ${
+              item.description
+                ? `
+                  <p>
+                    ${esc(
+                      item.description
+                    )}
+                  </p>
+                `
+                : ''
+            }
+
+          </div>
+
+        </article>
+
+      `
+    )
+    .join('');
+
+}
+
+
+/* =========================================================
+   SKILLS
+   ========================================================= */
+
+function renderSkills() {
+
+  const groups =
+    portfolio.skills || [];
+
+  if (!groups.length) {
+
+    return `
+      <div class="empty-state">
+        No skills available.
+      </div>
+    `;
+
+  }
+
+  return groups
+    .map(
+      group => {
+
+        const skills =
+          group.skills ||
+          group.items ||
+          [];
+
+        return `
+
+          <section class="skill-group">
+
+            <h3>
+              ${esc(
+                group.title ||
+                group.name ||
+                ''
+              )}
+            </h3>
+
+            <div class="skill-list">
+
+              ${
+                skills
+                  .map(
+                    skill => {
+
+                      const name =
+                        typeof skill ===
+                        'string'
+                          ? skill
+                          : skill.name ||
+                            '';
+
+                      const level =
+                        typeof skill ===
+                        'object'
+                          ? Number(
+                              skill.progress ||
+                              skill.level ||
+                              0
+                            )
+                          : 0;
+
+                      return `
+
+                        <div class="skill-row">
+
+                          <div class="skill-row-top">
+
+                            <span>
+                              ${esc(name)}
+                            </span>
+
+                            ${
+                              level
+                                ? `
+                                  <span>
+                                    ${level}%
+                                  </span>
+                                `
+                                : ''
+                            }
+
+                          </div>
+
+                          ${
+                            level
+                              ? `
+                                <div class="progress-track">
+                                  <span
+                                    style="width:${Math.min(
+                                      100,
+                                      Math.max(
+                                        0,
+                                        level
+                                      )
+                                    )}%"
+                                  ></span>
+                                </div>
+                              `
+                              : ''
+                          }
+
+                        </div>
+
+                      `;
+
+                    }
+                  )
+                  .join('')
+              }
+
+            </div>
+
+          </section>
+
+        `;
+
+      }
+    )
+    .join('');
+
+}
+
+
+/* =========================================================
+   ACHIEVEMENTS
+   ========================================================= */
+
+function renderAchievements() {
+
+  const achievements =
+    portfolio.achievements || [];
+
+  if (!achievements.length) {
+
+    return `
+      <div class="empty-state">
+        No achievements available yet.
+      </div>
+    `;
+
+  }
+
+  return achievements
+    .map(
+      item => `
+
+        <article class="achievement-item">
+
+          <div class="achievement-icon">
+            ✦
+          </div>
+
+          <div>
+
+            <h3>
+              ${esc(
+                item.title ||
+                item.name ||
+                ''
+              )}
+            </h3>
+
+            ${
+              item.date ||
+              item.year
+                ? `
+                  <span class="achievement-date">
+                    ${esc(
+                      item.date ||
+                      item.year ||
+                      ''
+                    )}
+                  </span>
+                `
+                : ''
+            }
+
+            ${
+              item.description
+                ? `
+                  <p>
+                    ${esc(
+                      item.description
+                    )}
+                  </p>
+                `
+                : ''
+            }
+
+          </div>
+
+        </article>
+
+      `
+    )
+    .join('');
+
+}
+
+
+/* =========================================================
+   ABOUT
+   ========================================================= */
+
+function renderAbout() {
+
+  const owner =
+    portfolio.owner || {};
 
   const identity =
-    portfolio.owner?.identity ||
-    {};
-
+    owner.identity || {};
 
   const about =
-    portfolio.owner?.about ||
-    'I am a Software Engineering student focused on learning, building, and growing through practical projects.';
+    owner.about || {};
 
 
   return `
 
-    <div class="window-page">
+    <div class="about-layout">
 
-      <div class="window-page-heading">
+      <div class="about-avatar">
 
-        <span class="eyebrow">
-          About Me
-        </span>
+        <img
+          src="${esc(
+            identity.generatedAvatar ||
+            identity.portrait ||
+            './assets/avatar/tayassuk-generated-avatar.png'
+          )}"
+          alt="Tayassuk Imam"
+          draggable="false"
+        >
 
-        <h1>
+      </div>
+
+
+      <div class="about-content">
+
+        <div class="window-eyebrow">
+          ABOUT ME
+        </div>
+
+        <h2>
           ${esc(
             identity.fullName ||
             'Tayassuk Imam'
           )}
-        </h1>
+        </h2>
 
-        <p>
+        <h3>
           ${esc(
-            identity.headline ||
-            'Software Engineering Student Building the Future, One Project at a Time'
+            identity.profession ||
+            'Software Engineering Student'
           )}
-        </p>
-
-      </div>
+        </h3>
 
 
-      <div class="about-profile-card">
-
-        <div class="about-avatar">
-
-          <img
-            src="${esc(
-              identity.generatedAvatar ||
-              identity.portrait ||
-              './assets/avatar/tayassuk-generated-avatar.png'
-            )}"
-            alt="Tayassuk Imam"
-          >
-
-        </div>
+        ${
+          about.bio
+            ? `
+              <p>
+                ${esc(about.bio)}
+              </p>
+            `
+            : ''
+        }
 
 
-        <div class="about-profile-content">
+        ${
+          about.description
+            ? `
+              <p>
+                ${esc(
+                  about.description
+                )}
+              </p>
+            `
+            : ''
+        }
 
-          <span class="eyebrow">
+
+        <div class="about-meta">
+
+          <span>
+            📍
             ${esc(
-              identity.profession ||
-              'Software Engineering Student'
+              identity.location ||
+              'Dhaka, Bangladesh'
             )}
           </span>
 
-          <h2>
-            Learning • Building • Growing
-          </h2>
-
-          <p>
-            ${esc(about)}
-          </p>
+          <span>
+            💻
+            Software Engineering
+          </span>
 
         </div>
 
@@ -3206,96 +1316,66 @@ function renderAboutWindow() {
 
 
 /* =========================================================
-   ACHIEVEMENTS WINDOW
+   JOURNEY
    ========================================================= */
 
-function renderAchievementsWindow() {
+function renderJourney() {
 
-  const items =
-    portfolio.achievements ||
-    [];
+  const journey =
+    portfolio.journey || [];
 
+  if (!journey.length) {
+
+    return `
+      <div class="empty-state">
+        Journey information is not available.
+      </div>
+    `;
+
+  }
 
   return `
 
-    <div class="window-page">
+    <div class="journey-timeline">
 
-      <div class="window-page-heading">
+      ${
+        journey
+          .map(
+            (item, index) => `
 
-        <span class="eyebrow">
-          Milestones
-        </span>
+              <article
+                class="journey-item"
+              >
 
-        <h1>
-          Achievements
-        </h1>
-
-        <p>
-          Activities, experiences and milestones.
-        </p>
-
-      </div>
-
-
-      <div class="achievement-grid">
-
-        ${
-          items.length
-
-            ? items
-                .map(
-                  item => `
-
-                    <article class="achievement-card">
-
-                      <div class="achievement-icon">
-                        ✦
-                      </div>
-
-                      <div>
-
-                        <h3>
-                          ${esc(
-                            item.title ||
-                            item.name ||
-                            ''
-                          )}
-                        </h3>
-
-                        <p>
-                          ${esc(
-                            item.description ||
-                            item.detail ||
-                            ''
-                          )}
-                        </p>
-
-                      </div>
-
-                    </article>
-
-                  `
-                )
-                .join('')
-
-            : `
-
-              <div class="empty-state">
-
-                <div class="empty-icon">
-                  ✦
+                <div class="journey-number">
+                  ${index + 1}
                 </div>
 
-                <h2>
-                  No achievements yet
-                </h2>
+                <div class="journey-content">
 
-              </div>
+                  <h3>
+                    ${esc(
+                      item.title ||
+                      ''
+                    )}
+                  </h3>
+
+                  <p>
+                    ${esc(
+                      item.detail ||
+                      item.description ||
+                      ''
+                    )}
+                  </p>
+
+                </div>
+
+              </article>
 
             `
-        }
-
-      </div>
+          )
+          .join('')
+      }
 
     </div>
 
@@ -3305,10 +1385,10 @@ function renderAchievementsWindow() {
 
 
 /* =========================================================
-   CONTACT WINDOW
+   CONTACT
    ========================================================= */
 
-function renderContactWindow() {
+function renderContact() {
 
   const contact =
     portfolio.owner?.contact ||
@@ -3317,20 +1397,21 @@ function renderContactWindow() {
 
   return `
 
-    <div class="window-page">
+    <div class="contact-layout">
 
-      <div class="window-page-heading">
+      <div class="contact-intro">
 
-        <span class="eyebrow">
-          Contact
-        </span>
+        <div class="window-eyebrow">
+          CONTACT
+        </div>
 
-        <h1>
-          Start a Conversation
-        </h1>
+        <h2>
+          Let's build something useful.
+        </h2>
 
         <p>
-          Want to talk about a project, idea or opportunity?
+          Interested in software, projects,
+          collaboration, or just want to say hello?
         </p>
 
       </div>
@@ -3341,23 +1422,22 @@ function renderContactWindow() {
         ${
           contact.email
             ? `
-
               <a
+                class="contact-item"
                 href="mailto:${esc(
                   contact.email
                 )}"
-                class="contact-item"
               >
 
-                <span class="contact-item-icon">
-                  @
+                <span class="contact-icon">
+                  ✉
                 </span>
 
-                <div>
+                <span>
 
-                  <span>
+                  <small>
                     Email
-                  </span>
+                  </small>
 
                   <strong>
                     ${esc(
@@ -3365,14 +1445,9 @@ function renderContactWindow() {
                     )}
                   </strong>
 
-                </div>
-
-                <span class="contact-arrow">
-                  →
                 </span>
 
               </a>
-
             `
             : ''
         }
@@ -3381,8 +1456,8 @@ function renderContactWindow() {
         ${
           contact.github
             ? `
-
               <a
+                class="contact-item"
                 href="${esc(
                   safeUrl(
                     contact.github
@@ -3390,31 +1465,25 @@ function renderContactWindow() {
                 )}"
                 target="_blank"
                 rel="noreferrer noopener"
-                class="contact-item"
               >
 
-                <span class="contact-item-icon">
-                  GH
+                <span class="contact-icon">
+                  ◉
                 </span>
 
-                <div>
+                <span>
 
-                  <span>
+                  <small>
                     GitHub
-                  </span>
+                  </small>
 
                   <strong>
-                    Open Profile
+                    GitHub Profile
                   </strong>
 
-                </div>
-
-                <span class="contact-arrow">
-                  ↗
                 </span>
 
               </a>
-
             `
             : ''
         }
@@ -3423,8 +1492,8 @@ function renderContactWindow() {
         ${
           contact.linkedin
             ? `
-
               <a
+                class="contact-item"
                 href="${esc(
                   safeUrl(
                     contact.linkedin
@@ -3432,31 +1501,25 @@ function renderContactWindow() {
                 )}"
                 target="_blank"
                 rel="noreferrer noopener"
-                class="contact-item"
               >
 
-                <span class="contact-item-icon">
+                <span class="contact-icon">
                   in
                 </span>
 
-                <div>
+                <span>
 
-                  <span>
+                  <small>
                     LinkedIn
-                  </span>
+                  </small>
 
                   <strong>
-                    Open Profile
+                    LinkedIn Profile
                   </strong>
 
-                </div>
-
-                <span class="contact-arrow">
-                  ↗
                 </span>
 
               </a>
-
             `
             : ''
         }
@@ -3471,12 +1534,470 @@ function renderContactWindow() {
 
 
 /* =========================================================
-   WHITEBOARD WINDOW
+   FOUNDER.TXT
    ========================================================= */
 
-function renderWhiteboardWindow() {
+function renderFounder() {
 
-  const saved =
+  return `
+
+    <div class="terminal-document">
+
+      <div class="terminal-line">
+        $ cat Founder.txt
+      </div>
+
+      <br>
+
+      <div class="terminal-line">
+        # Working Principles
+      </div>
+
+      <br>
+
+      <div class="terminal-line">
+        01. Keep learning.
+      </div>
+
+      <div class="terminal-line">
+        02. Build practical projects.
+      </div>
+
+      <div class="terminal-line">
+        03. Solve problems step by step.
+      </div>
+
+      <div class="terminal-line">
+        04. Stay consistent.
+      </div>
+
+      <div class="terminal-line">
+        05. Improve every day.
+      </div>
+
+      <br>
+
+      <div class="terminal-line">
+        # Goal
+      </div>
+
+      <div class="terminal-line">
+        Become a strong and professional
+        Software Engineer.
+      </div>
+
+    </div>
+
+  `;
+
+}
+
+
+/* =========================================================
+   LEARNING
+   ========================================================= */
+
+function renderLearning() {
+
+  const learning =
+    portfolio.owner?.learning ||
+    [];
+
+  if (!learning.length) {
+
+    return `
+      <div class="empty-state">
+        No learning data available.
+      </div>
+    `;
+
+  }
+
+  return `
+
+    <div class="learning-list">
+
+      ${
+        learning
+          .map(
+            item => {
+
+              const progress =
+                Math.min(
+                  100,
+                  Math.max(
+                    0,
+                    Number(
+                      item.progress
+                    ) || 0
+                  )
+                );
+
+
+              return `
+
+                <article
+                  class="learning-item"
+                >
+
+                  <div class="learning-header">
+
+                    <strong>
+                      ${esc(
+                        item.title ||
+                        item.name ||
+                        ''
+                      )}
+                    </strong>
+
+                    <span>
+                      ${progress}%
+                    </span>
+
+                  </div>
+
+
+                  <div class="progress-track">
+
+                    <span
+                      style="width:${progress}%"
+                    ></span>
+
+                  </div>
+
+
+                  ${
+                    item.description
+                      ? `
+                        <p>
+                          ${esc(
+                            item.description
+                          )}
+                        </p>
+                      `
+                      : ''
+                  }
+
+                </article>
+
+              `;
+
+            }
+          )
+          .join('')
+      }
+
+    </div>
+
+  `;
+
+}
+
+
+/* =========================================================
+   TRASH
+   ========================================================= */
+
+function renderTrash() {
+
+  return `
+
+    <div class="trash-view">
+
+      <div class="trash-icon-large">
+        🗑
+      </div>
+
+      <h2>
+        Trash
+      </h2>
+
+      <p>
+        Deleted portfolio items would
+        appear here.
+      </p>
+
+      <span class="muted">
+        Nothing to restore.
+      </span>
+
+    </div>
+
+  `;
+
+}
+/* =========================================================
+   SETTINGS
+   ========================================================= */
+
+function renderSettings() {
+
+  return `
+
+    <div class="settings-layout">
+
+      <section class="settings-section">
+
+        <div class="window-eyebrow">
+          APPEARANCE
+        </div>
+
+        <h2>
+          Tayassuk OS
+        </h2>
+
+        <p>
+          Personal portfolio operating system.
+        </p>
+
+        <div class="settings-actions">
+
+          <button
+            type="button"
+            class="secondary"
+            data-action="toggle-theme"
+          >
+            Toggle Theme
+          </button>
+
+        </div>
+
+      </section>
+
+
+      <section class="settings-section">
+
+        <div class="window-eyebrow">
+          SYSTEM
+        </div>
+
+        <div class="settings-row">
+
+          <span>
+            System
+          </span>
+
+          <strong>
+            Tayassuk OS
+          </strong>
+
+        </div>
+
+
+        <div class="settings-row">
+
+          <span>
+            Mode
+          </span>
+
+          <strong>
+            Portfolio
+          </strong>
+
+        </div>
+
+
+        <div class="settings-row">
+
+          <span>
+            Status
+          </span>
+
+          <strong class="status-online">
+            Online
+          </strong>
+
+        </div>
+
+      </section>
+
+
+      <section class="settings-section">
+
+        <div class="window-eyebrow">
+          DATA
+        </div>
+
+        <p>
+          Portfolio content is connected to
+          the portfolio data store.
+        </p>
+
+        <button
+          type="button"
+          class="secondary"
+          data-action="reload-portfolio"
+        >
+          Reload Portfolio
+        </button>
+
+      </section>
+
+    </div>
+
+  `;
+
+}
+
+
+/* =========================================================
+   BROWSER
+   ========================================================= */
+
+function renderBrowser() {
+
+  const contact =
+    portfolio.owner?.contact ||
+    {};
+
+
+  const links = [];
+
+
+  if (contact.github) {
+
+    links.push({
+      name: 'GitHub',
+      url: contact.github,
+      icon: '◉'
+    });
+
+  }
+
+
+  if (contact.linkedin) {
+
+    links.push({
+      name: 'LinkedIn',
+      url: contact.linkedin,
+      icon: 'in'
+    });
+
+  }
+
+
+  if (portfolio.projects?.length) {
+
+    portfolio.projects
+      .filter(
+        project =>
+          project.liveUrl
+      )
+      .forEach(
+        project => {
+
+          links.push({
+            name:
+              project.title ||
+              project.name ||
+              'Project',
+            url:
+              project.liveUrl,
+            icon: '↗'
+          });
+
+        }
+      );
+
+  }
+
+
+  return `
+
+    <div class="browser-view">
+
+      <div class="browser-toolbar">
+
+        <div class="browser-address">
+          tayassuk-os://approved-links
+        </div>
+
+      </div>
+
+
+      <div class="browser-content">
+
+        <div class="window-eyebrow">
+          APPROVED LINKS
+        </div>
+
+        <h2>
+          External Links
+        </h2>
+
+        <p>
+          Open selected profiles and project
+          links from Tayassuk OS.
+        </p>
+
+
+        <div class="browser-links">
+
+          ${
+            links.length
+              ? links
+                  .map(
+                    link => `
+
+                      <a
+                        href="${esc(
+                          safeUrl(
+                            link.url
+                          )
+                        )}"
+                        target="_blank"
+                        rel="noreferrer noopener"
+                        class="browser-link"
+                      >
+
+                        <span
+                          class="browser-link-icon"
+                        >
+                          ${esc(
+                            link.icon
+                          )}
+                        </span>
+
+                        <span>
+                          ${esc(
+                            link.name
+                          )}
+                        </span>
+
+                        <span>
+                          ↗
+                        </span>
+
+                      </a>
+
+                    `
+                  )
+                  .join('')
+              : `
+                <div class="empty-state">
+                  No external links available.
+                </div>
+              `
+          }
+
+        </div>
+
+      </div>
+
+    </div>
+
+  `;
+
+}
+
+
+/* =========================================================
+   WHITEBOARD
+   ========================================================= */
+
+function renderWhiteboard() {
+
+  const savedNote =
     localStorage.getItem(
       'tayassuk-os-whiteboard'
     ) || '';
@@ -3484,57 +2005,53 @@ function renderWhiteboardWindow() {
 
   return `
 
-    <div class="window-page">
+    <div class="whiteboard-view">
 
-      <div class="window-page-heading">
+      <div class="window-eyebrow">
+        WHITEBOARD
+      </div>
 
-        <span class="eyebrow">
-          Local Notes
-        </span>
+      <h2>
+        Quick Note
+      </h2>
 
-        <h1>
-          Whiteboard
-        </h1>
+      <p>
+        Write a temporary local note.
+      </p>
 
-        <p>
-          Write something and keep it saved on this device.
-        </p>
+
+      <textarea
+        id="whiteboard-input"
+        class="whiteboard-input"
+        placeholder="Write something..."
+      >${esc(savedNote)}</textarea>
+
+
+      <div class="whiteboard-actions">
+
+        <button
+          type="button"
+          class="primary"
+          data-action="save-whiteboard"
+        >
+          Save Note
+        </button>
+
+        <button
+          type="button"
+          class="secondary"
+          data-action="clear-whiteboard"
+        >
+          Clear
+        </button>
 
       </div>
 
 
-      <div class="whiteboard-shell">
-
-        <textarea
-          id="whiteboard-input"
-          class="whiteboard-input"
-          placeholder="Write a note..."
-        >${esc(saved)}</textarea>
-
-
-        <div class="whiteboard-footer">
-
-          <span class="whiteboard-hint">
-            Saved locally
-          </span>
-
-          <button
-            type="button"
-            class="primary-action"
-            data-action="save-whiteboard"
-          >
-            Save Note
-          </button>
-
-        </div>
-
-      </div>
-
-
-      <p
+      <div
         id="whiteboard-status"
-        class="form-status"
-      ></p>
+        class="muted"
+      ></div>
 
     </div>
 
@@ -3543,614 +2060,55 @@ function renderWhiteboardWindow() {
 }
 
 
-/* =========================================================
-   FOUNDER WINDOW
-   ========================================================= */
-
-function renderFounderWindow() {
-
-  const founder =
-    portfolio.owner?.founder ||
-    {};
-
-
-  return `
-
-    <div class="window-page">
-
-      <div class="window-page-heading">
-
-        <span class="eyebrow">
-          Founder.txt
-        </span>
-
-        <h1>
-          Working Principles
-        </h1>
-
-        <p>
-          The mindset behind the work.
-        </p>
-
-      </div>
-
-
-      <div class="founder-terminal">
-
-        <div class="terminal-top">
-
-          <span></span>
-          <span></span>
-          <span></span>
-
-        </div>
-
-
-        <div class="terminal-body">
-
-          <div class="terminal-line">
-            <span class="terminal-prompt">
-              $
-            </span>
-
-            cat founder.txt
-          </div>
-
-
-          <div class="terminal-text">
-
-            ${
-              founder.principles
-                ? esc(
-                    founder.principles
-                  )
-                : `
-                  Learn continuously.<br>
-                  Build practically.<br>
-                  Stay curious.<br>
-                  Keep improving.
-                `
-            }
-
-          </div>
-
-        </div>
-
-      </div>
-
-    </div>
-
-  `;
-
-}
-
-
-/* =========================================================
-   BROWSER WINDOW
-   ========================================================= */
-
-function renderBrowserWindow() {
-
-  const contact =
-    portfolio.owner?.contact ||
-    {};
-
-
-  const featured =
-    portfolio.projects?.find(
-      project =>
-        project.featured
-    ) ||
-    portfolio.projects?.[0];
-
-
-  return `
-
-    <div class="window-page">
-
-      <div class="window-page-heading">
-
-        <span class="eyebrow">
-          External Links
-        </span>
-
-        <h1>
-          Browser
-        </h1>
-
-        <p>
-          Quick access to selected online profiles and projects.
-        </p>
-
-      </div>
-
-
-      <div class="browser-toolbar">
-
-        <span class="browser-lock">
-          🔒
-        </span>
-
-        <span>
-          tayassuk-os.local
-        </span>
-
-      </div>
-
-
-      <div class="browser-links">
-
-        ${
-          contact.github
-            ? `
-
-              <a
-                href="${esc(
-                  safeUrl(
-                    contact.github
-                  )
-                )}"
-                target="_blank"
-                rel="noreferrer noopener"
-              >
-
-                <span>
-                  GitHub
-                </span>
-
-                <small>
-                  Developer profile
-                </small>
-
-                <strong>
-                  ↗
-                </strong>
-
-              </a>
-
-            `
-            : ''
-        }
-
-
-        ${
-          contact.linkedin
-            ? `
-
-              <a
-                href="${esc(
-                  safeUrl(
-                    contact.linkedin
-                  )
-                )}"
-                target="_blank"
-                rel="noreferrer noopener"
-              >
-
-                <span>
-                  LinkedIn
-                </span>
-
-                <small>
-                  Professional profile
-                </small>
-
-                <strong>
-                  ↗
-                </strong>
-
-              </a>
-
-            `
-            : ''
-        }
-
-
-        ${
-          featured?.liveUrl
-            ? `
-
-              <a
-                href="${esc(
-                  safeUrl(
-                    featured.liveUrl
-                  )
-                )}"
-                target="_blank"
-                rel="noreferrer noopener"
-              >
-
-                <span>
-                  Featured Project
-                </span>
-
-                <small>
-                  ${esc(
-                    featured.name ||
-                    featured.title ||
-                    'Live project'
-                  )}
-                </small>
-
-                <strong>
-                  ↗
-                </strong>
-
-              </a>
-
-            `
-            : ''
-        }
-
-      </div>
-
-    </div>
-
-  `;
-
-}
-
-
-/* =========================================================
-   WINDOW ACTIONS
-   ========================================================= */
-
-function wireWindowActions(body) {
-
-  if (!body) return;
-
-
-  body.addEventListener(
-    'click',
-    event => {
-
-
-      /* -----------------------------------------
-         Project details
-         ----------------------------------------- */
-
-      const projectButton =
-        event.target.closest(
-          '[data-action="project-detail"]'
-        );
-
-
-      if (projectButton) {
-
-        const projectId =
-          projectButton.dataset.project;
-
-
-        const project =
-          (portfolio.projects || [])
-            .find(
-              item =>
-                String(
-                  item.id ||
-                  item.name ||
-                  item.title
-                ) ===
-                String(projectId)
-            );
-
-
-        if (!project) return;
-
-
-        const current =
-          projectButton.closest(
-            '.app-window'
-          );
-
-
-        if (
-          current &&
-          state.windows.has(
-            current.dataset.app
-          )
-        ) {
-
-          const win =
-            state.windows.get(
-              current.dataset.app
-            );
-
-
-          if (win?.body) {
-
-            win.body.innerHTML =
-              renderProjectDetail(
-                project
-              );
-
-          }
-
-        }
-
-        return;
-
-      }
-
-
-      /* -----------------------------------------
-         Whiteboard
-         ----------------------------------------- */
-
-      const saveWhiteboard =
-        event.target.closest(
-          '[data-action="save-whiteboard"]'
-        );
-
-
-      if (saveWhiteboard) {
-
-        const input =
-          body.querySelector(
-            '#whiteboard-input'
-          );
-
-
-        const status =
-          body.querySelector(
-            '#whiteboard-status'
-          );
-
-
-        localStorage.setItem(
-          'tayassuk-os-whiteboard',
-          input?.value || ''
-        );
-
-
-        if (status) {
-
-          status.textContent =
-            '✓ Note saved locally.';
-
-        }
-
-        return;
-
-      }
-
-
-      /* -----------------------------------------
-         Admin logout
-         ----------------------------------------- */
-
-      const adminLogout =
-        event.target.closest(
-          '[data-action="admin-logout"]'
-        );
-
-
-      if (adminLogout) {
-
-        handleAdminLogout(
-          body
-        );
-
-        return;
-
-      }
-
-
-      /* -----------------------------------------
-         Admin refresh
-         ----------------------------------------- */
-
-      const adminRefresh =
-        event.target.closest(
-          '[data-action="admin-refresh"]'
-        );
-
-
-      if (adminRefresh) {
-
-        refreshPortfolio()
-          .then(
-            () => {
-
-              body.innerHTML =
-                renderControlCenter();
-
-              wireControlCenter(
-                body
-              );
-
-            }
-          )
-          .catch(
-            error =>
-              console.error(
-                error
-              )
-          );
-
-      }
-
-    }
-  );
-
-}
 /* =========================================================
    CONTROL CENTER
    ========================================================= */
 
 function renderControlCenter() {
 
-  const owner =
-    portfolio.owner || {};
-
-  const identity =
-    owner.identity || {};
-
-  const contact =
-    owner.contact || {};
+  const session =
+    state.adminSession;
 
 
   return `
 
-    <div class="window-page control-center-page">
+    <div class="control-center">
 
-      <div class="window-page-heading">
-
-        <span class="eyebrow">
-          Private Workspace
-        </span>
-
-        <h1>
-          Control Center
-        </h1>
-
-        <p>
-          Manage your portfolio content and system preferences.
-        </p>
-
+      <div class="window-eyebrow">
+        CONTROL CENTER
       </div>
 
 
-      <div class="admin-status">
+      <h2>
+        Portfolio Management
+      </h2>
 
-        <span class="status-dot"></span>
 
-        <span>
-          ${
-            state.adminSession
-              ? 'Admin authenticated'
-              : 'Visitor mode'
-          }
-        </span>
-
-      </div>
+      <p>
+        Private area for managing portfolio
+        content through the connected data store.
+      </p>
 
 
       ${
-        state.adminSession
-
+        session
           ? `
 
-            <div class="control-grid">
+            <div class="admin-status">
 
-              <section class="control-card">
+              <span class="status-dot"></span>
 
-                <div class="control-card-icon">
-                  ◉
-                </div>
+              <div>
 
-                <div>
+                <strong>
+                  Admin session active
+                </strong>
 
-                  <h3>
-                    Profile
-                  </h3>
+                <small>
+                  Authenticated access enabled
+                </small>
 
-                  <p>
-                    ${esc(
-                      identity.fullName ||
-                      'Tayassuk Imam'
-                    )}
-                  </p>
-
-                  <small>
-                    ${esc(
-                      identity.profession ||
-                      'Software Engineering Student'
-                    )}
-                  </small>
-
-                </div>
-
-              </section>
-
-
-              <section class="control-card">
-
-                <div class="control-card-icon">
-                  ◇
-                </div>
-
-                <div>
-
-                  <h3>
-                    Projects
-                  </h3>
-
-                  <p>
-                    ${
-                      (
-                        portfolio.projects ||
-                        []
-                      ).length
-                    }
-                    project(s)
-                  </p>
-
-                  <small>
-                    Portfolio projects
-                  </small>
-
-                </div>
-
-              </section>
-
-
-              <section class="control-card">
-
-                <div class="control-card-icon">
-                  ◎
-                </div>
-
-                <div>
-
-                  <h3>
-                    Learning
-                  </h3>
-
-                  <p>
-                    ${
-                      (
-                        owner.learning ||
-                        []
-                      ).length
-                    }
-                    learning item(s)
-                  </p>
-
-                  <small>
-                    Current focus
-                  </small>
-
-                </div>
-
-              </section>
-
-
-              <section class="control-card">
-
-                <div class="control-card-icon">
-                  @
-                </div>
-
-                <div>
-
-                  <h3>
-                    Contact
-                  </h3>
-
-                  <p>
-                    ${esc(
-                      contact.email ||
-                      'No email configured'
-                    )}
-                  </p>
-
-                  <small>
-                    Public contact
-                  </small>
-
-                </div>
-
-              </section>
+              </div>
 
             </div>
 
@@ -4159,17 +2117,17 @@ function renderControlCenter() {
 
               <button
                 type="button"
-                class="secondary-action"
-                data-action="admin-refresh"
+                class="primary"
+                data-action="reload-portfolio"
               >
-                ↻ Refresh Data
+                Sync Portfolio
               </button>
 
 
               <button
                 type="button"
-                class="primary-action"
-                data-action="admin-logout"
+                class="secondary"
+                data-action="sign-out"
               >
                 Sign Out
               </button>
@@ -4177,46 +2135,20 @@ function renderControlCenter() {
             </div>
 
           `
-
           : `
 
             <form
-              class="admin-login-form"
               id="admin-login-form"
+              class="admin-login-form"
             >
 
-              <div class="login-intro">
-
-                <div class="login-icon">
-                  ◈
-                </div>
-
-                <div>
-
-                  <h3>
-                    Administrator Access
-                  </h3>
-
-                  <p>
-                    Sign in to manage your portfolio.
-                  </p>
-
-                </div>
-
-              </div>
-
-
               <label>
-
-                <span>
-                  Email
-                </span>
+                Email
 
                 <input
                   type="email"
                   name="email"
                   autocomplete="email"
-                  placeholder="admin@example.com"
                   required
                 >
 
@@ -4224,16 +2156,12 @@ function renderControlCenter() {
 
 
               <label>
-
-                <span>
-                  Password
-                </span>
+                Password
 
                 <input
                   type="password"
                   name="password"
                   autocomplete="current-password"
-                  placeholder="••••••••"
                   required
                 >
 
@@ -4242,16 +2170,16 @@ function renderControlCenter() {
 
               <button
                 type="submit"
-                class="primary-action"
+                class="primary"
               >
                 Sign In
               </button>
 
 
-              <p
-                class="form-status"
+              <div
                 id="admin-login-status"
-              ></p>
+                class="muted"
+              ></div>
 
             </form>
 
@@ -4266,119 +2194,1495 @@ function renderControlCenter() {
 
 
 /* =========================================================
-   CONTROL CENTER EVENTS
+   PROJECT DETAIL
    ========================================================= */
 
-function wireControlCenter(body) {
+function getProjectById(id) {
 
-  if (!body) return;
+  return (
+    portfolio.projects || []
+  ).find(
+    project =>
+      String(
+        project.id ||
+        project.slug ||
+        ''
+      ) === String(id)
+  );
+
+}
 
 
-  const form =
-    body.querySelector(
-      '#admin-login-form'
+function renderProjectDetail(id) {
+
+  const project =
+    getProjectById(id);
+
+
+  if (!project) {
+
+    return `
+
+      <div class="empty-state">
+
+        Project not found.
+
+      </div>
+
+    `;
+
+  }
+
+
+  const technologies =
+    project.technologies ||
+    project.tech ||
+    [];
+
+
+  return `
+
+    <div class="project-detail">
+
+      <div class="window-eyebrow">
+        FEATURED PROJECT
+      </div>
+
+
+      <h2>
+        ${esc(
+          project.title ||
+          project.name ||
+          ''
+        )}
+      </h2>
+
+
+      ${
+        project.role
+          ? `
+            <div class="project-role">
+              Role:
+              <strong>
+                ${esc(
+                  project.role
+                )}
+              </strong>
+            </div>
+          `
+          : ''
+      }
+
+
+      ${
+        project.status
+          ? `
+            <div class="project-status-large">
+              ${esc(
+                project.status
+              )}
+            </div>
+          `
+          : ''
+      }
+
+
+      ${
+        project.description
+          ? `
+            <p class="project-description">
+              ${esc(
+                project.description
+              )}
+            </p>
+          `
+          : ''
+      }
+
+
+      ${
+        technologies.length
+          ? `
+
+            <div class="window-eyebrow">
+              TECHNOLOGIES
+            </div>
+
+            <div class="chip-row">
+
+              ${
+                technologies
+                  .map(
+                    tech =>
+                      `<span>
+                        ${esc(tech)}
+                      </span>`
+                  )
+                  .join('')
+              }
+
+            </div>
+
+          `
+          : ''
+      }
+
+
+      <div class="project-detail-actions">
+
+        ${
+          project.liveUrl
+            ? `
+              <a
+                href="${esc(
+                  safeUrl(
+                    project.liveUrl
+                  )
+                )}"
+                target="_blank"
+                rel="noreferrer noopener"
+                class="primary"
+              >
+                Open Live Project
+              </a>
+            `
+            : ''
+        }
+
+      </div>
+
+    </div>
+
+  `;
+
+}
+
+
+/* =========================================================
+   DASHBOARD DATA
+   ========================================================= */
+
+function getFeaturedProject() {
+
+  const projects =
+    portfolio.projects || [];
+
+
+  return (
+    projects.find(
+      project =>
+        project.featured === true
+    ) ||
+    projects[0] ||
+    null
+  );
+
+}
+
+
+function renderFeaturedProject() {
+
+  const project =
+    getFeaturedProject();
+
+
+  const title =
+    document.querySelector(
+      '#featured-project-title'
     );
 
 
-  if (!form) return;
+  const description =
+    document.querySelector(
+      '#featured-project-description'
+    );
 
 
-  form.addEventListener(
-    'submit',
-    async event => {
-
-      event.preventDefault();
-
-
-      const status =
-        form.querySelector(
-          '#admin-login-status'
-        );
+  const status =
+    document.querySelector(
+      '#featured-project-status'
+    );
 
 
-      const email =
-        form.email?.value?.trim() ||
-        '';
+  const role =
+    document.querySelector(
+      '#featured-project-role'
+    );
 
 
-      const password =
-        form.password?.value ||
-        '';
+  const link =
+    document.querySelector(
+      '#featured-project-link'
+    );
 
 
-      if (
-        !email ||
-        !password
-      ) {
+  if (!project) {
 
-        if (status) {
+    if (title)
+      title.textContent =
+        'No project yet.';
 
-          status.textContent =
-            'Please enter email and password.';
+    if (description)
+      description.textContent =
+        'Projects will appear here.';
+
+    return;
+
+  }
+
+
+  if (title) {
+
+    title.textContent =
+      project.title ||
+      project.name ||
+      'Garage Management System';
+
+  }
+
+
+  if (description) {
+
+    description.textContent =
+      project.description ||
+      '';
+
+  }
+
+
+  if (status) {
+
+    status.textContent =
+      project.status ||
+      'Working';
+
+  }
+
+
+  if (role) {
+
+    role.textContent =
+      project.role ||
+      'Solo Developer';
+
+  }
+
+
+  if (link) {
+
+    link.href =
+      safeUrl(
+        project.liveUrl ||
+        '#'
+      );
+
+  }
+
+}
+
+
+/* =========================================================
+   SKILLS SUMMARY
+   ========================================================= */
+
+function renderSkillsSummary() {
+
+  const container =
+    document.querySelector(
+      '#skills-summary'
+    );
+
+
+  if (!container) return;
+
+
+  const groups =
+    portfolio.skills || [];
+
+
+  const skills = [];
+
+
+  groups.forEach(
+    group => {
+
+      const items =
+        group.skills ||
+        group.items ||
+        [];
+
+
+      items.forEach(
+        skill => {
+
+          const name =
+            typeof skill ===
+            'string'
+              ? skill
+              : skill.name ||
+                '';
+
+
+          if (name) {
+
+            skills.push(name);
+
+          }
 
         }
+      );
+
+    }
+  );
+
+
+  container.innerHTML =
+    skills
+      .slice(0, 12)
+      .map(
+        skill =>
+          `<span>
+            ${esc(skill)}
+          </span>`
+      )
+      .join('');
+
+}
+
+
+/* =========================================================
+   CURRENTLY LEARNING
+   ========================================================= */
+
+function renderCurrentlyLearning() {
+
+  const container =
+    document.querySelector(
+      '#currently-learning'
+    );
+
+
+  if (!container) return;
+
+
+  const learning =
+    portfolio.owner?.learning ||
+    [];
+
+
+  container.innerHTML =
+    learning
+      .slice(0, 5)
+      .map(
+        item => `
+
+          <div class="learning-mini">
+
+            <div class="learning-mini-top">
+
+              <span>
+                ${esc(
+                  item.title ||
+                  item.name ||
+                  ''
+                )}
+              </span>
+
+              <strong>
+                ${Number(
+                  item.progress
+                ) || 0}%
+              </strong>
+
+            </div>
+
+            <div class="progress-track">
+
+              <span
+                style="width:${Math.min(
+                  100,
+                  Math.max(
+                    0,
+                    Number(
+                      item.progress
+                    ) || 0
+                  )
+                )}%"
+              ></span>
+
+            </div>
+
+          </div>
+
+        `
+      )
+      .join('');
+
+}
+
+
+/* =========================================================
+   QUICK NOTES
+   ========================================================= */
+
+function renderQuickNotes() {
+
+  const container =
+    document.querySelector(
+      '#quick-notes'
+    );
+
+
+  if (!container) return;
+
+
+  const notes =
+    portfolio.owner?.quickNotes ||
+    portfolio.owner?.notes ||
+    [];
+
+
+  if (!Array.isArray(notes) ||
+      !notes.length) {
+
+    container.innerHTML = `
+
+      <div class="quick-note empty-state">
+        No quick notes yet.
+      </div>
+
+    `;
+
+    return;
+
+  }
+
+
+  container.innerHTML =
+    notes
+      .slice(0, 4)
+      .map(
+        note => `
+
+          <div class="quick-note">
+
+            <span class="quick-note-dot">
+              •
+            </span>
+
+            <span>
+              ${esc(
+                typeof note ===
+                'string'
+                  ? note
+                  : note.text ||
+                    note.title ||
+                    ''
+              )}
+            </span>
+
+          </div>
+
+        `
+      )
+      .join('');
+
+}
+
+
+/* =========================================================
+   NEXT GOALS
+   ========================================================= */
+
+function renderNextGoals() {
+
+  const container =
+    document.querySelector(
+      '#next-goals'
+    );
+
+
+  if (!container) return;
+
+
+  const goals =
+    portfolio.owner?.goals ||
+    portfolio.owner?.nextGoals ||
+    [];
+
+
+  if (!Array.isArray(goals) ||
+      !goals.length) {
+
+    container.innerHTML = `
+
+      <div class="empty-state">
+        Keep learning and building.
+      </div>
+
+    `;
+
+    return;
+
+  }
+
+
+  container.innerHTML =
+    goals
+      .slice(0, 5)
+      .map(
+        goal => `
+
+          <div class="goal-item">
+
+            <span class="goal-check">
+              ○
+            </span>
+
+            <span>
+              ${esc(
+                typeof goal ===
+                'string'
+                  ? goal
+                  : goal.title ||
+                    goal.text ||
+                    ''
+              )}
+            </span>
+
+          </div>
+
+        `
+      )
+      .join('');
+
+}
+
+
+/* =========================================================
+   SYSTEM STATUS
+   ========================================================= */
+
+function renderSystemStatus() {
+
+  const status =
+    document.querySelector(
+      '#system-status'
+    );
+
+
+  if (!status) return;
+
+
+  status.innerHTML = `
+
+    <span class="status-indicator"></span>
+
+    <div>
+
+      <strong>
+        System Operational
+      </strong>
+
+      <small>
+        All portfolio modules online
+      </small>
+
+    </div>
+
+  `;
+
+}
+
+
+/* =========================================================
+   ACTIVITY
+   ========================================================= */
+
+function renderRecentActivity() {
+
+  const container =
+    document.querySelector(
+      '#recent-activity'
+    );
+
+
+  if (!container) return;
+
+
+  const activities = [
+
+    'Portfolio system loaded',
+
+    'Garage Management System available',
+
+    'Skills and learning data synced',
+
+    'Tayassuk OS is ready'
+
+  ];
+
+
+  container.innerHTML =
+    activities
+      .map(
+        (activity, index) => `
+
+          <div class="activity-item">
+
+            <span class="activity-dot">
+              ${index + 1}
+            </span>
+
+            <span>
+              ${esc(activity)}
+            </span>
+
+          </div>
+
+        `
+      )
+      .join('');
+
+}
+/* =========================================================
+   WINDOW CONTENT
+   ========================================================= */
+
+function getWindowContent(appId, extraData = null) {
+
+  switch (appId) {
+
+    case 'about':
+      return renderAbout();
+
+    case 'projects':
+      return renderProjects();
+
+    case 'learning':
+      return renderLearning();
+
+    case 'skills':
+      return renderSkills();
+
+    case 'education':
+      return renderEducation();
+
+    case 'journey':
+      return renderJourney();
+
+    case 'achievements':
+      return renderAchievements();
+
+    case 'contact':
+      return renderContact();
+
+    case 'founder':
+      return renderFounder();
+
+    case 'trash':
+      return renderTrash();
+
+    case 'settings':
+      return renderSettings();
+
+    case 'browser':
+      return renderBrowser();
+
+    case 'whiteboard':
+      return renderWhiteboard();
+
+    case 'control':
+      return renderControlCenter();
+
+    case 'project-detail':
+      return renderProjectDetail(
+        extraData
+      );
+
+    default:
+
+      return `
+
+        <div class="empty-state">
+
+          <h2>
+            Application not found
+          </h2>
+
+          <p>
+            This application is not
+            available in Tayassuk OS.
+          </p>
+
+        </div>
+
+      `;
+
+  }
+
+}
+
+
+/* =========================================================
+   WINDOW TITLE
+   ========================================================= */
+
+function getAppName(appId) {
+
+  const app =
+    apps.find(
+      item =>
+        item.id === appId
+    );
+
+
+  if (app) {
+
+    return app.name;
+
+  }
+
+
+  if (
+    appId ===
+    'project-detail'
+  ) {
+
+    return 'Project Details';
+
+  }
+
+
+  return 'Tayassuk OS';
+
+}
+
+
+/* =========================================================
+   CREATE WINDOW
+   ========================================================= */
+
+function createWindow(
+  appId,
+  extraData = null
+) {
+
+  const windows =
+    document.querySelector(
+      '#windows'
+    );
+
+
+  if (!windows) {
+
+    console.warn(
+      '#windows container not found'
+    );
+
+    return null;
+
+  }
+
+
+  const existing =
+    state.windows.get(
+      appId
+    );
+
+
+  if (existing) {
+
+    const element =
+      existing.element;
+
+
+    if (element) {
+
+      element.classList.remove(
+        'is-minimized'
+      );
+
+
+      element.classList.add(
+        'is-active'
+      );
+
+
+      element.style.zIndex =
+        ++state.z;
+
+
+      state.minimizedWindows.delete(
+        appId
+      );
+
+      return element;
+
+    }
+
+  }
+
+
+  const windowElement =
+    document.createElement(
+      'section'
+    );
+
+
+  windowElement.className =
+    'os-window is-active';
+
+
+  windowElement.dataset.window =
+    appId;
+
+
+  windowElement.style.zIndex =
+    ++state.z;
+
+
+  const title =
+    getAppName(
+      appId
+    );
+
+
+  windowElement.innerHTML = `
+
+    <div
+      class="window-header"
+      data-window-drag
+    >
+
+      <div class="window-title">
+
+        <span class="window-title-dot"></span>
+
+        <span>
+          ${esc(title)}
+        </span>
+
+      </div>
+
+
+      <div class="window-controls">
+
+        <button
+          type="button"
+          class="window-control minimize"
+          data-action="minimize-window"
+          data-window="${esc(appId)}"
+          aria-label="Minimize"
+          title="Minimize"
+        >
+          −
+        </button>
+
+
+        <button
+          type="button"
+          class="window-control maximize"
+          data-action="maximize-window"
+          data-window="${esc(appId)}"
+          aria-label="Maximize"
+          title="Maximize"
+        >
+          □
+        </button>
+
+
+        <button
+          type="button"
+          class="window-control close"
+          data-action="close-window"
+          data-window="${esc(appId)}"
+          aria-label="Close"
+          title="Close"
+        >
+          ×
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <div class="window-body">
+
+      ${getWindowContent(
+        appId,
+        extraData
+      )}
+
+    </div>
+
+  `;
+
+
+  windows.appendChild(
+    windowElement
+  );
+
+
+  state.windows.set(
+    appId,
+    {
+      element:
+        windowElement,
+
+      appId,
+
+      extraData
+
+    }
+  );
+
+
+  attachWindowDrag(
+    windowElement
+  );
+
+
+  bringToFront(
+    windowElement
+  );
+
+
+  return windowElement;
+
+}
+
+
+/* =========================================================
+   OPEN WINDOW
+   ========================================================= */
+
+function openWindow(
+  appId,
+  extraData = null
+) {
+
+  if (!appId) return;
+
+
+  const existing =
+    state.windows.get(
+      appId
+    );
+
+
+  if (existing?.element) {
+
+    const element =
+      existing.element;
+
+
+    element.classList.remove(
+      'is-minimized'
+    );
+
+
+    element.classList.add(
+      'is-active'
+    );
+
+
+    state.minimizedWindows.delete(
+      appId
+    );
+
+
+    bringToFront(
+      element
+    );
+
+
+    return element;
+
+  }
+
+
+  return createWindow(
+    appId,
+    extraData
+  );
+
+}
+
+
+/* =========================================================
+   CLOSE WINDOW
+   ========================================================= */
+
+function closeWindow(
+  appId
+) {
+
+  const record =
+    state.windows.get(
+      appId
+    );
+
+
+  if (!record) return;
+
+
+  const element =
+    record.element;
+
+
+  if (element) {
+
+    element.remove();
+
+  }
+
+
+  state.windows.delete(
+    appId
+  );
+
+
+  state.minimizedWindows.delete(
+    appId
+  );
+
+
+  state.maximizedWindows.delete(
+    appId
+  );
+
+
+  state.windowRestoreState.delete(
+    appId
+  );
+
+}
+
+
+/* =========================================================
+   MINIMIZE WINDOW
+   ========================================================= */
+
+function minimizeWindow(
+  appId
+) {
+
+  const record =
+    state.windows.get(
+      appId
+    );
+
+
+  if (!record?.element) return;
+
+
+  const element =
+    record.element;
+
+
+  element.classList.remove(
+    'is-active'
+  );
+
+
+  element.classList.add(
+    'is-minimized'
+  );
+
+
+  state.minimizedWindows.add(
+    appId
+  );
+
+}
+
+
+/* =========================================================
+   MAXIMIZE WINDOW
+   ========================================================= */
+
+function maximizeWindow(
+  appId
+) {
+
+  const record =
+    state.windows.get(
+      appId
+    );
+
+
+  if (!record?.element) return;
+
+
+  const element =
+    record.element;
+
+
+  if (
+    state.maximizedWindows.has(
+      appId
+    )
+  ) {
+
+    restoreWindow(
+      appId
+    );
+
+    return;
+
+  }
+
+
+  state.windowRestoreState.set(
+    appId,
+    {
+      left:
+        element.style.left,
+
+      top:
+        element.style.top,
+
+      width:
+        element.style.width,
+
+      height:
+        element.style.height
+    }
+  );
+
+
+  element.classList.add(
+    'is-maximized'
+  );
+
+
+  element.style.left =
+    '0px';
+
+
+  element.style.top =
+    '0px';
+
+
+  element.style.width =
+    '100%';
+
+
+  element.style.height =
+    '100%';
+
+
+  state.maximizedWindows.add(
+    appId
+  );
+
+
+  bringToFront(
+    element
+  );
+
+}
+
+
+/* =========================================================
+   RESTORE WINDOW
+   ========================================================= */
+
+function restoreWindow(
+  appId
+) {
+
+  const record =
+    state.windows.get(
+      appId
+    );
+
+
+  if (!record?.element) return;
+
+
+  const element =
+    record.element;
+
+
+  const previous =
+    state.windowRestoreState.get(
+      appId
+    );
+
+
+  element.classList.remove(
+    'is-maximized'
+  );
+
+
+  if (previous) {
+
+    element.style.left =
+      previous.left;
+
+    element.style.top =
+      previous.top;
+
+    element.style.width =
+      previous.width;
+
+    element.style.height =
+      previous.height;
+
+  }
+
+
+  state.maximizedWindows.delete(
+    appId
+  );
+
+
+  state.windowRestoreState.delete(
+    appId
+  );
+
+
+  bringToFront(
+    element
+  );
+
+}
+
+
+/* =========================================================
+   BRING WINDOW TO FRONT
+   ========================================================= */
+
+function bringToFront(
+  element
+) {
+
+  if (!element) return;
+
+
+  element.style.zIndex =
+    ++state.z;
+
+
+  document
+    .querySelectorAll(
+      '.os-window'
+    )
+    .forEach(
+      item =>
+        item.classList.remove(
+          'is-active'
+        )
+    );
+
+
+  element.classList.add(
+    'is-active'
+  );
+
+}
+
+
+/* =========================================================
+   WINDOW DRAG
+   ========================================================= */
+
+function attachWindowDrag(
+  windowElement
+) {
+
+  const header =
+    windowElement.querySelector(
+      '[data-window-drag]'
+    );
+
+
+  if (!header) return;
+
+
+  let dragging = false;
+
+  let offsetX = 0;
+
+  let offsetY = 0;
+
+
+  header.addEventListener(
+    'pointerdown',
+    event => {
+
+      if (
+        event.target.closest(
+          '.window-controls'
+        )
+      ) {
 
         return;
 
       }
 
 
-      if (status) {
+      if (
+        windowElement.classList.contains(
+          'is-maximized'
+        )
+      ) {
 
-        status.textContent =
-          'Signing in...';
+        return;
 
       }
+
+
+      dragging = true;
+
+
+      const rect =
+        windowElement.getBoundingClientRect();
+
+
+      offsetX =
+        event.clientX -
+        rect.left;
+
+
+      offsetY =
+        event.clientY -
+        rect.top;
+
+
+      header.setPointerCapture(
+        event.pointerId
+      );
+
+
+      bringToFront(
+        windowElement
+      );
+
+    }
+  );
+
+
+  header.addEventListener(
+    'pointermove',
+    event => {
+
+      if (!dragging) return;
+
+
+      const desktop =
+        document.querySelector(
+          '.desktop'
+        );
+
+
+      const desktopRect =
+        desktop
+          ? desktop.getBoundingClientRect()
+          : {
+              left: 0,
+              top: 0,
+              width:
+                window.innerWidth,
+              height:
+                window.innerHeight
+            };
+
+
+      const rect =
+        windowElement.getBoundingClientRect();
+
+
+      let left =
+        event.clientX -
+        desktopRect.left -
+        offsetX;
+
+
+      let top =
+        event.clientY -
+        desktopRect.top -
+        offsetY;
+
+
+      const maxLeft =
+        Math.max(
+          0,
+          desktopRect.width -
+          rect.width
+        );
+
+
+      const maxTop =
+        Math.max(
+          0,
+          desktopRect.height -
+          rect.height
+        );
+
+
+      left =
+        Math.max(
+          0,
+          Math.min(
+            left,
+            maxLeft
+          )
+        );
+
+
+      top =
+        Math.max(
+          0,
+          Math.min(
+            top,
+            maxTop
+          )
+        );
+
+
+      windowElement.style.left =
+        `${left}px`;
+
+
+      windowElement.style.top =
+        `${top}px`;
+
+    }
+  );
+
+
+  header.addEventListener(
+    'pointerup',
+    event => {
+
+      dragging = false;
 
 
       try {
 
-        const result =
-          await signIn(
-            email,
-            password
-          );
-
-
-        state.adminSession =
-          result?.session ||
-          result ||
-          null;
-
-
-        if (status) {
-
-          status.textContent =
-            'Signed in successfully.';
-
-        }
-
-
-        body.innerHTML =
-          renderControlCenter();
-
-
-        wireControlCenter(
-          body
+        header.releasePointerCapture(
+          event.pointerId
         );
 
-      } catch (error) {
+      } catch {
 
-        console.error(
-          'Admin sign-in failed:',
-          error
-        );
-
-
-        if (status) {
-
-          status.textContent =
-            error?.message ||
-            'Sign in failed.';
-
-        }
+        /* Ignore */
 
       }
+
+    }
+  );
+
+
+  header.addEventListener(
+    'pointercancel',
+    () => {
+
+      dragging = false;
 
     }
   );
@@ -4387,457 +3691,94 @@ function wireControlCenter(body) {
 
 
 /* =========================================================
-   ADMIN LOGOUT
+   CENTER WINDOW
    ========================================================= */
 
-async function handleAdminLogout(body) {
+function centerWindow(
+  element
+) {
 
-  try {
-
-    await signOut();
-
-  } catch (error) {
-
-    console.error(
-      'Sign out failed:',
-      error
-    );
-
-  }
+  if (!element) return;
 
 
-  state.adminSession =
-    null;
-
-
-  if (body) {
-
-    body.innerHTML =
-      renderControlCenter();
-
-    wireControlCenter(
-      body
-    );
-
-  }
-
-}
-
-
-/* =========================================================
-   SEARCH
-   ========================================================= */
-
-function searchPortfolio(query) {
-
-  const term =
-    String(
-      query || ''
+  if (
+    element.classList.contains(
+      'is-maximized'
     )
-      .trim()
-      .toLowerCase();
+  ) {
 
-
-  if (!term) {
-
-    return [];
+    return;
 
   }
 
 
-  const results = [];
+  const desktop =
+    document.querySelector(
+      '.desktop'
+    );
 
 
-  /* -----------------------------------------
-     Search apps
-     ----------------------------------------- */
-
-  apps.forEach(
-    app => {
-
-      const text =
-        `${app.name} ${app.desc}`
-          .toLowerCase();
-
-
-      if (
-        text.includes(term)
-      ) {
-
-        results.push({
-
-          type: 'app',
-
-          id: app.id,
-
-          title: app.name,
-
-          description: app.desc
-
-        });
-
-      }
-
-    }
-  );
+  const desktopRect =
+    desktop
+      ? desktop.getBoundingClientRect()
+      : {
+          width:
+            window.innerWidth,
+          height:
+            window.innerHeight
+        };
 
 
-  /* -----------------------------------------
-     Search projects
-     ----------------------------------------- */
+  const rect =
+    element.getBoundingClientRect();
 
-  (
-    portfolio.projects ||
-    []
-  )
+
+  const left =
+    Math.max(
+      12,
+      (
+        desktopRect.width -
+        rect.width
+      ) / 2
+    );
+
+
+  const top =
+    Math.max(
+      12,
+      (
+        desktopRect.height -
+        rect.height
+      ) / 2
+    );
+
+
+  element.style.left =
+    `${left}px`;
+
+
+  element.style.top =
+    `${top}px`;
+
+}
+
+
+/* =========================================================
+   CENTER ALL WINDOWS
+   ========================================================= */
+
+function centerAllWindows() {
+
+  document
+    .querySelectorAll(
+      '.os-window'
+    )
     .forEach(
-      project => {
-
-        const text =
-          JSON.stringify(
-            project
-          )
-            .toLowerCase();
-
-
-        if (
-          text.includes(term)
-        ) {
-
-          results.push({
-
-            type: 'project',
-
-            id:
-              project.id ||
-              project.name ||
-              project.title,
-
-            title:
-              project.name ||
-              project.title ||
-              'Project',
-
-            description:
-              project.description ||
-              project.desc ||
-              ''
-
-          });
-
-        }
-
-      }
-    );
-
-
-  return results;
-
-}
-
-
-/* =========================================================
-   SEARCH UI
-   ========================================================= */
-
-function renderSearchResults(query) {
-
-  const results =
-    searchPortfolio(query);
-
-
-  const output =
-    results
-      .map(
-        result => `
-
-          <button
-            type="button"
-            class="search-result"
-            data-action="${
-              result.type === 'project'
-                ? 'project-detail'
-                : 'open'
-            }"
-            data-app="${
-              result.type === 'app'
-                ? esc(result.id)
-                : ''
-            }"
-            data-project="${
-              result.type === 'project'
-                ? esc(result.id)
-                : ''
-            }"
-          >
-
-            <span class="search-result-icon">
-              ${
-                result.type === 'project'
-                  ? '◆'
-                  : '◈'
-              }
-            </span>
-
-            <span>
-
-              <strong>
-                ${esc(
-                  result.title
-                )}
-              </strong>
-
-              <small>
-                ${esc(
-                  result.description
-                )}
-              </small>
-
-            </span>
-
-            <span>
-              →
-            </span>
-
-          </button>
-
-        `
-      )
-      .join('');
-
-
-  return (
-    output ||
-
-    `
-
-      <div class="empty-state">
-
-        <div class="empty-icon">
-          ⌕
-        </div>
-
-        <h3>
-          No results found
-        </h3>
-
-        <p>
-          Try another search term.
-        </p>
-
-      </div>
-
-    `
-  );
-
-}
-
-
-/* =========================================================
-   REFRESH PORTFOLIO
-   ========================================================= */
-
-async function refreshPortfolio() {
-
-  try {
-
-    const remote =
-      await loadRemotePortfolio();
-
-
-    if (
-      remote &&
-      typeof remote === 'object'
-    ) {
-
-      portfolio = {
-
-        ...portfolio,
-
-        ...remote,
-
-        owner: {
-
-          ...portfolio.owner,
-
-          ...(remote.owner || {})
-
-        }
-
-      };
-
-    }
-
-  } catch (error) {
-
-    console.warn(
-      'Remote portfolio load failed:',
-      error
-    );
-
-  }
-
-
-  renderAll();
-
-}
-
-
-/* =========================================================
-   RENDER ALL
-   ========================================================= */
-
-function renderAll() {
-
-  renderAppGrid();
-
-  renderIdentity();
-
-  updateClock();
-
-  renderDashboard();
-
-  renderDock();
-
-  renderCompanion();
-
-}
-
-
-/* =========================================================
-   DASHBOARD
-   ========================================================= */
-
-function renderDashboard() {
-
-  const featured =
-    (
-      portfolio.projects ||
-      []
-    )
-      .find(
-        project =>
-          project.featured
-      ) ||
-      portfolio.projects?.[0];
-
-
-  const featuredName =
-    featured?.name ||
-    featured?.title ||
-    'Garage Management System';
-
-
-  const featuredDescription =
-    featured?.description ||
-    featured?.desc ||
-    'A database-driven garage management web application.';
-
-
-  const featuredImage =
-    featured?.image ||
-    './assets/projects/garage-management-system.jpg';
-
-
-  const featuredTitle =
-    document.querySelector(
-      '#featured-project-title'
-    );
-
-
-  if (featuredTitle) {
-
-    featuredTitle.textContent =
-      featuredName;
-
-  }
-
-
-  const featuredDesc =
-    document.querySelector(
-      '#featured-project-description'
-    );
-
-
-  if (featuredDesc) {
-
-    featuredDesc.textContent =
-      featuredDescription;
-
-  }
-
-
-  const featuredImageElement =
-    document.querySelector(
-      '#featured-project-image'
-    );
-
-
-  if (featuredImageElement) {
-
-    featuredImageElement.src =
-      featuredImage;
-
-    featuredImageElement.alt =
-      featuredName;
-
-  }
-
-
-  const featuredStatus =
-    document.querySelector(
-      '#featured-project-status'
-    );
-
-
-  if (featuredStatus) {
-
-    featuredStatus.textContent =
-      featured?.status ||
-      'Working';
-
-  }
-
-
-  const featuredTech =
-    document.querySelector(
-      '#featured-project-tech'
-    );
-
-
-  if (featuredTech) {
-
-    const technologies =
-      featured?.technologies ||
-      featured?.stack ||
-      [];
-
-
-    const tech =
-      Array.isArray(
-        technologies
-      )
-        ? technologies
-        : String(
-            technologies
-          )
-            .split(',')
-            .map(
-              item =>
-                item.trim()
-            )
-            .filter(Boolean);
-
-
-    featuredTech.innerHTML =
-      tech
-        .map(
-          item =>
-            `<span>${esc(item)}</span>`
+      element =>
+        centerWindow(
+          element
         )
-        .join('');
-
-  }
+    );
 
 }
 
@@ -4845,6 +3786,7 @@ function renderDashboard() {
 /* =========================================================
    DOCK
    ========================================================= */
+
 function renderDock() {
 
   const dock =
@@ -4852,22 +3794,26 @@ function renderDock() {
       '#dock'
     );
 
+
   if (!dock) return;
 
-  const dockApps =
-    [
-      'projects',
-      'learning',
-      'skills',
-      'education',
-      'journey',
-      'about',
-      'achievements',
-      'contact',
-      'whiteboard',
-      'browser',
-      'control'
-    ];
+
+  const dockApps = [
+
+    'projects',
+    'learning',
+    'skills',
+    'education',
+    'journey',
+    'about',
+    'achievements',
+    'contact',
+    'whiteboard',
+    'browser',
+    'control'
+
+  ];
+
 
   dock.innerHTML =
     dockApps
@@ -4880,7 +3826,9 @@ function renderDock() {
                 item.id === id
             );
 
+
           if (!app) return '';
+
 
           return `
 
@@ -4889,12 +3837,18 @@ function renderDock() {
               class="dock-item"
               data-action="open"
               data-app="${esc(id)}"
-              title="${esc(app.name)}"
+              title="${esc(
+                app.name
+              )}"
             >
 
               <img
-                src="${esc(app.logo)}"
-                alt="${esc(app.name)}"
+                src="${esc(
+                  app.logo
+                )}"
+                alt="${esc(
+                  app.name
+                )}"
                 class="dock-app-logo"
                 width="42"
                 height="42"
@@ -4911,275 +3865,130 @@ function renderDock() {
 
 }
 
+
 /* =========================================================
-   COMPANION
+   DOCK ACTIVE STATE
    ========================================================= */
 
-function renderCompanion() {
+function updateDockState() {
 
-  const companion =
-    document.querySelector(
-      '#companion'
+  document
+    .querySelectorAll(
+      '#dock .dock-item'
+    )
+    .forEach(
+      item => {
+
+        const appId =
+          item.dataset.app;
+
+
+        const active =
+          state.windows.has(
+            appId
+          ) &&
+          !state.minimizedWindows.has(
+            appId
+          );
+
+
+        item.classList.toggle(
+          'is-active',
+          active
+        );
+
+      }
     );
-
-
-  if (!companion) return;
-
-
-  const identity =
-    portfolio.owner?.identity ||
-    {};
-
-
-  companion.innerHTML = `
-
-    <div class="companion-avatar">
-
-      <img
-        src="${esc(
-          identity.generatedAvatar ||
-          identity.portrait ||
-          './assets/avatar/tayassuk-generated-avatar.png'
-        )}"
-        alt="Tayassuk"
-        draggable="false"
-      >
-
-    </div>
-
-
-    <div class="companion-copy">
-
-      <span>
-        Currently
-      </span>
-
-      <strong>
-        Learning & Building
-      </strong>
-
-    </div>
-
-  `;
 
 }
 
 
 /* =========================================================
-   GLOBAL CLICK HANDLER
+   OPEN PROJECT FROM DASHBOARD
    ========================================================= */
 
-document.addEventListener(
-  'click',
-  event => {
+function openProject(
+  projectId
+) {
 
-    /* -----------------------------------------
-       Open app
-       ----------------------------------------- */
-
-    const openButton =
-      event.target.closest(
-        '[data-action="open"]'
-      );
+  const project =
+    getProjectById(
+      projectId
+    );
 
 
-    if (openButton) {
-
-      const id =
-        openButton.dataset.app;
+  if (!project) return;
 
 
-      if (id) {
-
-        openWindow(id);
-
-      }
-
-      return;
-
-    }
+  const appId =
+    `project-detail-${projectId}`;
 
 
-    /* -----------------------------------------
-       Close active window
-       ----------------------------------------- */
-
-    const closeButton =
-      event.target.closest(
-        '[data-win-close]'
-      );
+  const existing =
+    state.windows.get(
+      appId
+    );
 
 
-    if (closeButton) {
+  if (existing?.element) {
 
-      const node =
-        closeButton.closest(
-          '.app-window'
-        );
+    existing.element.classList.remove(
+      'is-minimized'
+    );
 
-
-      if (node) {
-
-        closeWindow(
-          node.dataset.app
-        );
-
-      }
-
-      return;
-
-    }
-
-
-    /* -----------------------------------------
-       Search
-       ----------------------------------------- */
-
-    const searchButton =
-      event.target.closest(
-        '[data-action="search"]'
-      );
-
-
-    if (searchButton) {
-
-      openSearchWindow();
-
-      return;
-
-    }
-
-
-    /* -----------------------------------------
-       Theme
-       ----------------------------------------- */
-
-    const themeButton =
-      event.target.closest(
-        '[data-theme]'
-      );
-
-
-    if (themeButton) {
-
-      const theme =
-        themeButton.dataset.theme;
-
-
-      if (
-        theme === 'dark' ||
-        theme === 'light'
-      ) {
-
-        state.theme =
-          theme;
-
-
-        document.documentElement.dataset.theme =
-          theme;
-
-
-        localStorage.setItem(
-          'tayassuk-os-theme-v2',
-          theme
-        );
-
-      }
-
-    }
-
-  }
-);
-
-
-/* =========================================================
-   SEARCH WINDOW
-   ========================================================= */
-
-function openSearchWindow() {
-
-  const id =
-    'search';
-
-
-  if (
-    state.windows.has(id)
-  ) {
-
-    restoreWindow(id);
+    bringToFront(
+      existing.element
+    );
 
     return;
 
   }
 
 
-  const layer =
+  const windows =
     document.querySelector(
       '#windows'
     );
 
 
-  if (!layer) return;
+  if (!windows) return;
 
 
-  const node =
+  const element =
     document.createElement(
       'section'
     );
 
 
-  node.className =
-    'app-window search-window';
+  element.className =
+    'os-window is-active';
 
 
-  node.dataset.app =
-    id;
+  element.dataset.window =
+    appId;
 
 
-  node.style.width =
-    `${Math.min(
-      680,
-      innerWidth - 40
-    )}px`;
-
-
-  node.style.height =
-    `${Math.min(
-      520,
-      innerHeight - 120
-    )}px`;
-
-
-  node.style.left =
-    `${Math.max(
-      20,
-      (innerWidth - 680) / 2
-    )}px`;
-
-
-  node.style.top =
-    `${Math.max(
-      72,
-      (innerHeight - 520) / 2
-    )}px`;
-
-
-  node.style.zIndex =
+  element.style.zIndex =
     ++state.z;
 
 
-  node.innerHTML = `
+  element.innerHTML = `
 
-    <div class="window-chrome">
+    <div
+      class="window-header"
+      data-window-drag
+    >
 
-      <div class="window-title-area">
+      <div class="window-title">
 
-        <span class="window-title">
-          Search
-        </span>
+        <span class="window-title-dot"></span>
 
-        <span class="window-state">
-          Tayassuk OS
+        <span>
+          ${esc(
+            project.title ||
+            project.name ||
+            'Project Details'
+          )}
         </span>
 
       </div>
@@ -5189,9 +3998,9 @@ function openSearchWindow() {
 
         <button
           type="button"
-          class="window-control window-minimize"
-          data-window-action="minimize"
-          title="Minimize"
+          class="window-control minimize"
+          data-action="minimize-window"
+          data-window="${esc(appId)}"
         >
           −
         </button>
@@ -5199,9 +4008,9 @@ function openSearchWindow() {
 
         <button
           type="button"
-          class="window-control window-maximize"
-          data-window-action="maximize"
-          title="Maximize"
+          class="window-control maximize"
+          data-action="maximize-window"
+          data-window="${esc(appId)}"
         >
           □
         </button>
@@ -5209,9 +4018,9 @@ function openSearchWindow() {
 
         <button
           type="button"
-          class="window-control window-close"
-          data-window-action="close"
-          title="Close"
+          class="window-control close"
+          data-action="close-window"
+          data-window="${esc(appId)}"
         >
           ×
         </button>
@@ -5223,293 +4032,635 @@ function openSearchWindow() {
 
     <div class="window-body">
 
-      <div class="search-page">
-
-        <div class="search-input-wrap">
-
-          <span>
-            ⌕
-          </span>
-
-          <input
-            type="search"
-            id="portfolio-search-input"
-            placeholder="Search apps and projects..."
-            autocomplete="off"
-          >
-
-        </div>
-
-
-        <div
-          class="search-results"
-          id="portfolio-search-results"
-        >
-
-          <div class="empty-state">
-
-            <div class="empty-icon">
-              ⌕
-            </div>
-
-            <p>
-              Start typing to search.
-            </p>
-
-          </div>
-
-        </div>
-
-      </div>
+      ${renderProjectDetail(
+        projectId
+      )}
 
     </div>
 
   `;
 
 
-  layer.appendChild(
-    node
+  windows.appendChild(
+    element
   );
 
 
   state.windows.set(
-    id,
+    appId,
     {
-      node,
-      body:
-        node.querySelector(
-          '.window-body'
-        )
+      element,
+      appId,
+      extraData:
+        projectId
     }
   );
 
 
-  wireWindowControls(
-    node,
-    id
+  attachWindowDrag(
+    element
   );
-
-
-  wireDrag(
-    node,
-    id
-  );
-
-
-  node.addEventListener(
-    'pointerdown',
-    () => focusWindow(id)
-  );
-
-
-  const input =
-    node.querySelector(
-      '#portfolio-search-input'
-    );
-
-
-  const results =
-    node.querySelector(
-      '#portfolio-search-results'
-    );
-
-
-  if (input && results) {
-
-    input.addEventListener(
-      'input',
-      () => {
-
-        results.innerHTML =
-          renderSearchResults(
-            input.value
-          );
-
-      }
-    );
-
-  }
-
-
-  focusWindow(id);
 
 
   requestAnimationFrame(
-    () => input?.focus()
+    () => {
+
+      centerWindow(
+        element
+      );
+
+    }
+  );
+
+
+  bringToFront(
+    element
+  );
+
+
+  updateDockState();
+
+}
+/* =========================================================
+   EVENT HANDLING
+   ========================================================= */
+
+document.addEventListener(
+  'click',
+  event => {
+
+    const actionElement =
+      event.target.closest(
+        '[data-action]'
+      );
+
+
+    if (!actionElement) return;
+
+
+    const action =
+      actionElement.dataset.action;
+
+
+    /* -----------------------------------------------------
+       OPEN APP
+       ----------------------------------------------------- */
+
+    if (action === 'open') {
+
+      const appId =
+        actionElement.dataset.app;
+
+
+      if (appId) {
+
+        openWindow(
+          appId
+        );
+
+      }
+
+
+      updateDockState();
+
+      return;
+
+    }
+
+
+    /* -----------------------------------------------------
+       CLOSE WINDOW
+       ----------------------------------------------------- */
+
+    if (
+      action ===
+      'close-window'
+    ) {
+
+      const windowId =
+        actionElement.dataset.window;
+
+
+      if (windowId) {
+
+        closeWindow(
+          windowId
+        );
+
+      }
+
+
+      updateDockState();
+
+      return;
+
+    }
+
+
+    /* -----------------------------------------------------
+       MINIMIZE WINDOW
+       ----------------------------------------------------- */
+
+    if (
+      action ===
+      'minimize-window'
+    ) {
+
+      const windowId =
+        actionElement.dataset.window;
+
+
+      if (windowId) {
+
+        minimizeWindow(
+          windowId
+        );
+
+      }
+
+
+      updateDockState();
+
+      return;
+
+    }
+
+
+    /* -----------------------------------------------------
+       MAXIMIZE WINDOW
+       ----------------------------------------------------- */
+
+    if (
+      action ===
+      'maximize-window'
+    ) {
+
+      const windowId =
+        actionElement.dataset.window;
+
+
+      if (windowId) {
+
+        maximizeWindow(
+          windowId
+        );
+
+      }
+
+
+      return;
+
+    }
+
+
+    /* -----------------------------------------------------
+       PROJECT DETAIL
+       ----------------------------------------------------- */
+
+    if (
+      action ===
+      'project-detail'
+    ) {
+
+      const projectId =
+        actionElement.dataset.project;
+
+
+      if (projectId) {
+
+        openProject(
+          projectId
+        );
+
+      }
+
+
+      return;
+
+    }
+
+
+    /* -----------------------------------------------------
+       TOGGLE THEME
+       ----------------------------------------------------- */
+
+    if (
+      action ===
+      'toggle-theme'
+    ) {
+
+      toggleTheme();
+
+      return;
+
+    }
+
+
+    /* -----------------------------------------------------
+       RELOAD PORTFOLIO
+       ----------------------------------------------------- */
+
+    if (
+      action ===
+      'reload-portfolio'
+    ) {
+
+      reloadPortfolio();
+
+      return;
+
+    }
+
+
+    /* -----------------------------------------------------
+       SIGN OUT
+       ----------------------------------------------------- */
+
+    if (
+      action ===
+      'sign-out'
+    ) {
+
+      handleSignOut();
+
+      return;
+
+    }
+
+
+    /* -----------------------------------------------------
+       SAVE WHITEBOARD
+       ----------------------------------------------------- */
+
+    if (
+      action ===
+      'save-whiteboard'
+    ) {
+
+      saveWhiteboard();
+
+      return;
+
+    }
+
+
+    /* -----------------------------------------------------
+       CLEAR WHITEBOARD
+       ----------------------------------------------------- */
+
+    if (
+      action ===
+      'clear-whiteboard'
+    ) {
+
+      clearWhiteboard();
+
+      return;
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   WINDOW CLICK
+   ========================================================= */
+
+document.addEventListener(
+  'pointerdown',
+  event => {
+
+    const windowElement =
+      event.target.closest(
+        '.os-window'
+      );
+
+
+    if (!windowElement) return;
+
+
+    bringToFront(
+      windowElement
+    );
+
+  }
+);
+
+
+/* =========================================================
+   THEME
+   ========================================================= */
+
+function toggleTheme() {
+
+  state.theme =
+    state.theme ===
+    'dark'
+      ? 'light'
+      : 'dark';
+
+
+  document.documentElement.dataset.theme =
+    state.theme;
+
+
+  localStorage.setItem(
+    'tayassuk-os-theme-v2',
+    state.theme
   );
 
 }
 
 
 /* =========================================================
-   KEYBOARD SHORTCUTS
+   WHITEBOARD
    ========================================================= */
 
-document.addEventListener(
-  'keydown',
-  event => {
+function saveWhiteboard() {
 
-    /* ESC → close focused window */
-
-    if (
-      event.key === 'Escape'
-    ) {
-
-      const openWindows =
-        Array.from(
-          state.windows.values()
-        )
-          .filter(
-            win =>
-              win?.node &&
-              !win.node.hidden
-          );
+  const input =
+    document.querySelector(
+      '#whiteboard-input'
+    );
 
 
-      if (
-        openWindows.length
-      ) {
-
-        const active =
-          openWindows
-            .sort(
-              (a, b) =>
-                Number(
-                  b.node.style.zIndex
-                ) -
-                Number(
-                  a.node.style.zIndex
-                )
-            )[0];
+  if (!input) return;
 
 
-        if (active) {
+  const value =
+    input.value;
 
-          closeWindow(
-            active.node.dataset.app
-          );
 
-        }
+  localStorage.setItem(
+    'tayassuk-os-whiteboard',
+    value
+  );
 
-      }
+
+  const status =
+    document.querySelector(
+      '#whiteboard-status'
+    );
+
+
+  if (status) {
+
+    status.textContent =
+      'Note saved locally.';
+
+  }
+
+}
+
+
+function clearWhiteboard() {
+
+  const input =
+    document.querySelector(
+      '#whiteboard-input'
+    );
+
+
+  if (input) {
+
+    input.value =
+      '';
+
+  }
+
+
+  localStorage.removeItem(
+    'tayassuk-os-whiteboard'
+  );
+
+
+  const status =
+    document.querySelector(
+      '#whiteboard-status'
+    );
+
+
+  if (status) {
+
+    status.textContent =
+      'Note cleared.';
+
+  }
+
+}
+
+
+/* =========================================================
+   ADMIN LOGIN
+   ========================================================= */
+
+async function handleAdminLogin(
+  event
+) {
+
+  event.preventDefault();
+
+
+  const form =
+    event.currentTarget;
+
+
+  const email =
+    form.elements.email?.value
+      ?.trim();
+
+
+  const password =
+    form.elements.password?.value ||
+    '';
+
+
+  const status =
+    document.querySelector(
+      '#admin-login-status'
+    );
+
+
+  if (status) {
+
+    status.textContent =
+      'Signing in...';
+
+  }
+
+
+  try {
+
+    const session =
+      await signIn(
+        email,
+        password
+      );
+
+
+    state.adminSession =
+      session;
+
+
+    if (status) {
+
+      status.textContent =
+        'Signed in successfully.';
 
     }
 
 
-    /* CTRL + K → Search */
+    refreshControlCenter();
 
-    if (
-      (event.ctrlKey ||
-        event.metaKey) &&
-      event.key.toLowerCase() === 'k'
-    ) {
+  } catch (error) {
 
-      event.preventDefault();
+    console.error(
+      'Admin login failed:',
+      error
+    );
 
-      openSearchWindow();
+
+    if (status) {
+
+      status.textContent =
+        error?.message ||
+        'Unable to sign in.';
 
     }
 
   }
-);
+
+}
 
 
 /* =========================================================
-   WINDOW RESIZE
+   ADMIN SIGN OUT
    ========================================================= */
 
-window.addEventListener(
-  'resize',
-  () => {
+async function handleSignOut() {
 
-    state.windows.forEach(
-      (win, id) => {
+  try {
 
-        if (!win?.node) return;
+    await signOut();
 
+    state.adminSession =
+      null;
 
-        if (
-          state.maximizedWindows.has(id)
-        ) {
+    refreshControlCenter();
 
-          win.node.style.left =
-            '16px';
+  } catch (error) {
 
-          win.node.style.top =
-            '64px';
-
-          win.node.style.width =
-            'calc(100vw - 32px)';
-
-          win.node.style.height =
-            'calc(100vh - 82px)';
-
-          return;
-
-        }
-
-
-        const maxLeft =
-          Math.max(
-            12,
-            innerWidth -
-              win.node.offsetWidth -
-              12
-          );
-
-
-        const maxTop =
-          Math.max(
-            64,
-            innerHeight -
-              win.node.offsetHeight -
-              12
-          );
-
-
-        const currentLeft =
-          parseFloat(
-            win.node.style.left
-          ) || 12;
-
-
-        const currentTop =
-          parseFloat(
-            win.node.style.top
-          ) || 64;
-
-
-        win.node.style.left =
-          `${Math.min(
-            maxLeft,
-            Math.max(
-              12,
-              currentLeft
-            )
-          )}px`;
-
-
-        win.node.style.top =
-          `${Math.min(
-            maxTop,
-            Math.max(
-              64,
-              currentTop
-            )
-          )}px`;
-
-      }
+    console.error(
+      'Sign out failed:',
+      error
     );
 
   }
+
+}
+
+
+/* =========================================================
+   CONTROL CENTER REFRESH
+   ========================================================= */
+
+function refreshControlCenter() {
+
+  const record =
+    state.windows.get(
+      'control'
+    );
+
+
+  if (!record?.element) return;
+
+
+  const body =
+    record.element.querySelector(
+      '.window-body'
+    );
+
+
+  if (!body) return;
+
+
+  body.innerHTML =
+    renderControlCenter();
+
+
+  updateDockState();
+
+}
+
+
+/* =========================================================
+   ADMIN FORM LISTENER
+   ========================================================= */
+
+document.addEventListener(
+  'submit',
+  event => {
+
+    if (
+      event.target?.id ===
+      'admin-login-form'
+    ) {
+
+      handleAdminLogin(
+        event
+      );
+
+    }
+
+  }
 );
 
 
 /* =========================================================
-   INITIALIZE REMOTE DATA
+   PORTFOLIO RELOAD
    ========================================================= */
 
-async function initRemoteData() {
+async function reloadPortfolio() {
+
+  try {
+
+    const remote =
+      await loadRemotePortfolio();
+
+
+    if (remote) {
+
+      portfolio = {
+
+        ...portfolio,
+
+        ...remote
+
+      };
+
+    }
+
+
+    renderAll();
+
+  } catch (error) {
+
+    console.error(
+      'Portfolio reload failed:',
+      error
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   SESSION
+   ========================================================= */
+
+async function restoreSession() {
 
   try {
 
@@ -5518,19 +4669,496 @@ async function initRemoteData() {
 
 
     state.adminSession =
-      session?.session ||
-      session ||
-      null;
+      session || null;
+
+
+    refreshControlCenter();
 
   } catch (error) {
 
     console.warn(
-      'Session initialization failed:',
+      'Session restore failed:',
       error
     );
 
   }
 
+}
+
+
+/* =========================================================
+   RESPONSIVE WINDOW SAFETY
+   ========================================================= */
+
+function keepWindowsInsideViewport() {
+
+  const desktop =
+    document.querySelector(
+      '.desktop'
+    );
+
+
+  if (!desktop) return;
+
+
+  const desktopRect =
+    desktop.getBoundingClientRect();
+
+
+  document
+    .querySelectorAll(
+      '.os-window'
+    )
+    .forEach(
+      element => {
+
+        if (
+          element.classList.contains(
+            'is-maximized'
+          )
+        ) {
+
+          return;
+
+        }
+
+
+        const rect =
+          element.getBoundingClientRect();
+
+
+        let left =
+          parseFloat(
+            element.style.left
+          );
+
+
+        let top =
+          parseFloat(
+            element.style.top
+          );
+
+
+        if (
+          Number.isNaN(left)
+        ) {
+
+          left =
+            rect.left -
+            desktopRect.left;
+
+        }
+
+
+        if (
+          Number.isNaN(top)
+        ) {
+
+          top =
+            rect.top -
+            desktopRect.top;
+
+        }
+
+
+        const maxLeft =
+          Math.max(
+            12,
+            desktopRect.width -
+            rect.width -
+            12
+          );
+
+
+        const maxTop =
+          Math.max(
+            12,
+            desktopRect.height -
+            rect.height -
+            12
+          );
+
+
+        left =
+          Math.max(
+            12,
+            Math.min(
+              left,
+              maxLeft
+            )
+          );
+
+
+        top =
+          Math.max(
+            12,
+            Math.min(
+              top,
+              maxTop
+            )
+          );
+
+
+        element.style.left =
+          `${left}px`;
+
+
+        element.style.top =
+          `${top}px`;
+
+      }
+    );
+
+}
+
+
+/* =========================================================
+   RESIZE
+   ========================================================= */
+
+window.addEventListener(
+  'resize',
+  () => {
+
+    keepWindowsInsideViewport();
+
+  }
+);
+
+
+/* =========================================================
+   ESCAPE KEY
+   ========================================================= */
+
+document.addEventListener(
+  'keydown',
+  event => {
+
+    if (
+      event.key !==
+      'Escape'
+    ) {
+
+      return;
+
+    }
+
+
+    const activeWindow =
+      document.querySelector(
+        '.os-window.is-active'
+      );
+
+
+    if (!activeWindow) return;
+
+
+    const windowId =
+      activeWindow.dataset.window;
+
+
+    if (windowId) {
+
+      closeWindow(
+        windowId
+      );
+
+    }
+
+
+    updateDockState();
+
+  }
+);
+
+
+/* =========================================================
+   COMMAND PALETTE
+   ========================================================= */
+
+function openCommandPalette() {
+
+  const palette =
+    document.querySelector(
+      '#command-palette'
+    );
+
+
+  if (!palette) return;
+
+
+  palette.classList.add(
+    'is-open'
+  );
+
+
+  const input =
+    palette.querySelector(
+      'input'
+    );
+
+
+  if (input) {
+
+    input.focus();
+
+  }
+
+}
+
+
+function closeCommandPalette() {
+
+  const palette =
+    document.querySelector(
+      '#command-palette'
+    );
+
+
+  if (!palette) return;
+
+
+  palette.classList.remove(
+    'is-open'
+  );
+
+}
+
+
+/* =========================================================
+   COMMAND PALETTE KEYBOARD
+   ========================================================= */
+
+document.addEventListener(
+  'keydown',
+  event => {
+
+    if (
+      (event.ctrlKey ||
+       event.metaKey) &&
+      event.key.toLowerCase() ===
+      'k'
+    ) {
+
+      event.preventDefault();
+
+      openCommandPalette();
+
+      return;
+
+    }
+
+
+    if (
+      event.key ===
+      'Escape'
+    ) {
+
+      closeCommandPalette();
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   COMMAND SEARCH
+   ========================================================= */
+
+function renderCommandResults(
+  query = ''
+) {
+
+  const container =
+    document.querySelector(
+      '#command-results'
+    );
+
+
+  if (!container) return;
+
+
+  const normalized =
+    query
+      .trim()
+      .toLowerCase();
+
+
+  const results =
+    apps.filter(
+      app => {
+
+        if (!normalized)
+          return true;
+
+
+        return (
+          app.name
+            .toLowerCase()
+            .includes(
+              normalized
+            ) ||
+
+          app.desc
+            .toLowerCase()
+            .includes(
+              normalized
+            )
+        );
+
+      }
+    );
+
+
+  container.innerHTML =
+    results
+      .map(
+        app => `
+
+          <button
+            type="button"
+            class="command-result"
+            data-action="open"
+            data-app="${esc(
+              app.id
+            )}"
+          >
+
+            <img
+              src="${esc(
+                app.logo
+              )}"
+              alt=""
+              class="command-result-icon"
+              draggable="false"
+            >
+
+            <span>
+
+              <strong>
+                ${esc(
+                  app.name
+                )}
+              </strong>
+
+              <small>
+                ${esc(
+                  app.desc
+                )}
+              </small>
+
+            </span>
+
+          </button>
+
+        `
+      )
+      .join('');
+
+}
+
+
+/* =========================================================
+   COMMAND INPUT
+   ========================================================= */
+
+document.addEventListener(
+  'input',
+  event => {
+
+    if (
+      event.target?.id ===
+      'command-input'
+    ) {
+
+      renderCommandResults(
+        event.target.value
+      );
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   COMMAND RESULT CLICK
+   ========================================================= */
+
+document.addEventListener(
+  'click',
+  event => {
+
+    const result =
+      event.target.closest(
+        '.command-result'
+      );
+
+
+    if (!result) return;
+
+
+    closeCommandPalette();
+
+  }
+);
+
+
+/* =========================================================
+   INITIAL COMMAND RESULTS
+   ========================================================= */
+
+renderCommandResults();
+/* =========================================================
+   DASHBOARD INITIALIZATION
+   ========================================================= */
+
+function renderDashboard() {
+
+  renderIdentity();
+
+  renderFeaturedProject();
+
+  renderSkillsSummary();
+
+  renderCurrentlyLearning();
+
+  renderQuickNotes();
+
+  renderNextGoals();
+
+  renderSystemStatus();
+
+  renderRecentActivity();
+
+}
+
+
+/* =========================================================
+   RENDER ALL
+   ========================================================= */
+
+function renderAll() {
+
+  renderAppGrid();
+
+  renderIdentity();
+
+  renderDashboard();
+
+  renderDock();
+
+  updateDockState();
+
+}
+
+
+/* =========================================================
+   LOAD REMOTE DATA
+   ========================================================= */
+
+async function loadPortfolioData() {
 
   try {
 
@@ -5540,22 +5168,15 @@ async function initRemoteData() {
 
     if (
       remote &&
-      typeof remote === 'object'
+      typeof remote ===
+      'object'
     ) {
 
       portfolio = {
 
         ...portfolio,
 
-        ...remote,
-
-        owner: {
-
-          ...portfolio.owner,
-
-          ...(remote.owner || {})
-
-        }
+        ...remote
 
       };
 
@@ -5564,7 +5185,29 @@ async function initRemoteData() {
   } catch (error) {
 
     console.warn(
-      'Remote portfolio initialization failed:',
+      'Using local portfolio data:',
+      error
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   BOOT
+   ========================================================= */
+
+async function boot() {
+
+  try {
+
+    await loadPortfolioData();
+
+  } catch (error) {
+
+    console.warn(
+      'Portfolio boot data failed:',
       error
     );
 
@@ -5573,45 +5216,55 @@ async function initRemoteData() {
 
   renderAll();
 
-}
+
+  await restoreSession();
 
 
-/* =========================================================
-   STARTUP
-   ========================================================= */
+  requestAnimationFrame(
+    () => {
 
-function initialize() {
+      keepWindowsInsideViewport();
 
-  document.documentElement.dataset.theme =
-    state.theme;
-
-
-  renderAll();
+    }
+  );
 
 
-  initRemoteData()
-    .catch(
-      error =>
-        console.error(
-          'Portfolio initialization failed:',
-          error
-        )
+  const bootScreen =
+    document.querySelector(
+      '#boot-screen'
     );
 
+
+  if (bootScreen) {
+
+    setTimeout(
+      () => {
+
+        bootScreen.classList.add(
+          'is-hidden'
+        );
+
+      },
+      500
+    );
+
+  }
+
 }
 
 
 /* =========================================================
-   START
+   DOM READY
    ========================================================= */
 
 if (
-  document.readyState === 'loading'
+  document.readyState ===
+  'loading'
 ) {
 
   document.addEventListener(
     'DOMContentLoaded',
-    initialize,
+    boot,
     {
       once: true
     }
@@ -5619,229 +5272,425 @@ if (
 
 } else {
 
-  initialize();
+  boot();
 
 }
-/* =====================================================
-   FINAL SMALL FIX
-   1. Remove duplicate Trash from bottom dock
-   2. Fix missing Settings + Trash launcher icons
-   3. Keep newly opened windows inside/center of screen
-   ===================================================== */
-
-(function () {
-
-  function fixTayassukOS() {
-
-    /* ---------- 1. REMOVE DUPLICATE TRASH ---------- */
-
-    document
-      .querySelectorAll(
-        '.dock [data-app="trash"],' +
-        '.bottom-dock [data-app="trash"],' +
-        '[data-dock] [data-app="trash"]'
-      )
-      .forEach(function (item) {
-        item.style.display = 'none';
-      });
 
 
-    /* ---------- 2. FIX SETTINGS + TRASH ICON ---------- */
+/* =========================================================
+   GLOBAL ACCESS
+   ========================================================= */
 
-    const settingsSVG =
-      'data:image/svg+xml;charset=UTF-8,' +
-      encodeURIComponent(`
-        <svg xmlns="http://www.w3.org/2000/svg"
-             viewBox="0 0 100 100">
-          <rect x="8" y="8" width="84" height="84" rx="22"
-                fill="#102b43" stroke="#55cfff" stroke-width="3"/>
-          <circle cx="50" cy="50" r="18"
-                  fill="none" stroke="#d8f5ff" stroke-width="6"/>
-          <path d="M50 20v10M50 70v10M20 50h10M70 50h10
-                   M29 29l7 7M64 64l7 7M71 29l-7 7M36 64l-7 7"
-                stroke="#d8f5ff"
-                stroke-width="6"
-                stroke-linecap="round"/>
-        </svg>
-      `);
+window.TayassukOS = {
 
-    const trashSVG =
-      'data:image/svg+xml;charset=UTF-8,' +
-      encodeURIComponent(`
-        <svg xmlns="http://www.w3.org/2000/svg"
-             viewBox="0 0 100 100">
-          <rect x="8" y="8" width="84" height="84" rx="22"
-                fill="#102b43" stroke="#55cfff" stroke-width="3"/>
-          <path d="M32 34h36M40 34v-7h20v7
-                   M37 40v29M50 40v29M63 40v29
-                   M31 34l4 40h30l4-40"
-                fill="none"
-                stroke="#d8f5ff"
-                stroke-width="5"
-                stroke-linecap="round"
-                stroke-linejoin="round"/>
-        </svg>
-      `);
+  openWindow,
+
+  closeWindow,
+
+  minimizeWindow,
+
+  maximizeWindow,
+
+  restoreWindow,
+
+  toggleTheme,
+
+  renderAll,
+
+  reloadPortfolio
+
+};
 
 
-    /* ---------- 3. KEEP NEW WINDOWS INSIDE SCREEN ---------- */
-
-    document
-      .querySelectorAll('.app-window')
-      .forEach(function (win) {
-
-        if (win.dataset.safePositionFixed === 'yes') {
-          return;
-        }
-
-        const rect = win.getBoundingClientRect();
-
-        const width = Math.min(
-          rect.width || 900,
-          window.innerWidth - 40
-        );
-
-        const height = Math.min(
-          rect.height || 650,
-          window.innerHeight - 100
-        );
-
-        const left = Math.max(
-          20,
-          (window.innerWidth - width) / 2
-        );
-
-        const top = Math.max(
-          70,
-          (window.innerHeight - height) / 2
-        );
-
-        win.style.setProperty(
-          'position',
-          'fixed',
-          'important'
-        );
-
-        win.style.setProperty(
-          'left',
-          left + 'px',
-          'important'
-        );
-
-        win.style.setProperty(
-          'top',
-          top + 'px',
-          'important'
-        );
-
-        win.style.setProperty(
-          'width',
-          width + 'px',
-          'important'
-        );
-
-        win.style.setProperty(
-          'height',
-          height + 'px',
-          'important'
-        );
-
-        win.style.setProperty(
-          'margin',
-          '0',
-          'important'
-        );
-
-        win.style.setProperty(
-          'transform',
-          'none',
-          'important'
-        );
-
-        win.dataset.safePositionFixed = 'yes';
-      });
-  }
-
-
-  /* Run after page loads */
-  if (document.readyState === 'loading') {
-    document.addEventListener(
-      'DOMContentLoaded',
-      fixTayassukOS
-    );
-  } else {
-    fixTayassukOS();
-  }
-
-
-  /* Detect newly opened windows */
-  const observer = new MutationObserver(function () {
-    fixTayassukOS();
-  });
-
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true
-  });
-
-})();
-/* =====================================================
-   FINAL DOCK PNG ICON FIX — ONLY
-   ===================================================== */
+/* =========================================================
+   FINAL DOCK PNG ICON FIX
+   ========================================================= */
 
 (function () {
 
   function forceDockPNGIcons() {
 
-    const dock = document.querySelector('#dock');
+    const dock =
+      document.querySelector(
+        '#dock'
+      );
+
 
     if (!dock) return;
 
+
     const iconMap = {
-      projects: './assets/icons/projects.png',
-      learning: './assets/icons/learning.png',
-      skills: './assets/icons/skills.png',
-      education: './assets/icons/education.png',
-      journey: './assets/icons/journey.png',
-      about: './assets/icons/about.png',
-      achievements: './assets/icons/achievements.png',
-      contact: './assets/icons/contact.png',
-      whiteboard: './assets/icons/whiteboard.png',
-      browser: './assets/icons/browser.png',
-      control: './assets/icons/control-center.png'
+
+      projects:
+        './assets/icons/projects.png',
+
+      learning:
+        './assets/icons/learning.png',
+
+      skills:
+        './assets/icons/skills.png',
+
+      education:
+        './assets/icons/education.png',
+
+      journey:
+        './assets/icons/journey.png',
+
+      about:
+        './assets/icons/about.png',
+
+      achievements:
+        './assets/icons/achievements.png',
+
+      contact:
+        './assets/icons/contact.png',
+
+      whiteboard:
+        './assets/icons/whiteboard.png',
+
+      browser:
+        './assets/icons/browser.png',
+
+      control:
+        './assets/icons/control-center.png'
+
     };
 
-    dock.querySelectorAll('.dock-item').forEach(function (item) {
 
-      const appId = item.getAttribute('data-app');
-      const logo = iconMap[appId];
+    dock
+      .querySelectorAll(
+        '.dock-item'
+      )
+      .forEach(
+        function (item) {
 
-      if (!logo) return;
+          const appId =
+            item.getAttribute(
+              'data-app'
+            );
 
-      item.innerHTML = '';
 
-      const img = document.createElement('img');
+          const logo =
+            iconMap[appId];
 
-      img.src = logo;
-      img.alt = appId;
-      img.className = 'dock-logo';
 
-      img.setAttribute('draggable', 'false');
+          if (!logo) return;
 
-      img.style.setProperty('width', '42px', 'important');
-      img.style.setProperty('height', '42px', 'important');
-      img.style.setProperty('object-fit', 'contain', 'important');
-      img.style.setProperty('display', 'block', 'important');
-      img.style.setProperty('visibility', 'visible', 'important');
 
-      item.appendChild(img);
+          if (
+            item.querySelector(
+              'img'
+            )
+          ) {
 
-    });
+            return;
+
+          }
+
+
+          const img =
+            document.createElement(
+              'img'
+            );
+
+
+          img.src =
+            logo;
+
+
+          img.alt =
+            appId;
+
+
+          img.className =
+            'dock-logo';
+
+
+          img.setAttribute(
+            'draggable',
+            'false'
+          );
+
+
+          img.style.setProperty(
+            'width',
+            '42px',
+            'important'
+          );
+
+
+          img.style.setProperty(
+            'height',
+            '42px',
+            'important'
+          );
+
+
+          img.style.setProperty(
+            'object-fit',
+            'contain',
+            'important'
+          );
+
+
+          img.style.setProperty(
+            'display',
+            'block',
+            'important'
+          );
+
+
+          img.style.setProperty(
+            'visibility',
+            'visible',
+            'important'
+          );
+
+
+          item.appendChild(
+            img
+          );
+
+        }
+      );
 
   }
 
-  window.addEventListener('load', forceDockPNGIcons);
 
-  document.addEventListener('DOMContentLoaded', forceDockPNGIcons);
+  window.addEventListener(
+    'load',
+    forceDockPNGIcons
+  );
 
- 
+
+  document.addEventListener(
+    'DOMContentLoaded',
+    forceDockPNGIcons
+  );
+
+
+})();
+/* =========================================================
+   FINAL SAFETY / CLEANUP
+   ========================================================= */
+
+(function () {
+
+  /* -------------------------------------------------------
+     Remove duplicate bottom dock Trash if any old markup
+     exists. Keep the launcher Trash untouched.
+     ------------------------------------------------------- */
+
+  function removeDuplicateDockTrash() {
+
+    const dock =
+      document.querySelector('#dock');
+
+    if (!dock) return;
+
+    dock
+      .querySelectorAll(
+        '[data-app="trash"]'
+      )
+      .forEach(
+        item => item.remove()
+      );
+
+  }
+
+
+  /* -------------------------------------------------------
+     Keep opened windows inside the visible screen
+     ------------------------------------------------------- */
+
+  function safeWindowPosition() {
+
+    const desktop =
+      document.querySelector('.desktop');
+
+    if (!desktop) return;
+
+    const desktopRect =
+      desktop.getBoundingClientRect();
+
+    document
+      .querySelectorAll('.os-window')
+      .forEach(windowElement => {
+
+        if (
+          windowElement.classList.contains(
+            'is-maximized'
+          )
+        ) {
+          return;
+        }
+
+        const rect =
+          windowElement.getBoundingClientRect();
+
+        let left =
+          parseFloat(
+            windowElement.style.left
+          );
+
+        let top =
+          parseFloat(
+            windowElement.style.top
+          );
+
+        if (Number.isNaN(left)) {
+          left =
+            rect.left -
+            desktopRect.left;
+        }
+
+        if (Number.isNaN(top)) {
+          top =
+            rect.top -
+            desktopRect.top;
+        }
+
+        const maxLeft =
+          Math.max(
+            12,
+            desktopRect.width -
+            rect.width -
+            12
+          );
+
+        const maxTop =
+          Math.max(
+            12,
+            desktopRect.height -
+            rect.height -
+            12
+          );
+
+        left =
+          Math.max(
+            12,
+            Math.min(
+              left,
+              maxLeft
+            )
+          );
+
+        top =
+          Math.max(
+            12,
+            Math.min(
+              top,
+              maxTop
+            )
+          );
+
+        windowElement.style.left =
+          `${left}px`;
+
+        windowElement.style.top =
+          `${top}px`;
+
+      });
+
+  }
+
+
+  /* -------------------------------------------------------
+     Run cleanup after DOM is ready
+     ------------------------------------------------------- */
+
+  function cleanup() {
+
+    removeDuplicateDockTrash();
+
+    safeWindowPosition();
+
+  }
+
+
+  if (
+    document.readyState ===
+    'loading'
+  ) {
+
+    document.addEventListener(
+      'DOMContentLoaded',
+      cleanup,
+      {
+        once: true
+      }
+    );
+
+  } else {
+
+    cleanup();
+
+  }
+
+
+  window.addEventListener(
+    'resize',
+    safeWindowPosition
+  );
+
+})();
+/* =========================================================
+   END OF APP.JS
+   ========================================================= */
+
+/*
+   Tayassuk OS
+   Portfolio Application
+   Final JavaScript Section
+*/
+
+
+/* ---------------------------------------------------------
+   Final state synchronization
+   --------------------------------------------------------- */
+
+function syncUI() {
+
+  try {
+
+    renderDock();
+
+    updateDockState();
+
+    keepWindowsInsideViewport();
+
+  } catch (error) {
+
+    console.warn(
+      'UI synchronization warning:',
+      error
+    );
+
+  }
+
+}
+
+
+/* ---------------------------------------------------------
+   Final load synchronization
+   --------------------------------------------------------- */
+
+window.addEventListener(
+  'load',
+  () => {
+
+    setTimeout(
+      syncUI,
+      100
+    );
+
+  },
+  {
+    once: true
+  }
+);
+
+
+/* ---------------------------------------------------------
+   Final closing wrapper
+   --------------------------------------------------------- */
