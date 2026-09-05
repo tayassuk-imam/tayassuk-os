@@ -271,51 +271,66 @@ function renderAppGrid() {
     document.getElementById('app-grid');
 
   if (!el) {
-
     console.warn(
       'App grid #app-grid not found'
     );
-
     return;
   }
-
 
   el.innerHTML =
     apps
       .map(
-        app => `
+        app => {
 
-          <button
-            type="button"
-            class="launcher-app"
-            data-action="open"
-            data-app="${esc(app.id)}"
-            title="${esc(
-              app.desc || app.name
-            )}"
-          >
+          const fallbackIcon =
+            app.id === 'settings'
+              ? '⚙'
+              : app.id === 'trash'
+                ? '🗑'
+                : '◈';
 
-            <span class="launcher-app-icon">
+          return `
 
-              <img
-                class="app-logo"
-                src="${esc(app.logo)}"
-                alt="${esc(app.name)}"
-                width="56"
-                height="56"
-                loading="lazy"
-                draggable="false"
-              >
+            <button
+              type="button"
+              class="launcher-app"
+              data-action="open"
+              data-app="${esc(app.id)}"
+              title="${esc(app.name)}"
+            >
 
-            </span>
+              <div class="app-icon-wrap">
 
-            <span class="launcher-app-name">
-              ${esc(app.name)}
-            </span>
+                <img
+                  src="${esc(app.logo)}"
+                  alt="${esc(app.name)}"
+                  class="app-logo"
+                  draggable="false"
+                  onerror="
+                    this.style.display='none';
+                    this.nextElementSibling.style.display='flex';
+                  "
+                >
 
-          </button>
+                <span
+                  class="app-icon-fallback"
+                  style="display:none;"
+                  aria-hidden="true"
+                >
+                  ${fallbackIcon}
+                </span>
 
-        `
+              </div>
+
+              <span class="app-name">
+                ${esc(app.name)}
+              </span>
+
+            </button>
+
+          `;
+
+        }
       )
       .join('');
 
