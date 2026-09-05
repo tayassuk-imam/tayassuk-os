@@ -5795,3 +5795,56 @@ if (
   });
 
 })();
+/* ===== FIX DOCK ICONS ONLY ===== */
+
+(function () {
+
+  function fixDockIcons() {
+
+    const dock = document.querySelector('#dock');
+
+    if (!dock) return;
+
+    const dockItems = dock.querySelectorAll('.dock-item');
+
+    dockItems.forEach(function (item) {
+
+      const appId = item.dataset.app;
+
+      const app = apps.find(function (a) {
+        return a.id === appId;
+      });
+
+      if (!app || !app.logo) return;
+
+      const img = item.querySelector('img');
+
+      if (!img) return;
+
+      img.src = app.logo;
+      img.alt = app.name;
+
+      img.style.width = '42px';
+      img.style.height = '42px';
+      img.style.objectFit = 'contain';
+      img.style.display = 'block';
+
+    });
+
+  }
+
+  if (document.readyState === 'loading') {
+
+    document.addEventListener(
+      'DOMContentLoaded',
+      fixDockIcons
+    );
+
+  } else {
+
+    fixDockIcons();
+
+  }
+
+})();
+
