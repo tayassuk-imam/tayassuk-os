@@ -1,17 +1,16 @@
+import {
+  loadRemotePortfolio,
+  saveRemotePortfolio,
+  uploadCertificate,
+  signIn,
+  signOut,
+  getSession
+} from './content/portfolio-store.js';
 import { ownerProfile as fallbackOwner } from './content/owner-profile.js';
 import { projects as fallbackProjects } from './content/projects.js';
 import { education as fallbackEducation } from './content/education.js';
 import { skillGroups as fallbackSkills } from './content/skills.js';
 import { achievements as fallbackAchievements } from './content/achievements.js';
-
-import {
-  loadRemotePortfolio,
-  saveRemotePortfolio,
-  signIn,
-  signOut,
-  getSession
-} from './content/portfolio-store.js';
-
 
 /* =========================================================
    PORTFOLIO DATA
