@@ -411,21 +411,7 @@ function renderIdentity() {
   }
 
 
-  const image =
-    document.querySelector(
-      '#hero-portrait'
-    );
-
-
-  if (image) {
-
-    image.src =
-      identity.generatedAvatar ||
-      identity.portrait ||
-      './assets/avatar/tayassuk-generated-avatar.png';
-
-  }
-
+  
 
   const cv =
     document.querySelector(
