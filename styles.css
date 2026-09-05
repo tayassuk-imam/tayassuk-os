@@ -5438,3 +5438,26 @@ body {
   visibility: visible !important;
   opacity: 1 !important;
 }
+/* Certificate Button */
+.certificate-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 12px;
+  padding: 8px 14px;
+  border: 1px solid rgba(80, 180, 255, 0.45);
+  border-radius: 8px;
+  background: rgba(40, 120, 200, 0.15);
+  color: #7dd3fc;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: 0.2s ease;
+}
+
+.certificate-button:hover {
+  background: rgba(40, 120, 200, 0.3);
+  border-color: rgba(80, 180, 255, 0.8);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
