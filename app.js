@@ -7644,5 +7644,48 @@ if (
     'DOMContentLoaded',
     forceDockPNGIcons
   );
+/* =========================================================
+   DRAGGABLE PORTRAIT
+   ========================================================= */
 
+const draggablePortrait =
+  document.querySelector('#hero-portrait');
+
+if (draggablePortrait) {
+  let isDragging = false;
+  let offsetX = 0;
+  let offsetY = 0;
+
+  draggablePortrait.style.position = 'fixed';
+  draggablePortrait.style.zIndex = '9999';
+  draggablePortrait.style.cursor = 'grab';
+
+  draggablePortrait.addEventListener('pointerdown', (event) => {
+    isDragging = true;
+
+    const rect =
+      draggablePortrait.getBoundingClientRect();
+
+    offsetX = event.clientX - rect.left;
+    offsetY = event.clientY - rect.top;
+
+    draggablePortrait.style.cursor = 'grabbing';
+    draggablePortrait.setPointerCapture(event.pointerId);
+  });
+
+  draggablePortrait.addEventListener('pointermove', (event) => {
+    if (!isDragging) return;
+
+    draggablePortrait.style.left =
+      `${event.clientX - offsetX}px`;
+
+    draggablePortrait.style.top =
+      `${event.clientY - offsetY}px`;
+  });
+
+  draggablePortrait.addEventListener('pointerup', () => {
+    isDragging = false;
+    draggablePortrait.style.cursor = 'grab';
+  });
+}
 })();
