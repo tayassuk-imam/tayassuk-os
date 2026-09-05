@@ -5353,3 +5353,60 @@ body {
   }
 
 }
+/* =========================================================
+   FIX BROKEN SETTINGS / TRASH ICONS
+   ========================================================= */
+
+.app-icon-wrap {
+  width: 56px;
+  height: 56px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin: 0 auto 10px;
+
+  position: relative;
+}
+
+
+.app-icon-wrap .app-logo {
+  width: 56px;
+  height: 56px;
+
+  display: block;
+
+  object-fit: contain;
+}
+
+
+.app-icon-fallback {
+  width: 56px;
+  height: 56px;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 14px;
+
+  background: rgba(20, 45, 70, 0.9);
+
+  border: 1px solid rgba(80, 180, 240, 0.35);
+
+  font-size: 28px;
+  line-height: 1;
+}
+
+
+.app-name {
+  display: block;
+
+  max-width: 100px;
+
+  text-align: center;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
