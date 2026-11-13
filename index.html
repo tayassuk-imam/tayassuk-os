@@ -159,11 +159,11 @@
 <script>
 (function(){const boot=document.getElementById('boot-screen'),skip=document.getElementById('skip-boot');if(!boot||!skip)return;let done=false;window.__finishTayassukBoot=function(){if(done)return;done=true;boot.classList.add('hide');try{sessionStorage.setItem('tayassuk-os-boot-seen','1')}catch(e){}setTimeout(()=>boot.remove(),420)};skip.addEventListener('click',window.__finishTayassukBoot);setTimeout(window.__finishTayassukBoot,6500)})();
 </script>
-<script type="module" src="./app.js"></script>
-<script src="./music.js" defer></script>
+<script type="module" src="./app.js?v=20261114-fix2"></script>
+<script src="./music.js?v=20261114-fix2" defer></script>
 <script src="./companion-drag.js" defer></script>
 <script src="./notes-sync.js" defer></script>
 <script type="module" src="./project-modal.js"></script>
-<script type="module" src="./skills-tabs.js"></script>
+<script type="module" src="./skills-tabs.js?v=20261114-final"></script>
 </body>
 </html>

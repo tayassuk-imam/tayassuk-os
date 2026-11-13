@@ -1,44 +1,72 @@
-/* Dashboard Skills card: working category tabs */
+/* Tayassuk OS — dashboard Skills tabs. Uses the editable source data. */
 import { skillCategories } from './content/skill-categories.js';
 
-const card = document.querySelector('.skills-card-mini');
-if (card) {
-  const tabsEl = card.querySelector('.skill-tabs');
-  const first = card.querySelector('.skill-mini');
-  const rows = document.createElement('div');
-  rows.className = 'skill-rows';
-  card.querySelectorAll('.skill-mini').forEach(n => n.remove());
-  tabsEl.insertAdjacentElement('afterend', rows);
+(function () {
+  'use strict';
 
-  tabsEl.innerHTML = skillCategories.map((c, i) =>
-    `<button type="button" role="tab" class="skill-tab${i ? '' : ' active'}" data-cat="${c.id}" aria-selected="${i ? 'false' : 'true'}">${c.label}</button>`).join('');
-  tabsEl.setAttribute('role', 'tablist');
+  var categories = skillCategories;
 
-  const esc = v => String(v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  function show(id, animate) {
-    const cat = skillCategories.find(c => c.id === id) || skillCategories[0];
-    tabsEl.querySelectorAll('.skill-tab').forEach(b => {
-      const on = b.dataset.cat === cat.id;
-      b.classList.toggle('active', on); b.setAttribute('aria-selected', on ? 'true' : 'false');
+  function escapeHTML(value) {
+    return String(value).replace(/[&<>"']/g, function (ch) {
+      return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch];
     });
-    const paint = () => {
-      rows.innerHTML = cat.items.map(s =>
-        `<div class="skill-mini"><span>${esc(s.name)}</span><div class="progress-track"><span style="width:0%" data-w="${s.level}"></span></div></div>`).join('');
-      rows.classList.remove('is-out');
-      requestAnimationFrame(() => requestAnimationFrame(() =>
-        rows.querySelectorAll('[data-w]').forEach(b => { b.style.width = b.dataset.w + '%'; })));
-    };
-    if (!animate) return paint();
-    rows.classList.add('is-out');
-    setTimeout(paint, 160);
   }
-  show(skillCategories[0].id, false);
 
-  /* Capture phase so the card's "open Skills window" handler doesn't fire for tab clicks */
-  card.addEventListener('click', e => {
-    const b = e.target.closest('.skill-tab');
-    if (!b) return;
-    e.stopImmediatePropagation(); e.preventDefault();
-    if (!b.classList.contains('active')) show(b.dataset.cat, true);
-  }, true);
-}
+  function initSkillsTabs() {
+    var card = document.querySelector('.skills-card-mini');
+    if (!card || card.dataset.skillsTabsReady === 'true') return;
+
+    var tabs = card.querySelector('.skill-tabs');
+    if (!tabs) return;
+    card.dataset.skillsTabsReady = 'true';
+
+    card.querySelectorAll('.skill-mini').forEach(function (node) { node.remove(); });
+
+    var rows = document.createElement('div');
+    rows.className = 'skill-rows';
+    rows.setAttribute('aria-live', 'polite');
+    tabs.insertAdjacentElement('afterend', rows);
+
+    tabs.innerHTML = categories.map(function (category, index) {
+      return '<button type="button" role="tab" class="skill-tab' + (index === 0 ? ' active' : '') + '"' +
+        ' data-cat="' + category.id + '" aria-selected="' + (index === 0 ? 'true' : 'false') + '">' +
+        escapeHTML(category.label) + '</button>';
+    }).join('');
+    tabs.setAttribute('role', 'tablist');
+
+    function showCategory(id) {
+      var category = categories.find(function (item) { return item.id === id; }) || categories[0];
+      tabs.querySelectorAll('.skill-tab').forEach(function (button) {
+        var active = button.dataset.cat === category.id;
+        button.classList.toggle('active', active);
+        button.setAttribute('aria-selected', active ? 'true' : 'false');
+      });
+      rows.innerHTML = category.items.map(function (skill) {
+        var level = Math.max(0, Math.min(100, Number(skill.level) || 0));
+        return '<div class="skill-mini"><span>' + escapeHTML(skill.name) +
+          '</span><div class="progress-track"><span data-w="' + level + '" style="width:0%"></span></div></div>';
+      }).join('');
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          rows.querySelectorAll('[data-w]').forEach(function (bar) { bar.style.width = bar.dataset.w + '%'; });
+        });
+      });
+    }
+
+    tabs.addEventListener('click', function (event) {
+      var button = event.target.closest('.skill-tab');
+      if (!button || !tabs.contains(button)) return;
+      event.preventDefault();
+      event.stopPropagation();
+      showCategory(button.dataset.cat);
+    });
+
+    showCategory(categories[0].id);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSkillsTabs, { once: true });
+  } else {
+    initSkillsTabs();
+  }
+})();

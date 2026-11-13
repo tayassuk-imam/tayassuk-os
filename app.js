@@ -543,226 +543,108 @@ function renderSocials() {
    CLOCK
    ========================================================= */
 
-function updateClock() {
+let calendarMonthOffset = 0;
 
-  const date =
-    new Date();
-
-
-  const timezone =
-    portfolio.owner?.identity?.timezone ||
-    'Asia/Dhaka';
-
-
-  const dateText =
-    new Intl.DateTimeFormat(
-      'en-BD',
-      {
-        timeZone: timezone,
-        weekday: 'short',
-        month: 'short',
-        day: 'numeric'
-      }
-    ).format(date);
-
-
-  const timeText =
-    new Intl.DateTimeFormat(
-      'en-BD',
-      {
-        timeZone: timezone,
-        hour: 'numeric',
-        minute: '2-digit',
-        second: '2-digit'
-      }
-    ).format(date);
-
-
-  const clock =
-    document.querySelector(
-      '#clock'
-    );
-
-
-  const clockBig =
-    document.querySelector(
-      '#clock-big'
-    );
-
-
-  const clockAmpm =
-    document.querySelector(
-      '#clock-ampm'
-    );
-
-
-  const calendarDate =
-    document.querySelector(
-      '#calendar-date'
-    );
-
-
-  const calendarMonth =
-    document.querySelector(
-      '#calendar-month'
-    );
-
-
-  if (clock) {
-
-    clock.textContent =
-      timeText;
-
-  }
-
-
-  if (clockBig) {
-
-    clockBig.textContent =
-      timeText
-        .split(':')
-        .slice(0, 2)
-        .join(':');
-
-  }
-
-
-  if (clockAmpm) {
-
-    clockAmpm.textContent =
-      timeText.match(
-        /AM|PM/
-      )?.[0] || '';
-
-  }
-
-
-  if (calendarDate) {
-
-    calendarDate.textContent =
-      dateText;
-
-  }
-
-
-  if (calendarMonth) {
-
-    calendarMonth.textContent =
-      new Intl.DateTimeFormat(
-        'en-BD',
-        {
-          timeZone: timezone,
-          month: 'long',
-          year: 'numeric'
-        }
-      ).format(date);
-
-  }
-
-
-  renderCalendar(date);
-
+function getZonedDateParts(date, timezone) {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: timezone,
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    weekday: 'long'
+  }).formatToParts(date);
+  const values = Object.fromEntries(parts.map(part => [part.type, part.value]));
+  return {
+    year: Number(values.year),
+    month: Number(values.month) - 1,
+    day: Number(values.day),
+    weekday: values.weekday
+  };
 }
 
+function updateClock() {
+  const now = new Date();
+  const timezone = portfolio.owner?.identity?.timezone || 'Asia/Dhaka';
+  const dateParts = getZonedDateParts(now, timezone);
+  const timeParts = Object.fromEntries(
+    new Intl.DateTimeFormat('en-US', {
+      timeZone: timezone,
+      hour: 'numeric',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    }).formatToParts(now).map(part => [part.type, part.value])
+  );
 
-function renderCalendar(date) {
+  const clock = document.querySelector('#clock');
+  const clockBig = document.querySelector('#clock-big');
+  const clockAmpm = document.querySelector('#clock-ampm');
+  const calendarDate = document.querySelector('#calendar-date');
+  const calendarMonth = document.querySelector('#calendar-month');
 
-  const grid =
-    document.querySelector(
-      '#calendar-grid'
-    );
+  const hour = timeParts.hour || '12';
+  const minute = timeParts.minute || '00';
+  const second = timeParts.second || '00';
+  const dayPeriod = (timeParts.dayPeriod || '').toUpperCase();
 
+  if (clock) clock.textContent = `${hour}:${minute}:${second} ${dayPeriod}`.trim();
+  if (clockBig) clockBig.textContent = `${hour}:${minute}`;
+  if (clockAmpm) clockAmpm.textContent = dayPeriod;
+  if (calendarDate) {
+    calendarDate.textContent = new Intl.DateTimeFormat('en-US', {
+      timeZone: timezone,
+      weekday: 'long',
+      month: 'short',
+      day: 'numeric'
+    }).format(now);
+  }
 
+  const viewDate = new Date(Date.UTC(dateParts.year, dateParts.month + calendarMonthOffset, 1));
+  const viewYear = viewDate.getUTCFullYear();
+  const viewMonth = viewDate.getUTCMonth();
+  if (calendarMonth) {
+    calendarMonth.textContent = new Intl.DateTimeFormat('en-US', {
+      month: 'long',
+      year: 'numeric',
+      timeZone: 'UTC'
+    }).format(viewDate);
+  }
+  renderCalendar(viewYear, viewMonth, dateParts);
+}
+
+function renderCalendar(year, month, today) {
+  const grid = document.querySelector('#calendar-grid');
   if (!grid) return;
 
+  const firstDay = new Date(Date.UTC(year, month, 1)).getUTCDay();
+  const days = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+  const mondayStart = (firstDay + 6) % 7;
+  const weekdays = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
 
-  const year =
-    date.getFullYear();
+  let html = weekdays.map(day => `<span class="weekday">${day}</span>`).join('');
+  for (let i = 0; i < mondayStart; i++) html += '<span aria-hidden="true"></span>';
 
-
-  const month =
-    date.getMonth();
-
-
-  const firstDay =
-    new Date(
-      year,
-      month,
-      1
-    );
-
-
-  const days =
-    new Date(
-      year,
-      month + 1,
-      0
-    ).getDate();
-
-
-  const start =
-    (
-      firstDay.getDay() +
-      6
-    ) % 7;
-
-
-  let html = [
-
-    'Mo',
-    'Tu',
-    'We',
-    'Th',
-    'Fr',
-    'Sa',
-    'Su'
-
-  ]
-    .map(
-      day =>
-        `<span class="weekday">${day}</span>`
-    )
-    .join('');
-
-
-  for (
-    let i = 0;
-    i < start;
-    i++
-  ) {
-
-    html +=
-      '<span></span>';
-
+  for (let day = 1; day <= days; day++) {
+    const isToday = today && year === today.year && month === today.month && day === today.day;
+    html += `<span class="day${isToday ? ' today' : ''}"${isToday ? ' aria-current="date"' : ''}>${day}</span>`;
   }
-
-
-  for (
-    let day = 1;
-    day <= days;
-    day++
-  ) {
-
-    html += `
-      <span
-        class="day ${
-          day === date.getDate()
-            ? 'today'
-            : ''
-        }"
-      >
-        ${day}
-      </span>
-    `;
-
-  }
-
-
-  grid.innerHTML =
-    html;
-
+  grid.innerHTML = html;
 }
 
+const calendarNextButton = document.querySelector('#calendar-next');
+if (calendarNextButton) {
+  calendarNextButton.setAttribute('role', 'button');
+  calendarNextButton.setAttribute('tabindex', '0');
+  calendarNextButton.setAttribute('aria-label', 'Show next month');
+  const nextMonth = () => { calendarMonthOffset += 1; updateClock(); };
+  calendarNextButton.addEventListener('click', nextMonth);
+  calendarNextButton.addEventListener('keydown', event => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      nextMonth();
+    }
+  });
+}
 
 updateClock();
 
@@ -6461,19 +6343,22 @@ async function refreshPortfolio() {
    ========================================================= */
 
 function renderAll() {
+  const renderSteps = [
+    ['application launcher', renderAppGrid],
+    ['identity', renderIdentity],
+    ['calendar and clock', updateClock],
+    ['dashboard', renderDashboard],
+    ['application dock', renderDock],
+    ['companion', renderCompanion]
+  ];
 
-  renderAppGrid();
-
-  renderIdentity();
-
-  updateClock();
-
-  renderDashboard();
-
-  renderDock();
-
-  renderCompanion();
-
+  renderSteps.forEach(([name, render]) => {
+    try {
+      render();
+    } catch (error) {
+      console.error(`Tayassuk OS: ${name} failed to render.`, error);
+    }
+  });
 }
 
 
@@ -6829,36 +6714,22 @@ document.addEventListener(
 
     const themeButton =
       event.target.closest(
-        '[data-theme]'
+        '[data-action="theme"], [data-theme]'
       );
 
-
     if (themeButton) {
+      // Header theme control has data-action="theme"; settings buttons
+      // provide an explicit data-theme value. Support both contracts.
+      const requestedTheme = themeButton.dataset.theme;
+      const theme = requestedTheme === 'dark' || requestedTheme === 'light'
+        ? requestedTheme
+        : (state.theme === 'dark' ? 'light' : 'dark');
 
-      const theme =
-        themeButton.dataset.theme;
+      state.theme = theme;
+      document.documentElement.dataset.theme = theme;
+      localStorage.setItem('tayassuk-os-theme-v2', theme);
 
-
-      if (
-        theme === 'dark' ||
-        theme === 'light'
-      ) {
-
-        state.theme =
-          theme;
-
-
-        document.documentElement.dataset.theme =
-          theme;
-
-
-        localStorage.setItem(
-          'tayassuk-os-theme-v2',
-          theme
-        );
-
-      }
-
+      return;
     }
 
   }

@@ -34,7 +34,8 @@
     index = (i + TRACKS.length) % TRACKS.length;
     el.title.textContent = TRACKS[index].title;
     el.title.title = TRACKS[index].title;
-    audio.src = TRACKS[index].src;
+    audio.src = new URL(TRACKS[index].src, document.baseURI).href;
+    audio.load();
     el.fill.style.width = '0%';
     el.cur.textContent = '0:00';
     el.dur.textContent = '0:00';
@@ -61,6 +62,7 @@
   audio.addEventListener('playing', function () { setStatus('Playing'); });
   audio.addEventListener('pause', function () { if (!audio.ended) { paintPlaying(false); setStatus('Paused'); } });
   audio.addEventListener('waiting', function () { setStatus('Buffering…'); });
+  audio.addEventListener('canplay', function () { if (audio.paused) setStatus('Paused'); });
   audio.addEventListener('loadedmetadata', function () { el.dur.textContent = fmt(audio.duration); });
   audio.addEventListener('durationchange', function () { el.dur.textContent = fmt(audio.duration); });
   audio.addEventListener('timeupdate', function () {
@@ -77,6 +79,7 @@
     failed[index] = true;
     paintPlaying(false);
     setStatus('Track unavailable');
+    console.error('Tayassuk OS music: audio file could not be loaded.', { track: TRACKS[index].src, source: audio.currentSrc, code: audio.error && audio.error.code });
     if (Object.keys(failed).length < TRACKS.length && card.dataset.wantPlay === '1') load(index + 1, true);
   });
 
