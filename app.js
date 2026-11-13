@@ -11,6 +11,7 @@ import { projects as fallbackProjects } from './content/projects.js';
 import { education as fallbackEducation } from './content/education.js';
 import { skillGroups as fallbackSkills } from './content/skills.js';
 import { achievements as fallbackAchievements } from './content/achievements.js';
+import { renderAchievementsGallery, initAchievementsUI } from './achievements-ui.js';
 
 /* =========================================================
    PORTFOLIO DATA
@@ -68,6 +69,7 @@ const fallbackPortfolio = {
 
 
 let portfolio = structuredClone(fallbackPortfolio);
+window.__getPortfolio = () => portfolio;
 
 
 /* =========================================================
@@ -452,12 +454,8 @@ function renderIdentity() {
     );
 
 
-  if (progressBar) {
-
-    progressBar.style.width =
-      `${Math.round(progress)}%`;
-
-  }
+  /* Today's Progress is now calculated from Quick Notes (see notes-sync.js) */
+  void progressBar; void progress;
 
 
   renderSocials();
@@ -1905,12 +1903,24 @@ function openSettingsWindow() {
                 Local Storage
               </h3>
 
-              <p>
-                Whiteboard notes are stored locally on this device.
-              </p>
-
+              <p> Notes, theme and added links are stored on this device only. </p> </div>
+            <div class="settings-actions">
+              <span class="settings-status" data-storage-info></span>
+              <button type="button" class="secondary-action" data-settings-clear>Clear local data</button>
             </div>
+          </section>
 
+          <section class="control-card">
+            <div class="settings-card-icon">▣</div>
+            <div>
+              <h3>Window Controls</h3>
+              <p>Manage all open windows at once.</p>
+            </div>
+            <div class="settings-actions">
+              <button type="button" class="secondary-action" data-settings-windows="minimize">Minimize all</button>
+              <button type="button" class="secondary-action" data-settings-windows="restore">Restore all</button>
+              <button type="button" class="secondary-action" data-settings-windows="close">Close all</button>
+            </div>
           </section>
 
         </div>
@@ -2000,6 +2010,57 @@ function openSettingsWindow() {
     }
   );
 
+
+  const showStorage = () => {
+    const info = node.querySelector('[data-storage-info]');
+    if (!info) return;
+    try {
+      const keys = Object.keys(localStorage).filter(key => key.startsWith('tayassuk-os-'));
+      const bytes = keys.reduce((sum, key) => sum + key.length + (localStorage.getItem(key) || '').length, 0);
+      info.textContent = `${keys.length} items · ${(bytes / 1024).toFixed(1)} KB`;
+    } catch (error) {
+      info.textContent = 'Unavailable';
+    }
+  };
+
+  const markTheme = () => {
+    node.querySelectorAll('[data-settings-theme]').forEach(button => {
+      button.setAttribute('aria-pressed', String(button.dataset.settingsTheme === state.theme));
+    });
+  };
+
+  node.addEventListener('click', event => {
+    const windowButton = event.target.closest('[data-settings-windows]');
+    if (windowButton) {
+      const action = windowButton.dataset.settingsWindows;
+      [...state.windows.keys()]
+        .filter(key => key !== id)
+        .forEach(key => {
+          if (action === 'minimize') minimizeWindow(key);
+          if (action === 'restore' && state.minimizedWindows.has(key)) restoreWindow(key);
+          if (action === 'close') closeWindow(key);
+        });
+      return;
+    }
+
+    if (event.target.closest('[data-settings-clear]')) {
+      if (!confirm('Clear notes, added links and saved settings from this browser?')) return;
+      try {
+        Object.keys(localStorage)
+          .filter(key => key.startsWith('tayassuk-os-'))
+          .forEach(key => localStorage.removeItem(key));
+      } catch (error) {
+        console.warn('Could not clear storage.', error);
+      }
+      showStorage();
+      return;
+    }
+
+    if (event.target.closest('[data-settings-theme]')) markTheme();
+  });
+
+  showStorage();
+  markTheme();
 
   focusWindow(id);
 
@@ -2980,9 +3041,7 @@ function renderEducationWindow() {
 
                         <small class="timeline-year">
                           ${esc(
-                            item.year ||
-                            item.date ||
-                            ''
+                            item.year || item.date || item.status || ''
                           )}
                         </small>
 
@@ -2997,15 +3056,9 @@ function renderEducationWindow() {
 
                         <p>
                           ${esc(
-                            item.institution ||
-                            item.school ||
-                            ''
-                          )}
-                        </p>
-
-                      </div>
-
-                    </article>
+                            item.institution || item.school || '' )} </p>
+                        ${item.details ? `<p class="timeline-details">${esc(item.details)}</p>` : ''}
+                      </div> </article>
 
                   `
                 )
@@ -3204,142 +3257,102 @@ function renderAboutWindow() {
    ========================================================= */
 
 function renderAchievementsWindow() {
-
-  const items =
-    portfolio.achievements ||
-    [];
-
-
-  return `
-
-    <div class="window-page">
-
-      <div class="window-page-heading">
-
-        <span class="eyebrow">
-          Milestones
-        </span>
-
-        <h1>
-          Achievements
-        </h1>
-
-        <p>
-          Activities, experiences and milestones.
-        </p>
-
-      </div>
-
-
-      <div class="achievement-grid">
-
-        ${
-          items.length
-
-            ? items
-          .map(
-  item => {
-
-    const title =
-      typeof item === 'string'
-        ? item
-        : (
-            item.title ||
-            item.name ||
-            'Achievement'
-          );
-
-    const description =
-      typeof item === 'string'
-        ? ''
-        : (
-            item.description ||
-            item.detail ||
-            ''
-          );
-
-    const certificate =
-      typeof item === 'string'
-        ? ''
-        : (
-            item.certificate ||
-            ''
-          );
-
-    return `
-
-      <article class="achievement-card">
-
-        <div class="achievement-icon">
-          ✦
-        </div>
-
-        <div>
-
-          <h3>
-            ${esc(title)}
-          </h3>
-
-          ${
-            description
-              ? `
-                <p>
-                  ${esc(description)}
-                </p>
-              `
-              : ''
-          }
-
-          ${
-            certificate
-              ? `
-                <a
-                  href="${esc(certificate)}"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="certificate-button"
-                >
-                  View Certificate
-                </a>
-              `
-              : ''
-          }
-
-        </div>
-
-      </article>
-
-    `;
-
-  }
-)
-.join('')
-
-            : `
-
-              <div class="empty-state">
-
-                <div class="empty-icon">
-                  ✦
-                </div>
-
-                <h2>
-                  No achievements yet
-                </h2>
-
-              </div>
-
-            `
-        }
-
-      </div>
-
-    </div>
-
-  `;
-
+  initAchievementsUI();
+  return renderAchievementsGallery(portfolio.achievements || []);
 }
 
+
+
+/* =========================================================
+   CONTACT — CUSTOM LINKS (+ Add Link)
+   ========================================================= */
+
+const CUSTOM_LINKS_KEY = 'tayassuk-os-custom-links';
+
+function readCustomLinks() {
+  try {
+    const list = JSON.parse(localStorage.getItem(CUSTOM_LINKS_KEY) || '[]');
+    return Array.isArray(list) ? list : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function writeCustomLinks(list) {
+  try {
+    localStorage.setItem(CUSTOM_LINKS_KEY, JSON.stringify(list));
+  } catch (error) {
+    console.warn('Could not save links.', error);
+  }
+}
+
+function customLinksHtml() {
+  return readCustomLinks()
+    .map((link, index) => `
+      <div class="contact-item-row">
+        <a href="${esc(safeUrl(link.url))}" target="_blank" rel="noreferrer noopener" class="contact-item">
+          <span class="contact-item-icon">↗</span>
+          <div>
+            <span>Link</span>
+            <strong>${esc(link.label)}</strong>
+          </div>
+          <span class="contact-arrow">↗</span>
+        </a>
+        <button type="button" class="secondary-action" data-contact-remove="${index}" aria-label="Remove ${esc(link.label)}">Remove</button>
+      </div>
+    `)
+    .join('');
+}
+
+document.addEventListener('click', event => {
+  const root = event.target.closest('.contact-add-root');
+  if (!root) return;
+
+  const extra = root.querySelector('.contact-extra');
+  const form = root.querySelector('.contact-add-form');
+  const message = root.querySelector('.contact-add-message');
+
+  if (event.target.closest('[data-contact-add-toggle]')) {
+    form.hidden = !form.hidden;
+    return;
+  }
+
+  const removeButton = event.target.closest('[data-contact-remove]');
+  if (removeButton) {
+    const list = readCustomLinks();
+    list.splice(Number(removeButton.dataset.contactRemove), 1);
+    writeCustomLinks(list);
+    extra.innerHTML = customLinksHtml();
+    return;
+  }
+
+  if (event.target.closest('[data-contact-add-save]')) {
+    const label = form.querySelector('[name="label"]').value.trim();
+    const raw = form.querySelector('[name="url"]').value.trim();
+    const url = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+
+    let valid = false;
+    try {
+      valid = Boolean(label) && Boolean(raw) && /^https?:$/.test(new URL(url).protocol);
+    } catch (error) {
+      valid = false;
+    }
+
+    if (!valid) {
+      message.textContent = 'Enter a name and a valid link.';
+      return;
+    }
+
+    const list = readCustomLinks();
+    list.push({ label, url });
+    writeCustomLinks(list);
+    extra.innerHTML = customLinksHtml();
+    form.querySelector('[name="label"]').value = '';
+    form.querySelector('[name="url"]').value = '';
+    message.textContent = '';
+    form.hidden = true;
+  }
+});
 
 /* =========================================================
    CONTACT WINDOW
@@ -3500,13 +3513,21 @@ function renderContactWindow() {
 
       </div>
 
+      <div class="contact-add-root">
+        <div class="contact-list contact-extra">${customLinksHtml()}</div>
+        <div class="settings-actions">
+          <button type="button" class="secondary-action" data-contact-add-toggle>+ Add Link</button>
+        </div>
+        <div class="contact-add-form" hidden>
+          <input type="text" name="label" placeholder="Name (e.g. Facebook)" maxlength="40" autocomplete="off">
+          <input type="text" name="url" placeholder="https://..." maxlength="300" autocomplete="off">
+          <button type="button" class="secondary-action" data-contact-add-save>Save</button>
+          <small class="contact-add-message" aria-live="polite"></small>
+        </div>
+      </div>
     </div>
-
   `;
-
 }
-
-
 /* =========================================================
    WHITEBOARD WINDOW
    ========================================================= */

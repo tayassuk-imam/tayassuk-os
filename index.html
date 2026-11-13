@@ -40,7 +40,6 @@
     <aside class="launcher-panel" aria-label="Applications">
       <div class="launcher-title">APPS</div>
       <div id="app-grid" class="launcher-grid"></div>
-      <div class="launcher-trash"><span class="app-icon mini icon-trash"></span><span>Trash</span></div>
     </aside>
 
     <section class="hero-area">
@@ -65,7 +64,7 @@
       <section class="glass-card status-card">
         <div class="card-head"><span class="status-dot"></span><span>System Status</span><button data-action="open" data-app="control" class="closeish">×</button></div>
         <div class="status-main"><span>Online & Learning</span><strong>Today's Progress</strong></div>
-        <div class="progress-track"><span id="hero-progress" style="width:72%"></span></div>
+        <div class="progress-line"><div class="progress-track"><span id="hero-progress" style="width:0%"></span></div><b id="hero-progress-pct" class="progress-pct" aria-live="polite">0%</b><small id="hero-progress-count" class="progress-count">0/0</small></div>
         <div class="progress-row"><span>Core growth</span><strong>Learning Mode</strong></div>
         <div class="motto">⚡ “Discipline turns dreams into reality.”</div>
       </section>
@@ -77,10 +76,23 @@
         <div id="calendar-date" class="date-caption">Friday, Sep 4</div>
       </section>
 
-      <section class="glass-card music-card">
-        <div class="music-thumb"></div>
-        <div class="music-copy"><strong>Lo-Fi Coding</strong><span>Focus Mode</span><div class="music-progress"><span></span></div></div>
-        <div class="music-controls"><button aria-label="Previous">◀</button><button aria-label="Pause">Ⅱ</button><button aria-label="Next">▶</button></div>
+      <section class="glass-card music-card" id="music-player">
+        <div class="music-thumb" id="music-thumb"><span class="music-eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span></div>
+        <div class="music-copy">
+          <strong id="music-title">Lo-Fi Coding</strong>
+          <span id="music-status">Lo-Fi Coding · Paused</span>
+          <div class="music-progress" id="music-progress" role="slider" tabindex="0" aria-label="Seek" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="music-progress-fill"></span></div>
+          <div class="music-times"><em id="music-current">0:00</em><em id="music-duration">0:00</em></div>
+        </div>
+        <div class="music-controls">
+          <div class="music-buttons">
+            <button type="button" id="music-prev" aria-label="Previous track" title="Previous"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M6 6h2v12H6zM9.5 12 18 6v12z"/></svg></button>
+            <button type="button" id="music-play" class="music-play" aria-label="Play" title="Play"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></button>
+            <button type="button" id="music-next" aria-label="Next track" title="Next"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M16 6h2v12h-2zM6 18V6l8.5 6z"/></svg></button>
+          </div>
+          <input type="range" id="music-volume" min="0" max="100" value="70" aria-label="Volume" title="Volume">
+        </div>
+        <audio id="music-audio" preload="metadata"></audio>
       </section>
     </aside>
 
@@ -113,7 +125,7 @@
     </section>
 
     <section class="bottom-widgets">
-      <article class="note-widget yellow"><span>Quick Notes</span><ul><li class="done">Finish SE-223 project</li><li class="done">Practice DSA problems</li><li>Work on next project</li><li>Learn React</li></ul></article>
+      <article class="note-widget yellow" id="quick-notes"><span>Quick Notes</span><em class="qn-count" id="qn-count"></em><ul class="qn-list" id="quick-notes-list"></ul></article>
       <article class="note-widget"><span>Next Goals</span><ul class="goals"><li>Complete 5 major projects</li><li>Get an internship</li><li>Improve problem solving</li><li>Build a strong portfolio</li></ul></article>
       <article class="note-widget quote-panel"><div class="quote-mark">“</div><p>Keep learning.<br/>Keep building.<br/>Keep growing.</p><small>— Tayassuk Imam</small></article>
       <article class="note-widget activity-panel"><span>Recent Activity</span><ul><li><i></i>Updated Garage Management System</li><li><i></i>Learned MySQL Joins</li><li><i></i>Practiced DSA (Arrays)</li><li><i></i>Designed Portfolio UI</li></ul></article>
@@ -123,20 +135,7 @@
     <div id="command-palette" class="overlay hidden" aria-hidden="true"></div>
   </main>
 
-  <footer class="dock" aria-label="Application dock">
-    <button data-action="open" data-app="about" class="dock-item"><span class="dock-icon icon-user"></span></button>
-    <button data-action="open" data-app="projects" class="dock-item"><span class="dock-icon icon-folder"></span></button>
-    <button data-action="open" data-app="learning" class="dock-item"><span class="dock-icon icon-layers"></span></button>
-    <button data-action="open" data-app="skills" class="dock-item"><span class="dock-icon icon-code"></span></button>
-    <button data-action="open" data-app="education" class="dock-item"><span class="dock-icon icon-cap"></span></button>
-    <button data-action="open" data-app="journey" class="dock-item"><span class="dock-icon icon-route"></span></button>
-    <button data-action="open" data-app="achievements" class="dock-item"><span class="dock-icon icon-trophy"></span></button>
-    <button data-action="open" data-app="resume" class="dock-item"><span class="dock-icon icon-file"></span></button>
-    <button data-action="open" data-app="contact" class="dock-item"><span class="dock-icon icon-mail"></span></button>
-    <button data-action="open" data-app="whiteboard" class="dock-item"><span class="dock-icon icon-note"></span></button>
-    <button data-action="open" data-app="founder" class="dock-item"><span class="dock-icon icon-terminal"></span></button>
-    <button data-action="open" data-app="control" class="dock-item"><span class="dock-icon icon-lock"></span></button>
-  </footer>
+  <footer id="dock" class="dock" aria-label="Application dock"></footer>
 
   <div id="companion" class="companion" aria-label="Tayassuk OS companion">
     <div class="companion-bubble">Let's build<br/><strong>something amazing!</strong></div>
@@ -145,9 +144,12 @@
   </div>
 
   <div id="boot-screen" class="boot-screen">
+    <div class="boot-bg" aria-hidden="true">
+      <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+    </div>
     <div class="boot-card">
-      <div class="boot-mark"><span class="status-dot"></span> Tayassuk OS</div>
-      <div class="boot-title">Initializing personal workspace…</div>
+      <div class="boot-mark"><span class="status-dot"></span><span class="boot-name">Tayassuk OS</span></div>
+      <div class="boot-title"><span class="boot-typing">Initializing personal workspace…</span></div>
       <div class="boot-sub">Projects · Learning · Skills · Journey · Contact</div>
       <div class="boot-progress"><span id="boot-progress-bar"></span></div>
       <button id="skip-boot" type="button">Skip boot</button>
@@ -158,5 +160,10 @@
 (function(){const boot=document.getElementById('boot-screen'),skip=document.getElementById('skip-boot');if(!boot||!skip)return;let done=false;window.__finishTayassukBoot=function(){if(done)return;done=true;boot.classList.add('hide');try{sessionStorage.setItem('tayassuk-os-boot-seen','1')}catch(e){}setTimeout(()=>boot.remove(),420)};skip.addEventListener('click',window.__finishTayassukBoot);setTimeout(window.__finishTayassukBoot,6500)})();
 </script>
 <script type="module" src="./app.js"></script>
+<script src="./music.js" defer></script>
+<script src="./companion-drag.js" defer></script>
+<script src="./notes-sync.js" defer></script>
+<script type="module" src="./project-modal.js"></script>
+<script type="module" src="./skills-tabs.js"></script>
 </body>
 </html>
