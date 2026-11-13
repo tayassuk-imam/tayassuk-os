@@ -5,3 +5,5 @@ export const achievements = [
   'Participated in CPC (Competitive Programming Contest)',
   'Participated in Take Off DIU Competition'
 ];
+
+export const achievementDetails = [];
