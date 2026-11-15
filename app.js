@@ -4426,31 +4426,21 @@ async function refreshPortfolio() {
 
   try {
 
-    const remote =
-      await loadRemotePortfolio();
+    const result = await loadRemotePortfolio();
+    if (result?.error) throw result.error;
+    // portfolio-store returns { data, updatedAt, error, configured }.
+    // Merge the actual JSONB payload, not the wrapper object.
+    const remote = result?.data ?? result;
 
-
-    if (
-      remote &&
-      typeof remote === 'object'
-    ) {
-
+    if (remote && typeof remote === 'object' && !Array.isArray(remote)) {
       portfolio = {
-
         ...portfolio,
-
         ...remote,
-
         owner: {
-
           ...portfolio.owner,
-
           ...(remote.owner || {})
-
         }
-
       };
-
     }
 
   } catch (error) {
@@ -5308,31 +5298,20 @@ async function initRemoteData() {
 
   try {
 
-    const remote =
-      await loadRemotePortfolio();
+    const result = await loadRemotePortfolio();
+    if (result?.error) throw result.error;
+    // The store wraps the saved portfolio JSON in result.data.
+    const remote = result?.data ?? result;
 
-
-    if (
-      remote &&
-      typeof remote === 'object'
-    ) {
-
+    if (remote && typeof remote === 'object' && !Array.isArray(remote)) {
       portfolio = {
-
         ...portfolio,
-
         ...remote,
-
         owner: {
-
           ...portfolio.owner,
-
           ...(remote.owner || {})
-
         }
-
       };
-
     }
 
   } catch (error) {
