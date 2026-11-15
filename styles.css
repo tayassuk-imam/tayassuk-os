@@ -5879,3 +5879,79 @@ body {
   color: #244664;
   border-color: #c9dced;
 }
+
+/* =========================================================
+   CONTROL CENTER — isolated dashboard styles
+   Only .cc-* components are affected by this block.
+   ========================================================= */
+.cc-shell{min-height:100%;padding:clamp(16px,2.2vw,28px);color:var(--text-primary,#e8f2ff);background:linear-gradient(145deg,rgba(8,18,38,.97),rgba(8,25,48,.94));font-family:inherit}
+.cc-shell *{box-sizing:border-box}
+.cc-topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 0 18px;border-bottom:1px solid rgba(130,185,230,.14)}
+.cc-brand,.cc-login-brand{display:flex;align-items:center;gap:12px}
+.cc-brand-mark{display:grid;place-items:center;width:40px;height:40px;border-radius:13px;color:#e9fbff;font-weight:800;font-size:19px;background:linear-gradient(135deg,#1676d2,#23c4d8);box-shadow:0 8px 26px rgba(20,145,220,.25)}
+.cc-brand strong{display:block;font-size:15px;letter-spacing:.02em}
+.cc-brand small{display:block;margin-top:4px;color:#7e9dbb;font-size:9px;letter-spacing:.16em}
+.cc-top-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap}
+.cc-online{display:flex;align-items:center;gap:7px;color:#9bb6cc;font-size:11px;margin-right:5px}
+.cc-online i{width:7px;height:7px;border-radius:50%;background:#38d99a;box-shadow:0 0 12px #38d99a}
+.cc-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:36px;padding:8px 13px;border:1px solid rgba(133,180,220,.2);border-radius:10px;color:#dceeff;background:rgba(115,160,205,.09);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:transform .18s,border-color .18s,background .18s}
+.cc-button:hover{transform:translateY(-1px);border-color:rgba(80,190,235,.55);background:rgba(45,135,200,.18)}
+.cc-button:disabled{opacity:.55;cursor:wait;transform:none}
+.cc-button-primary{border-color:rgba(55,179,235,.45);color:#fff;background:linear-gradient(110deg,#126fc2,#078fae);box-shadow:0 7px 20px rgba(0,130,190,.18)}
+.cc-button-soft{background:rgba(110,150,190,.08)}
+.cc-button-danger{color:#ffb9c0;border-color:rgba(230,95,115,.24);background:rgba(180,55,75,.1)}
+.cc-welcome{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:24px 0 22px}
+.cc-kicker{display:block;color:#55c6e9;font-size:9px;font-weight:800;letter-spacing:.19em}
+.cc-welcome h1{margin:8px 0 6px;color:#f0f7ff;font-size:clamp(23px,3vw,31px);letter-spacing:-.035em}
+.cc-welcome h1 span{color:#35c4df}
+.cc-welcome p,.cc-editor-head p,.cc-form-heading p{margin:0;color:#91a9c2;font-size:12px;line-height:1.6}
+.cc-summary{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:88px;padding:13px;border:1px solid rgba(78,177,220,.2);border-radius:14px;background:linear-gradient(145deg,rgba(27,116,169,.18),rgba(13,41,67,.25))}
+.cc-summary strong{color:#e7f9ff;font-size:25px}
+.cc-summary span{margin-top:3px;color:#83a9c7;font-size:8px;letter-spacing:.13em}
+.cc-layout{display:grid;grid-template-columns:190px minmax(0,1fr);gap:16px;align-items:start}
+.cc-sidebar{padding:12px;border:1px solid rgba(130,180,220,.13);border-radius:15px;background:rgba(7,20,39,.56)}
+.cc-nav-label{display:block;padding:4px 9px 10px;color:#6486a5;font-size:9px;font-weight:800;letter-spacing:.17em}
+.cc-nav-item{display:flex;align-items:center;gap:10px;width:100%;padding:10px 9px;margin:2px 0;border:1px solid transparent;border-radius:9px;color:#a9bfd3;background:transparent;text-align:left;font-family:inherit;font-size:12px;font-weight:500;cursor:pointer}
+.cc-nav-item:hover{background:rgba(65,139,190,.1);color:#e6f6ff}
+.cc-nav-item.is-active{border-color:rgba(48,178,222,.2);color:#e9faff;background:linear-gradient(100deg,rgba(18,124,185,.26),rgba(23,70,111,.22));box-shadow:inset 2px 0 #36c4e0}
+.cc-nav-icon{display:grid;place-items:center;width:22px;height:22px;border-radius:7px;color:#54c8e8;background:rgba(46,159,205,.12);font-size:13px}
+.cc-nav-item small{margin-left:auto;color:#7697b2;font-size:10px}
+.cc-main{min-width:0}
+.cc-content-panel{min-height:390px;padding:clamp(15px,2vw,22px);border:1px solid rgba(130,180,220,.15);border-radius:15px;background:linear-gradient(145deg,rgba(14,34,58,.82),rgba(8,24,44,.78));box-shadow:0 12px 35px rgba(0,0,0,.12)}
+.cc-editor-head,.cc-form-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:17px}
+.cc-editor-head h2,.cc-form-heading h2{margin:6px 0 5px;color:#edf7ff;font-size:20px;letter-spacing:-.02em}
+.cc-form-heading h3{margin:6px 0 0;color:#edf7ff;font-size:15px}
+.cc-record-list{display:grid;gap:8px;margin-bottom:20px}
+.cc-record{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 13px;border:1px solid rgba(130,180,220,.12);border-radius:11px;background:rgba(5,17,33,.32)}
+.cc-record-copy{min-width:0}
+.cc-record-copy strong{display:block;overflow-wrap:anywhere;color:#e3f1ff;font-size:12px}
+.cc-record-copy small{display:block;margin-top:4px;overflow-wrap:anywhere;color:#829db7;font-size:10px;line-height:1.5}
+.cc-record-actions,.cc-form-buttons{display:flex;gap:7px;flex-shrink:0}
+.cc-record-actions .cc-button{min-height:30px;padding:5px 9px;font-size:10px}
+.cc-form{display:grid;gap:15px}
+.cc-item-form{padding-top:18px;border-top:1px solid rgba(130,180,220,.14)}
+.cc-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.cc-field{display:grid;gap:6px;min-width:0}
+.cc-field>span{color:#9db7cf;font-size:10px;font-weight:700;letter-spacing:.03em}
+.cc-field input,.cc-field textarea,.cc-field select{width:100%;min-width:0;padding:10px 11px;border:1px solid rgba(130,180,220,.2);border-radius:9px;outline:none;color:#e9f5ff;background:rgba(3,14,29,.58);font-family:inherit;font-size:12px;font-weight:400;transition:border-color .18s,box-shadow .18s}
+.cc-field textarea{resize:vertical;line-height:1.55}
+.cc-field input:focus,.cc-field textarea:focus,.cc-field select:focus{border-color:rgba(55,190,230,.7);box-shadow:0 0 0 3px rgba(34,160,205,.12)}
+.cc-field input::placeholder,.cc-field textarea::placeholder{color:#617f9b}
+.cc-field input[type=file]{padding:8px}
+.cc-field small{color:#7894ad;font-size:10px}
+.cc-span-2{grid-column:1/-1}
+.cc-form-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:5px}
+.cc-save-status{min-height:16px;color:#71d7bd;font-size:11px;line-height:1.5}
+.cc-empty{padding:22px 15px;border:1px dashed rgba(130,180,220,.2);border-radius:10px;color:#8ea8c0;text-align:center;font-size:12px}
+.cc-bottom-note{display:flex;align-items:center;gap:8px;padding:13px 3px;color:#6f8ba5;font-size:10px}
+.cc-bottom-note span{color:#4ac2df}
+.cc-full{width:100%;min-height:42px}
+.cc-login-shell{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100%;padding:28px 18px}
+.cc-login-brand{margin-bottom:24px;color:#b8d1e7;font-size:11px;font-weight:800;letter-spacing:.15em}
+.cc-login-card{width:min(100%,390px);padding:28px;border:1px solid rgba(105,180,225,.2);border-radius:18px;background:linear-gradient(145deg,rgba(15,38,64,.94),rgba(7,22,42,.96));box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.cc-login-card h1{margin:8px 0;color:#f0f8ff;font-size:27px;letter-spacing:-.04em}
+.cc-login-card>p{margin:0 0 22px;color:#91abc4;font-size:12px}
+.cc-login-card .cc-form{gap:14px}
+.cc-login-foot{margin-top:18px;color:#6484a0;font-size:8px;letter-spacing:.17em}
+@media(max-width:760px){.cc-shell{padding:14px}.cc-topbar{align-items:flex-start;flex-direction:column}.cc-top-actions{width:100%}.cc-layout{grid-template-columns:1fr}.cc-sidebar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px}.cc-nav-label{grid-column:1/-1}.cc-welcome{padding:18px 0}.cc-summary{min-width:70px}.cc-content-panel{min-height:300px}}
+@media(max-width:480px){.cc-fields{grid-template-columns:1fr}.cc-span-2{grid-column:auto}.cc-record{align-items:flex-start;flex-direction:column}.cc-record-actions{width:100%}.cc-form-footer{align-items:flex-start;flex-direction:column}.cc-form-buttons{width:100%}.cc-form-buttons .cc-button{flex:1}.cc-sidebar{grid-template-columns:1fr 1fr}.cc-online{width:100%}}

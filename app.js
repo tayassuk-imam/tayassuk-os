@@ -3917,2128 +3917,339 @@ function wireWindowActions(body) {
    CONTROL CENTER
    ========================================================= */
 
-function renderControlCenter() {
 
-  const owner = portfolio.owner || {};
-  const identity = owner.identity || {};
-  const contact = owner.contact || {};
-
-  if (!state.adminSession) {
-    return `
-      <div class="window-page control-center-page">
-
-        <div class="window-page-heading">
-          <span class="eyebrow">Private Workspace</span>
-          <h1>Control Center</h1>
-          <p>Sign in to manage your portfolio.</p>
-        </div>
-
-        <div class="admin-status">
-          <span class="status-dot"></span>
-          <span>Visitor mode</span>
-        </div>
-
-        <form class="admin-login-form" id="admin-login-form">
-
-          <div class="login-intro">
-            <div class="login-icon">◈</div>
-
-            <div>
-              <h3>Administrator Access</h3>
-              <p>Sign in to manage your portfolio.</p>
-            </div>
-          </div>
-
-          <label>
-            <span>Email</span>
-            <input
-              type="email"
-              name="email"
-              autocomplete="email"
-              placeholder="admin@example.com"
-              required
-            >
-          </label>
-
-          <label>
-            <span>Password</span>
-            <input
-              type="password"
-              name="password"
-              autocomplete="current-password"
-              placeholder="••••••••"
-              required
-            >
-          </label>
-
-          <button
-            type="submit"
-            class="primary-action"
-          >
-            Sign In
-          </button>
-
-          <p
-            class="form-status"
-            id="admin-login-status"
-          ></p>
-
-        </form>
-
-      </div>
-    `;
-  }
-
-
-  return `
-    <div class="window-page control-center-page">
-
-      <div class="window-page-heading">
-        <span class="eyebrow">Private Workspace</span>
-
-        <h1>Control Center</h1>
-
-        <p>
-          Manage all portfolio content without editing GitHub files.
-        </p>
-      </div>
-
-
-      <div class="admin-status">
-        <span class="status-dot"></span>
-        <span>Admin authenticated</span>
-      </div>
-
-
-      <!-- PROFILE -->
-
-      <section class="control-editor-card">
-
-        <div class="control-editor-header">
-          <div>
-            <span class="eyebrow">PROFILE</span>
-            <h2>Profile Information</h2>
-          </div>
-        </div>
-
-
-        <div class="control-form-grid">
-
-          <label>
-            <span>Full Name</span>
-            <input
-              type="text"
-              id="cms-fullName"
-              value="${esc(identity.fullName || '')}"
-            >
-          </label>
-
-
-          <label>
-            <span>Profession</span>
-            <input
-              type="text"
-              id="cms-profession"
-              value="${esc(identity.profession || '')}"
-            >
-          </label>
-
-
-          <label class="control-form-wide">
-            <span>Headline</span>
-            <input
-              type="text"
-              id="cms-headline"
-              value="${esc(identity.headline || '')}"
-            >
-          </label>
-
-
-          <label>
-            <span>Location</span>
-            <input
-              type="text"
-              id="cms-location"
-              value="${esc(contact.location || '')}"
-            >
-          </label>
-
-
-          <label>
-            <span>Email</span>
-            <input
-              type="email"
-              id="cms-email"
-              value="${esc(contact.email || '')}"
-            >
-          </label>
-
-
-          <label>
-            <span>Phone</span>
-            <input
-              type="text"
-              id="cms-phone"
-              value="${esc(contact.phone || '')}"
-            >
-          </label>
-
-
-          <label>
-            <span>GitHub</span>
-            <input
-              type="url"
-              id="cms-github"
-              value="${esc(contact.github || '')}"
-              placeholder="https://github.com/..."
-            >
-          </label>
-
-
-          <label>
-            <span>LinkedIn</span>
-            <input
-              type="url"
-              id="cms-linkedin"
-              value="${esc(contact.linkedin || '')}"
-              placeholder="https://linkedin.com/in/..."
-            >
-          </label>
-
-
-          <label class="control-form-wide">
-            <span>Bio</span>
-            <textarea
-              id="cms-bio"
-              rows="5"
-            >${esc(identity.bio || owner.bio || '')}</textarea>
-          </label>
-
-        </div>
-
-
-        <div class="control-actions">
-
-          <button
-            type="button"
-            class="primary-action"
-            data-action="cms-save-profile"
-          >
-            Save Profile
-          </button>
-
-          <span
-            class="form-status"
-            id="cms-profile-status"
-          ></span>
-
-        </div>
-
-      </section>
-
-
-      <!-- PROJECTS -->
-
-      <section class="control-editor-card">
-
-        <div class="control-editor-header">
-
-          <div>
-            <span class="eyebrow">PROJECTS</span>
-            <h2>Projects</h2>
-            <p>
-              Add, edit or remove portfolio projects.
-            </p>
-          </div>
-
-          <button
-            type="button"
-            class="primary-action"
-            data-action="cms-add-project"
-          >
-            + Add Project
-          </button>
-
-        </div>
-
-
-        <div id="cms-project-list">
-
-          ${
-            (portfolio.projects || []).length
-              ? portfolio.projects.map((project, index) => `
-                
-                <div class="cms-list-item">
-
-                  <div>
-                    <strong>
-                      ${esc(
-                        project.title ||
-                        project.name ||
-                        `Project ${index + 1}`
-                      )}
-                    </strong>
-
-                    <small>
-                      ${esc(
-                        project.description ||
-                        project.summary ||
-                        ''
-                      )}
-                    </small>
-                  </div>
-
-
-                  <div class="cms-item-actions">
-
-                    <button
-                      type="button"
-                      class="secondary-action"
-                      data-action="cms-edit-project"
-                      data-index="${index}"
-                    >
-                      Edit
-                    </button>
-
-                    <button
-                      type="button"
-                      class="secondary-action"
-                      data-action="cms-delete-project"
-                      data-index="${index}"
-                    >
-                      Delete
-                    </button>
-
-                  </div>
-
-                </div>
-
-              `).join('')
-              : `
-                <div class="cms-empty">
-                  No projects added yet.
-                </div>
-              `
-          }
-
-        </div>
-
-      </section>
-
-
-      <!-- LEARNING -->
-
-      <section class="control-editor-card">
-
-        <div class="control-editor-header">
-
-          <div>
-            <span class="eyebrow">LEARNING</span>
-            <h2>Currently Learning</h2>
-            <p>
-              Manage your current learning topics.
-            </p>
-          </div>
-
-          <button
-            type="button"
-            class="primary-action"
-            data-action="cms-add-learning"
-          >
-            + Add Learning
-          </button>
-
-        </div>
-
-
-        <div id="cms-learning-list">
-
-          ${
-            (owner.learning || []).length
-              ? owner.learning.map((item, index) => `
-                
-                <div class="cms-list-item">
-
-                  <div>
-                    <strong>
-                      ${esc(
-                        item.title ||
-                        item.name ||
-                        item.topic ||
-                        `Learning ${index + 1}`
-                      )}
-                    </strong>
-
-                    <small>
-                      ${esc(
-                        item.description ||
-                        item.status ||
-                        ''
-                      )}
-                    </small>
-                  </div>
-
-
-                  <div class="cms-item-actions">
-
-                    <button
-                      type="button"
-                      class="secondary-action"
-                      data-action="cms-edit-learning"
-                      data-index="${index}"
-                    >
-                      Edit
-                    </button>
-
-                    <button
-                      type="button"
-                      class="secondary-action"
-                      data-action="cms-delete-learning"
-                      data-index="${index}"
-                    >
-                      Delete
-                    </button>
-
-                  </div>
-
-                </div>
-
-              `).join('')
-              : `
-                <div class="cms-empty">
-                  No learning items added yet.
-                </div>
-              `
-          }
-
-        </div>
-
-      </section>
-
-
-      <!-- ALL OTHER CONTENT -->
-
-      <section class="control-editor-card">
-
-        <div class="control-editor-header">
-
-          <div>
-            <span class="eyebrow">PORTFOLIO DATA</span>
-
-            <h2>Other Sections</h2>
-
-            <p>
-              Manage the remaining portfolio sections.
-            </p>
-          </div>
-
-        </div>
-
-
-     <div class="control-grid">
-
-  <div class="control-card">
-    <h3>Skills</h3>
-    <small>Add / Edit / Delete</small>
-    <div class="control-card-actions">
-      <button type="button" data-action="cms-add-section" data-section="skills">Add</button>
-      <button type="button" data-action="cms-edit-section" data-section="skills">Edit</button>
-      <button type="button" data-action="cms-delete-section" data-section="skills">Delete</button>
-    </div>
-  </div>
-
-
-  <div class="control-card">
-    <h3>Education</h3>
-    <small>Add / Edit / Delete</small>
-    <div class="control-card-actions">
-      <button type="button" data-action="cms-add-section" data-section="education">Add</button>
-      <button type="button" data-action="cms-edit-section" data-section="education">Edit</button>
-      <button type="button" data-action="cms-delete-section" data-section="education">Delete</button>
-    </div>
-  </div>
-
-
-  <div class="control-card">
-    <h3>Achievements</h3>
-    <small>Add / Edit / Delete</small>
-    <div class="control-card-actions">
-      <button type="button" data-action="cms-add-section" data-section="achievements">Add</button>
-      <button type="button" data-action="cms-edit-section" data-section="achievements">Edit</button>
-      <button type="button" data-action="cms-delete-section" data-section="achievements">Delete</button>
-    </div>
-  </div>
-
-
-  <div class="control-card">
-    <h3>Journey</h3>
-    <small>Add / Edit / Delete</small>
-    <div class="control-card-actions">
-      <button type="button" data-action="cms-add-section" data-section="journey">Add</button>
-      <button type="button" data-action="cms-edit-section" data-section="journey">Edit</button>
-      <button type="button" data-action="cms-delete-section" data-section="journey">Delete</button>
-    </div>
-  </div>
-
-
-  <div class="control-card">
-    <h3>Quick Notes</h3>
-    <small>Edit content</small>
-    <div class="control-card-actions">
-      <button type="button" data-action="cms-edit-section" data-section="notes">Edit</button>
-    </div>
-  </div>
-
-
-  <div class="control-card">
-    <h3>Next Goals</h3>
-    <small>Edit content</small>
-    <div class="control-card-actions">
-      <button type="button" data-action="cms-edit-section" data-section="goals">Edit</button>
-    </div>
-  </div>
-
-
-  <div class="control-card">
-    <h3>Quote</h3>
-    <small>Edit content</small>
-    <div class="control-card-actions">
-      <button type="button" data-action="cms-edit-section" data-section="quote">Edit</button>
-    </div>
-  </div>
-
-
-  <div class="control-card">
-    <h3>Recent Activity</h3>
-    <small>Add / Edit / Delete</small>
-    <div class="control-card-actions">
-      <button type="button" data-action="cms-add-section" data-section="activity">Add</button>
-      <button type="button" data-action="cms-edit-section" data-section="activity">Edit</button>
-      <button type="button" data-action="cms-delete-section" data-section="activity">Delete</button>
-    </div>
-  </div>
-
-</div>
-
-      <!-- SYSTEM ACTIONS -->
-
-      <div class="control-actions">
-
-        <button
-          type="button"
-          class="secondary-action"
-          data-action="admin-refresh"
-        >
-          ↻ Refresh Data
-        </button>
-
-
-        <button
-          type="button"
-          class="primary-action"
-          data-action="admin-logout"
-        >
-          Sign Out
-        </button>
-
-      </div>
-
-    </div>
-  `;
+let activeCmsSection = 'profile';
+let activeCmsIndex = -1;
+
+const cmsSections = {
+  projects: { title: 'Projects', description: 'Portfolio projects and case studies', fields: [
+    ['name','Project name'],['description','Description','textarea'],['role','Your role'],['status','Status'],
+    ['technologies','Technologies (comma separated)'],['liveUrl','Live URL'],['githubUrl','GitHub URL'],
+    ['image','Image path / URL'],['category','Category'],['dates','Dates'],['problem','Problem','textarea'],
+    ['intervention','What you did','textarea'],['outcome','Outcome','textarea']
+  ]},
+  learning: { title: 'Learning', description: 'Current study topics and progress', fields: [
+    ['name','Topic name'],['status','Status'],['detail','Details','textarea'],['progress','Progress (%)','number']
+  ]},
+  skills: { title: 'Skills', description: 'Skill groups shown in the Skills app', fields: [
+    ['title','Group title'],['items','Skills (comma separated)','textarea']
+  ]},
+  education: { title: 'Education', description: 'Academic records', fields: [
+    ['degree','Degree / qualification'],['institution','Institution'],['status','Year / status'],['details','Details','textarea']
+  ]},
+  achievements: { title: 'Achievements', description: 'Awards, certificates and activities', fields: [
+    ['title','Achievement title'],['description','Description','textarea'],['certificate','Certificate path / URL']
+  ]},
+  journey: { title: 'Journey', description: 'Your learning and career milestones', fields: [
+    ['title','Milestone title'],['detail','Details','textarea']
+  ]},
+  quickNotes: { title: 'Quick Notes', description: 'Notes data stored in the portfolio record', fields: [
+    ['title','Note title'],['detail','Note content','textarea']
+  ]},
+  nextGoals: { title: 'Next Goals', description: 'Goals data stored in the portfolio record', fields: [
+    ['title','Goal title'],['detail','Goal details','textarea'],['status','Status']
+  ]},
+  recentActivity: { title: 'Recent Activity', description: 'Recent activity entries', fields: [
+    ['title','Activity title'],['detail','Details','textarea'],['date','Date']
+  ]}
+};
+
+function cmsArrayFor(section) {
+  if (section === 'learning') return portfolio.owner?.learning || [];
+  if (section === 'quickNotes') return portfolio.quickNotes || portfolio.notes || [];
+  if (section === 'nextGoals') return portfolio.nextGoals || portfolio.goals || [];
+  if (section === 'recentActivity') return portfolio.recentActivity || portfolio.activity || [];
+  return portfolio[section] || [];
 }
 
+function cmsNormalizeItem(section, item) {
+  if (section === 'achievements' && typeof item === 'string') return { title: item, description: '', certificate: '' };
+  if (typeof item === 'string') return { title: item, detail: item };
+  if (section === 'skills') return { title: item.title || item.name || '', items: (item.items || item.skills || []).map(x => typeof x === 'string' ? x : x?.name || '').join(', ') };
+  if (section === 'learning') return { name: item.name || item.title || '', status: item.status || '', detail: item.detail || item.description || '', progress: Number(item.progress) || 0 };
+  return { ...item };
+}
 
-/* =========================================================
-   CONTROL CENTER EVENTS
-   ========================================================= */
+function cmsValue(item, key) {
+  if (key === 'technologies' || key === 'items') {
+    const value = item[key] || (key === 'items' ? item.skills : []);
+    return Array.isArray(value) ? value.join(', ') : String(value || '');
+  }
+  return item[key] ?? '';
+}
+
+function renderCmsEditor() {
+  if (activeCmsSection === 'profile') {
+    const owner = portfolio.owner || {};
+    const identity = owner.identity || {};
+    const contact = owner.contact || {};
+    return `
+      <form class="cc-form" data-cms-form="profile">
+        <div class="cc-form-heading"><div><span class="cc-kicker">IDENTITY & CONTACT</span><h2>Profile information</h2><p>Update the information used across your portfolio.</p></div></div>
+        <div class="cc-fields">
+          ${[
+            ['fullName','Full name',identity.fullName],['profession','Profession',identity.profession],
+            ['headline','Headline',identity.headline],['location','Location',identity.location || contact.location],
+            ['email','Email',contact.email],['phone','Phone',contact.phone],
+            ['github','GitHub URL',contact.github],['linkedin','LinkedIn URL',contact.linkedin],
+            ['cv','CV path / URL',contact.cv]
+          ].map(([key,label,value])=>`<label class="cc-field"><span>${esc(label)}</span><input name="${key}" value="${esc(value || '')}" ${key==='email'?'type="email"':(['github','linkedin','cv'].includes(key)?'type="text"':'type="text')}></label>`).join('')}
+          <label class="cc-field cc-span-2"><span>Bio / About</span><textarea name="bio" rows="5">${esc(identity.bio || owner.about || '')}</textarea></label>
+        </div>
+        <div class="cc-form-footer"><span class="cc-save-status" data-cms-status></span><button class="cc-button cc-button-primary" type="submit">Save profile</button></div>
+      </form>`;
+  }
+
+  const isQuote = activeCmsSection === 'quote';
+  const config = cmsSections[activeCmsSection];
+  if (!config && !isQuote) return '<div class="cc-empty">Select a content section to manage.</div>';
+  const items = isQuote ? [] : cmsArrayFor(activeCmsSection);
+  const editing = activeCmsIndex >= 0 ? items[activeCmsIndex] : null;
+  const normalized = editing !== null ? cmsNormalizeItem(activeCmsSection, editing) : {};
+  return `
+    <div class="cc-editor-head"><div><span class="cc-kicker">CONTENT MANAGER</span><h2>${esc(config.title || 'Quote')}</h2><p>${esc(config.description || 'Edit the featured quote.')}</p></div></div>
+    ${isQuote ? `
+      <form class="cc-form" data-cms-form="quote">
+        <label class="cc-field"><span>Quote text</span><textarea name="quote" rows="5">${esc(portfolio.quote || '')}</textarea></label>
+        <div class="cc-form-footer"><span class="cc-save-status" data-cms-status></span><button class="cc-button cc-button-primary" type="submit">Save quote</button></div>
+      </form>` : `
+      <div class="cc-record-list">
+        ${items.length ? items.map((item,index)=> {
+          const label = typeof item === 'string' ? item : (item.title || item.name || item.degree || item.institution || `Item ${index+1}`);
+          const sub = typeof item === 'string' ? '' : (item.description || item.detail || item.status || item.details || '');
+          return `<div class="cc-record"><div class="cc-record-copy"><strong>${esc(label)}</strong><small>${esc(sub)}</small></div><div class="cc-record-actions"><button class="cc-button cc-button-soft" data-cms-edit="${index}">Edit</button><button class="cc-button cc-button-danger" data-cms-delete="${index}">Delete</button></div></div>`;
+        }).join('') : '<div class="cc-empty">No records yet. Add your first item.</div>'}
+      </div>
+      <form class="cc-form cc-item-form" data-cms-form="item">
+        <div class="cc-form-heading"><div><span class="cc-kicker">${editing ? 'EDIT RECORD' : 'NEW RECORD'}</span><h3>${editing ? 'Update item' : 'Add item'}</h3></div></div>
+        <div class="cc-fields">
+          ${config.fields.map(([key,label,type])=>`<label class="cc-field ${type==='textarea'?'cc-span-2':''}"><span>${esc(label)}</span>${type==='textarea'?`<textarea name="${key}" rows="3">${esc(cmsValue(normalized,key))}</textarea>`:`<input name="${key}" type="${type==='number'?'number':'text'}" ${type==='number'?'min="0" max="100"':''} value="${esc(cmsValue(normalized,key))}">`}</label>`).join('')}
+          ${activeCmsSection==='achievements'?'<label class="cc-field cc-span-2"><span>Upload certificate (optional)</span><input name="certificateFile" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp"><small>Existing certificate path is kept unless you upload a new file.</small></label>':''}
+          ${activeCmsSection==='projects'?'<label class="cc-field"><span>Featured project</span><select name="featured"><option value="false">No</option><option value="true" '+(normalized.featured?'selected':'')+'>Yes</option></select></label>':''}
+        </div>
+        <div class="cc-form-footer"><span class="cc-save-status" data-cms-status></span><div class="cc-form-buttons"><button type="button" class="cc-button cc-button-soft" data-cms-cancel>Cancel</button><button class="cc-button cc-button-primary" type="submit">${editing?'Save changes':'Add item'}</button></div></div>
+      </form>`}`;
+}
+
+function renderControlCenter() {
+  if (!state.adminSession) {
+    return `<div class="cc-shell cc-login-shell">
+      <div class="cc-login-brand"><span class="cc-brand-mark">T</span><span>TAYASSUK <b>OS</b></span></div>
+      <div class="cc-login-card"><span class="cc-kicker">PRIVATE WORKSPACE</span><h1>Control Center</h1><p>Sign in to manage your portfolio content.</p>
+        <form id="admin-login-form" class="cc-form">
+          <label class="cc-field"><span>Admin email</span><input type="email" name="email" autocomplete="username" placeholder="admin@example.com" required></label>
+          <label class="cc-field"><span>Password</span><input type="password" name="password" autocomplete="current-password" placeholder="Your password" required></label>
+          <button class="cc-button cc-button-primary cc-full" type="submit">Sign in <span>→</span></button>
+          <p id="admin-login-status" class="cc-save-status" role="status"></p>
+        </form>
+      </div><p class="cc-login-foot">SECURE ADMIN ACCESS · TAYASSUK OS</p>
+    </div>`;
+  }
+
+  const sections = [
+    ['profile','◉','Profile'],['projects','▣','Projects'],['learning','⌁','Learning'],
+    ['skills','✳','Skills'],['education','▤','Education'],['achievements','✦','Achievements'],
+    ['journey','↗','Journey'],['quickNotes','☷','Quick Notes'],['nextGoals','◎','Next Goals'],
+    ['quote','❝','Quote'],['recentActivity','◷','Recent Activity']
+  ];
+  const counts = Object.fromEntries(sections.map(([id])=>[id,id==='profile'?1:(id==='quote'?(portfolio.quote?1:0):cmsArrayFor(id).length)]));
+  return `<div class="cc-shell">
+    <header class="cc-topbar"><div class="cc-brand"><span class="cc-brand-mark">T</span><div><strong>Control Center</strong><small>TAYASSUK OS · CONTENT MANAGEMENT</small></div></div>
+      <div class="cc-top-actions"><span class="cc-online"><i></i> Admin session active</span><button class="cc-button cc-button-soft" data-action="admin-refresh">↻ Refresh</button><button class="cc-button cc-button-danger" data-action="admin-logout">Sign out</button></div>
+    </header>
+    <section class="cc-welcome"><div><span class="cc-kicker">OVERVIEW / CONTENT STUDIO</span><h1>Manage your portfolio<span>.</span></h1><p>Update your public portfolio content from one workspace.</p></div><div class="cc-summary"><strong>${sections.length-1}</strong><span>CONTENT AREAS</span></div></section>
+    <div class="cc-layout">
+      <aside class="cc-sidebar"><span class="cc-nav-label">WORKSPACE</span>${sections.map(([id,icon,label])=>`<button class="cc-nav-item ${activeCmsSection===id?'is-active':''}" data-cms-section="${id}"><span class="cc-nav-icon">${icon}</span><span>${label}</span><small>${counts[id]}</small></button>`).join('')}</aside>
+      <main class="cc-main"><div class="cc-content-panel" id="cc-editor">${renderCmsEditor()}</div>
+        <div class="cc-bottom-note"><span>◈</span> Changes are saved to your connected Supabase portfolio record.</div>
+      </main>
+    </div>
+  </div>`;
+}
 
 function wireControlCenter(body) {
-
   if (!body) return;
 
-
-  /* =========================
-     ADMIN LOGIN
-     ========================= */
-
-  const form =
-    body.querySelector('#admin-login-form');
-
-
-  if (form) {
-
-    form.addEventListener(
-      'submit',
-      async event => {
-
-        event.preventDefault();
-
-        const status =
-          form.querySelector('#admin-login-status');
-
-        const email =
-          form.email?.value?.trim() || '';
-
-        const password =
-          form.password?.value || '';
-
-
-        if (!email || !password) {
-
-          if (status) {
-            status.textContent =
-              'Please enter email and password.';
-          }
-
-          return;
-        }
-
-
-        if (status) {
-          status.textContent =
-            'Signing in...';
-        }
-
-
-        try {
-
-          const result =
-            await signIn(email, password);
-
-
-          state.adminSession =
-            result?.session ||
-            result ||
-            null;
-
-
-          body.innerHTML =
-            renderControlCenter();
-
-          wireControlCenter(body);
-
-
-        } catch (error) {
-
-          console.error(
-            'Admin sign-in failed:',
-            error
-          );
-
-
-          if (status) {
-            status.textContent =
-              error?.message ||
-              'Sign in failed.';
-          }
-
-        }
-
-      }
-    );
-
-  }
-
-
-  /* =========================
-     SAVE PROFILE
-     ========================= */
-
-  const saveProfile =
-    body.querySelector(
-      '[data-action="cms-save-profile"]'
-    );
-
-
-  if (saveProfile) {
-
-    saveProfile.addEventListener(
-      'click',
-      async () => {
-
-        const status =
-          body.querySelector(
-            '#cms-profile-status'
-          );
-
-
-        try {
-
-          saveProfile.disabled = true;
-
-
-          if (status) {
-            status.textContent =
-              'Saving...';
-          }
-
-
-          portfolio.owner =
-            portfolio.owner || {};
-
-
-          portfolio.owner.identity =
-            portfolio.owner.identity || {};
-
-
-          portfolio.owner.contact =
-            portfolio.owner.contact || {};
-
-
-          portfolio.owner.identity.fullName =
-            body.querySelector(
-              '#cms-fullName'
-            )?.value || '';
-
-
-          portfolio.owner.identity.profession =
-            body.querySelector(
-              '#cms-profession'
-            )?.value || '';
-
-
-          portfolio.owner.identity.headline =
-            body.querySelector(
-              '#cms-headline'
-            )?.value || '';
-
-
-          portfolio.owner.identity.bio =
-            body.querySelector(
-              '#cms-bio'
-            )?.value || '';
-
-
-          portfolio.owner.contact.location =
-            body.querySelector(
-              '#cms-location'
-            )?.value || '';
-
-
-          portfolio.owner.contact.email =
-            body.querySelector(
-              '#cms-email'
-            )?.value || '';
-
-
-          portfolio.owner.contact.phone =
-            body.querySelector(
-              '#cms-phone'
-            )?.value || '';
-
-
-          portfolio.owner.contact.github =
-            body.querySelector(
-              '#cms-github'
-            )?.value || '';
-
-
-          portfolio.owner.contact.linkedin =
-            body.querySelector(
-              '#cms-linkedin'
-            )?.value || '';
-
-
-          await saveRemotePortfolio(
-            portfolio
-          );
-
-
-          if (status) {
-            status.textContent =
-              'Profile saved successfully.';
-          }
-
-
-        } catch (error) {
-
-          console.error(
-            'Profile save failed:',
-            error
-          );
-
-
-          if (status) {
-            status.textContent =
-              error?.message ||
-              'Failed to save profile.';
-          }
-
-
-        } finally {
-
-          saveProfile.disabled = false;
-
-        }
-
-      }
-    );
-
-  }
-  /* =========================
-     PROJECTS
-     ========================= */
-
-  const addProjectButton =
-    body.querySelector(
-      '[data-action="cms-add-project"]'
-    );
-
-  if (addProjectButton) {
-    addProjectButton.addEventListener(
-      'click',
-      async () => {
-
-        const title =
-          prompt('Project title:');
-
-        if (!title) return;
-
-        const description =
-          prompt('Project description:') || '';
-
-        const technologies =
-          prompt('Technologies:') || '';
-
-        const liveUrl =
-          prompt('Live URL:') || '';
-
-        portfolio.projects =
-          portfolio.projects || [];
-
-        portfolio.projects.push({
-          title,
-          description,
-          technologies,
-          liveUrl,
-          role: 'Solo Developer',
-          status: 'Working / Live'
-        });
-
-        try {
-
-          await saveRemotePortfolio(
-            portfolio
-          );
-
-          body.innerHTML =
-            renderControlCenter();
-
-          wireControlCenter(body);
-
-          alert(
-            'Project added successfully.'
-          );
-
-        } catch (error) {
-
-          console.error(
-            'Project save failed:',
-            error
-          );
-
-          alert(
-            error?.message ||
-            'Failed to save project.'
-          );
-        }
-      }
-    );
-  }
-
-
-  /* =========================
-     EDIT PROJECT
-     ========================= */
-
-  const editProjectButtons =
-    body.querySelectorAll(
-      '[data-action="cms-edit-project"]'
-    );
-
-  editProjectButtons.forEach(
-    button => {
-
-      button.addEventListener(
-        'click',
-        async () => {
-
-          const index =
-            Number(
-              button.dataset.index
-            );
-
-          const project =
-            portfolio.projects?.[index];
-
-          if (!project) return;
-
-          const title =
-            prompt(
-              'Project title:',
-              project.title || ''
-            );
-
-          if (!title) return;
-
-          const description =
-            prompt(
-              'Project description:',
-              project.description || ''
-            ) || '';
-
-          const technologies =
-            prompt(
-              'Technologies:',
-              project.technologies || ''
-            ) || '';
-
-          const liveUrl =
-            prompt(
-              'Live URL:',
-              project.liveUrl || ''
-            ) || '';
-
-          portfolio.projects[index] = {
-            ...project,
-            title,
-            description,
-            technologies,
-            liveUrl
-          };
-
-          try {
-
-            await saveRemotePortfolio(
-              portfolio
-            );
-
-            body.innerHTML =
-              renderControlCenter();
-
-            wireControlCenter(body);
-
-            alert(
-              'Project updated successfully.'
-            );
-
-          } catch (error) {
-
-            console.error(
-              'Project update failed:',
-              error
-            );
-
-            alert(
-              error?.message ||
-              'Failed to update project.'
-            );
-          }
-        }
-      );
-    }
-  );
-
-
-  /* =========================
-     DELETE PROJECT
-     ========================= */
-
-  const deleteProjectButtons =
-    body.querySelectorAll(
-      '[data-action="cms-delete-project"]'
-    );
-
-  deleteProjectButtons.forEach(
-    button => {
-
-      button.addEventListener(
-        'click',
-        async () => {
-
-          const index =
-            Number(
-              button.dataset.index
-            );
-
-          if (
-            !confirm(
-              'Are you sure you want to delete this project?'
-            )
-          ) {
-            return;
-          }
-
-          portfolio.projects.splice(
-            index,
-            1
-          );
-
-          try {
-
-            await saveRemotePortfolio(
-              portfolio
-            );
-
-            body.innerHTML =
-              renderControlCenter();
-
-            wireControlCenter(body);
-
-            alert(
-              'Project deleted successfully.'
-            );
-
-          } catch (error) {
-
-            console.error(
-              'Project delete failed:',
-              error
-            );
-
-            alert(
-              error?.message ||
-              'Failed to delete project.'
-            );
-          }
-        }
-      );
-    }
-  );
-
-
-  /* =========================
-     LEARNING
-     ========================= */
-
-  const addLearningButton =
-    body.querySelector(
-      '[data-action="cms-add-learning"]'
-    );
-
-  if (addLearningButton) {
-
-    addLearningButton.addEventListener(
-      'click',
-      async () => {
-
-        const title =
-          prompt('Learning title:');
-
-        if (!title) return;
-
-        const description =
-          prompt(
-            'Learning description:'
-          ) || '';
-
-        portfolio.owner =
-          portfolio.owner || {};
-
-        portfolio.owner.learning =
-          portfolio.owner.learning || [];
-
-        portfolio.owner.learning.push({
-          title,
-          description
-        });
-
-        try {
-
-          await saveRemotePortfolio(
-            portfolio
-          );
-
-          body.innerHTML =
-            renderControlCenter();
-
-          wireControlCenter(body);
-
-          alert(
-            'Learning item added successfully.'
-          );
-
-        } catch (error) {
-
-          console.error(
-            'Learning save failed:',
-            error
-          );
-
-          alert(
-            error?.message ||
-            'Failed to save learning item.'
-          );
-        }
-      }
-    );
-  }
-
-
-  /* =========================
-     EDIT LEARNING
-     ========================= */
-
-  const editLearningButtons =
-    body.querySelectorAll(
-      '[data-action="cms-edit-learning"]'
-    );
-
-  editLearningButtons.forEach(
-    button => {
-
-      button.addEventListener(
-        'click',
-        async () => {
-
-          const index =
-            Number(
-              button.dataset.index
-            );
-
-          const learning =
-            portfolio.owner?.learning?.[index];
-
-          if (!learning) return;
-
-          const title =
-            prompt(
-              'Learning title:',
-              learning.title || ''
-            );
-
-          if (!title) return;
-
-          const description =
-            prompt(
-              'Learning description:',
-              learning.description || ''
-            ) || '';
-
-          portfolio.owner.learning[index] = {
-            ...learning,
-            title,
-            description
-          };
-
-          try {
-
-            await saveRemotePortfolio(
-              portfolio
-            );
-
-            body.innerHTML =
-              renderControlCenter();
-
-            wireControlCenter(body);
-
-            alert(
-              'Learning item updated successfully.'
-            );
-
-          } catch (error) {
-
-            console.error(
-              'Learning update failed:',
-              error
-            );
-
-            alert(
-              error?.message ||
-              'Failed to update learning item.'
-            );
-          }
-        }
-      );
-    }
-  );
-
-
-  /* =========================
-     DELETE LEARNING
-     ========================= */
-
-  const deleteLearningButtons =
-    body.querySelectorAll(
-      '[data-action="cms-delete-learning"]'
-    );
-
-  deleteLearningButtons.forEach(
-    button => {
-
-      button.addEventListener(
-        'click',
-        async () => {
-
-          const index =
-            Number(
-              button.dataset.index
-            );
-
-          if (
-            !confirm(
-              'Are you sure you want to delete this learning item?'
-            )
-          ) {
-            return;
-          }
-
-          portfolio.owner.learning.splice(
-            index,
-            1
-          );
-
-          try {
-
-            await saveRemotePortfolio(
-              portfolio
-            );
-
-            body.innerHTML =
-              renderControlCenter();
-
-            wireControlCenter(body);
-
-            alert(
-              'Learning item deleted successfully.'
-            );
-
-          } catch (error) {
-
-            console.error(
-              'Learning delete failed:',
-              error
-            );
-
-            alert(
-              error?.message ||
-              'Failed to delete learning item.'
-            );
-          }
-        }
-      );
-    }
-  );
-  /* =========================
-   OTHER SECTIONS
-   ========================= */
-
-
-/* =========================
-   ADD SECTION
-   ========================= */
-
-body
-  .querySelectorAll(
-    '[data-action="cms-add-section"]'
-  )
-  .forEach(button => {
-
-    button.addEventListener(
-      'click',
-      async () => {
-
-        const section =
-          button.dataset.section;
-
-
-        /* ACHIEVEMENTS */
-
-        if (section === 'achievements') {
-
-          const title =
-            prompt(
-              'Achievement Title:'
-            );
-
-          if (title === null) return;
-
-          const description =
-            prompt(
-              'Achievement Description:'
-            );
-
-          if (description === null) return;
-
-          const certificateFile =
-  await new Promise(resolve => {
-
-    const input =
-      document.createElement('input');
-
-    input.type = 'file';
-
-    input.accept =
-      '.pdf,.jpg,.jpeg,.png,.webp';
-
-    input.onchange = () => {
-
-      resolve(
-        input.files?.[0] || null
-      );
-
-    };
-
-    input.click();
-
-  });
-
-
-if (!certificateFile) {
-
-  alert(
-    'Please select a certificate file.'
-  );
-
-  return;
-
-}
-
-
-let certificate = '';
-
-try {
-
-  certificate =
-    await uploadCertificate(
-      certificateFile
-    );
-
-}
-
-catch (error) {
-
-  alert(
-    'Certificate upload failed: ' +
-    error.message
-  );
-
-  console.error(
-    'Certificate upload failed:',
-    error
-  );
-
-  return;
-
-}
-          if (!portfolio.achievements) {
-            portfolio.achievements = [];
-          }
-
-
-          portfolio.achievements.push({
-            title: title,
-            description: description,
-            certificate: certificate
-          });
-
-
-          try {
-
-            await saveRemotePortfolio(
-              portfolio
-            );
-
-            alert(
-              'Achievement added successfully.'
-            );
-
-            body.innerHTML =
-              renderControlCenter();
-
-            wireControlCenter(body);
-
-          }
-
-          catch (error) {
-
-            alert(
-              'Failed to save achievement.'
-            );
-
-            console.error(
-              'Achievement add failed:',
-              error
-            );
-
-          }
-
-          return;
-        }
-
-
-        /* OTHER ARRAY SECTIONS */
-
-        let current = [];
-
-
-        if (section === 'skills') {
-
-          current =
-            portfolio.skills || [];
-
-        }
-
-        else if (section === 'education') {
-
-          current =
-            portfolio.education || [];
-
-        }
-
-        else if (section === 'journey') {
-
-          current =
-            portfolio.journey || [];
-
-        }
-
-        else if (section === 'activity') {
-
-          current =
-            portfolio.recentActivity ||
-            portfolio.activity ||
-            [];
-
-        }
-
-
-        const value =
-          prompt(
-            `Add new ${section} item as JSON:`,
-            '{}'
-          );
-
-
-        if (value === null) return;
-
-
-        try {
-
-          const parsed =
-            JSON.parse(value);
-
-          current.push(parsed);
-
-
-          if (section === 'skills') {
-
-            portfolio.skills =
-              current;
-
-          }
-
-          else if (section === 'education') {
-
-            portfolio.education =
-              current;
-
-          }
-
-          else if (section === 'journey') {
-
-            portfolio.journey =
-              current;
-
-          }
-
-          else if (section === 'activity') {
-
-            portfolio.recentActivity =
-              current;
-
-          }
-
-
-          await saveRemotePortfolio(
-            portfolio
-          );
-
-
-          alert(
-            `${section} added successfully.`
-          );
-
-
-          body.innerHTML =
-            renderControlCenter();
-
-          wireControlCenter(body);
-
-        }
-
-        catch (error) {
-
-          alert(
-            'Invalid JSON. Nothing was added.'
-          );
-
-          console.error(
-            'CMS add failed:',
-            error
-          );
-
-        }
-
-      }
-    );
-
-  });
-
-
-
-/* =========================
-   EDIT SECTION
-   ========================= */
-
-body
-  .querySelectorAll(
-    '[data-action="cms-edit-section"]'
-  )
-  .forEach(button => {
-
-    button.addEventListener(
-      'click',
-      async () => {
-
-        const section =
-          button.dataset.section;
-
-
-        /* ACHIEVEMENTS */
-
-        if (section === 'achievements') {
-
-          const current =
-            portfolio.achievements || [];
-
-
-          if (!current.length) {
-
-            alert(
-              'No achievements available.'
-            );
-
-            return;
-          }
-
-
-          const index =
-            prompt(
-              `Enter achievement index to edit (0 - ${current.length - 1}):`
-            );
-
-
-          if (index === null) return;
-
-
-          const itemIndex =
-            Number(index);
-
-
-          if (
-            !Number.isInteger(itemIndex) ||
-            itemIndex < 0 ||
-            itemIndex >= current.length
-          ) {
-
-            alert(
-              'Invalid index.'
-            );
-
-            return;
-          }
-
-
-          const item =
-            current[itemIndex];
-
-
-          const title =
-            prompt(
-              'Achievement Title:',
-              item.title || ''
-            );
-
-
-          if (title === null) return;
-
-
-          const description =
-            prompt(
-              'Achievement Description:',
-              item.description ||
-              item.detail ||
-              ''
-            );
-
-
-          if (description === null) return;
-
-
-          /* CERTIFICATE FILE */
-
-          const certificateFile =
-            await new Promise(resolve => {
-
-              const input =
-                document.createElement('input');
-
-              input.type = 'file';
-
-              input.accept =
-                '.pdf,.jpg,.jpeg,.png,.webp';
-
-              input.onchange = () => {
-
-                resolve(
-                  input.files?.[0] || null
-                );
-
-              };
-
-              input.click();
-
-            });
-
-
-          let certificate =
-            item.certificate || '';
-
-
-          /* Upload only if a new file is selected */
-
-          if (certificateFile) {
-
-            try {
-
-              certificate =
-                await uploadCertificate(
-                  certificateFile
-                );
-
-            }
-
-            catch (error) {
-
-              alert(
-                'Certificate upload failed: ' +
-                error.message
-              );
-
-              console.error(
-                'Certificate upload failed:',
-                error
-              );
-
-              return;
-
-            }
-
-          }
-
-
-          current[itemIndex] = {
-
-            ...item,
-
-            title: title,
-
-            description: description,
-
-            certificate: certificate
-
-          };
-
-
-          portfolio.achievements =
-            current;
-
-
-          try {
-
-            await saveRemotePortfolio(
-              portfolio
-            );
-
-
-            alert(
-              'Achievement updated successfully.'
-            );
-
-
-            body.innerHTML =
-              renderControlCenter();
-
-            wireControlCenter(body);
-
-          }
-
-          catch (error) {
-
-            alert(
-              'Failed to update achievement.'
-            );
-
-            console.error(
-              'Achievement edit failed:',
-              error
-            );
-
-          }
-
-          return;
-        }
-
-
-        /* OTHER SECTIONS */
-
-        let current;
-
-
-        if (section === 'skills') {
-
-          current =
-            portfolio.skills || [];
-
-        }
-
-        else if (section === 'education') {
-
-          current =
-            portfolio.education || [];
-
-        }
-
-        else if (section === 'journey') {
-
-          current =
-            portfolio.journey || [];
-
-        }
-
-        else if (section === 'notes') {
-
-          current =
-            portfolio.quickNotes ||
-            portfolio.notes ||
-            [];
-
-        }
-
-        else if (section === 'goals') {
-
-          current =
-            portfolio.nextGoals ||
-            portfolio.goals ||
-            [];
-
-        }
-
-        else if (section === 'quote') {
-
-          current =
-            portfolio.quote || '';
-
-        }
-
-        else if (section === 'activity') {
-
-          current =
-            portfolio.recentActivity ||
-            portfolio.activity ||
-            [];
-
-        }
-
-
-        const edited =
-          prompt(
-            `Edit ${section} data as JSON:`,
-            JSON.stringify(
-              current,
-              null,
-              2
-            )
-          );
-
-
-        if (edited === null) return;
-
-
-        try {
-
-          const parsed =
-            JSON.parse(edited);
-
-
-          if (section === 'skills') {
-
-            portfolio.skills =
-              parsed;
-
-          }
-
-          else if (section === 'education') {
-
-            portfolio.education =
-              parsed;
-
-          }
-
-          else if (section === 'journey') {
-
-            portfolio.journey =
-              parsed;
-
-          }
-
-          else if (section === 'notes') {
-
-            portfolio.quickNotes =
-              parsed;
-
-          }
-
-          else if (section === 'goals') {
-
-            portfolio.nextGoals =
-              parsed;
-
-          }
-
-          else if (section === 'quote') {
-
-            portfolio.quote =
-              parsed;
-
-          }
-
-          else if (section === 'activity') {
-
-            portfolio.recentActivity =
-              parsed;
-
-          }
-
-
-          await saveRemotePortfolio(
-            portfolio
-          );
-
-
-          alert(
-            `${section} updated successfully.`
-          );
-
-
-          body.innerHTML =
-            renderControlCenter();
-
-          wireControlCenter(body);
-
-        }
-
-        catch (error) {
-
-          alert(
-            'Invalid JSON. Nothing was changed.'
-          );
-
-          console.error(
-            'CMS edit failed:',
-            error
-          );
-
-        }
-
-      }
-    );
-
-  });
-/* =========================
-   DELETE SECTION
-   ========================= */
-
-body
-  .querySelectorAll(
-    '[data-action="cms-delete-section"]'
-  )
-  .forEach(button => {
-
-    button.addEventListener(
-      'click',
-      async () => {
-
-        const section =
-          button.dataset.section;
-
-
-        let current = [];
-
-
-        if (section === 'skills') {
-
-          current =
-            portfolio.skills || [];
-
-        }
-
-        else if (section === 'education') {
-
-          current =
-            portfolio.education || [];
-
-        }
-
-        else if (section === 'achievements') {
-
-          current =
-            portfolio.achievements || [];
-
-        }
-
-        else if (section === 'journey') {
-
-          current =
-            portfolio.journey || [];
-
-        }
-
-        else if (section === 'activity') {
-
-          current =
-            portfolio.recentActivity ||
-            portfolio.activity ||
-            [];
-
-        }
-
-
-        if (!current.length) {
-
-          alert(
-            `No ${section} items available.`
-          );
-
-          return;
-        }
-
-
-        const index =
-          prompt(
-            `Enter the index to delete (0 - ${current.length - 1}):`
-          );
-
-
-        if (index === null) return;
-
-
-        const itemIndex =
-          Number(index);
-
-
-        if (
-          !Number.isInteger(itemIndex) ||
-          itemIndex < 0 ||
-          itemIndex >= current.length
-        ) {
-
-          alert(
-            'Invalid index.'
-          );
-
-          return;
-        }
-
-
-        const confirmed =
-          confirm(
-            `Delete ${section} item ${itemIndex}?`
-          );
-
-
-        if (!confirmed) return;
-
-
-        current.splice(
-          itemIndex,
-          1
-        );
-
-
-        if (section === 'skills') {
-
-          portfolio.skills =
-            current;
-
-        }
-
-        else if (section === 'education') {
-
-          portfolio.education =
-            current;
-
-        }
-
-        else if (section === 'achievements') {
-
-          portfolio.achievements =
-            current;
-
-        }
-
-        else if (section === 'journey') {
-
-          portfolio.journey =
-            current;
-
-        }
-
-        else if (section === 'activity') {
-
-          portfolio.recentActivity =
-            current;
-
-        }
-
-
-        try {
-
-          await saveRemotePortfolio(
-            portfolio
-          );
-
-
-          alert(
-            `${section} deleted successfully.`
-          );
-
-
-          body.innerHTML =
-            renderControlCenter();
-
-          wireControlCenter(body);
-
-        }
-
-        catch (error) {
-
-          alert(
-            `Failed to delete ${section}.`
-          );
-
-          console.error(
-            'CMS delete failed:',
-            error
-          );
-
-        }
-
-      }
-    );
-
-  });
-  /* =========================
-     REFRESH DATA
-     ========================= */
-
-  const refreshButton =
-    body.querySelector(
-      '[data-action="admin-refresh"]'
-    );
-
-
-  if (refreshButton) {
-
-    refreshButton.addEventListener(
-      'click',
-      async () => {
-
-        try {
-
-          refreshButton.disabled = true;
-
-
-          const result =
-            await loadRemotePortfolio();
-
-
-          if (result?.data) {
-            portfolio = result.data;
-          }
-
-
-          body.innerHTML =
-            renderControlCenter();
-
-          wireControlCenter(body);
-
-
-        } catch (error) {
-
-          console.error(
-            'Portfolio refresh failed:',
-            error
-          );
-
-
-        } finally {
-
-          refreshButton.disabled = false;
-
-        }
-
-      }
-    );
-
-  }
-
-
-  /* =========================
-     SIGN OUT
-     ========================= */
-
-  const logoutButton =
-    body.querySelector(
-      '[data-action="admin-logout"]'
-    );
-
-
-  if (logoutButton) {
-
-    logoutButton.addEventListener(
-      'click',
-      async () => {
-
-        try {
-
-          await signOut();
-
-        } catch (error) {
-
-          console.error(
-            'Sign out failed:',
-            error
-          );
-
-        }
-
-
-        state.adminSession =
-          null;
-
-
-        body.innerHTML =
-          renderControlCenter();
-
+  const login = body.querySelector('#admin-login-form');
+  if (login) {
+    login.addEventListener('submit', async event => {
+      event.preventDefault();
+      const status = body.querySelector('#admin-login-status');
+      const button = login.querySelector('button[type="submit"]');
+      button.disabled = true;
+      if (status) status.textContent = 'Signing in…';
+      try {
+        const result = await signIn(login.elements.email.value.trim(), login.elements.password.value);
+        state.adminSession = result?.session || result || null;
+        activeCmsSection = 'profile';
+        body.innerHTML = renderControlCenter();
         wireControlCenter(body);
-
+      } catch (error) {
+        console.error('Admin sign-in failed:', error);
+        if (status) status.textContent = error?.message || 'Sign in failed. Check your credentials and Supabase Auth settings.';
+        button.disabled = false;
       }
-    );
-
+    });
+    return;
   }
 
+  const refreshEditor = () => {
+    body.innerHTML = renderControlCenter();
+    wireControlCenter(body);
+  };
+
+  body.querySelectorAll('[data-cms-section]').forEach(button => {
+    button.addEventListener('click', () => {
+      activeCmsSection = button.dataset.cmsSection;
+      activeCmsIndex = -1;
+      refreshEditor();
+    });
+  });
+
+  body.querySelectorAll('[data-cms-edit]').forEach(button => {
+    button.addEventListener('click', () => {
+      activeCmsIndex = Number(button.dataset.cmsEdit);
+      refreshEditor();
+    });
+  });
+
+  body.querySelectorAll('[data-cms-cancel]').forEach(button => {
+    button.addEventListener('click', () => { activeCmsIndex = -1; refreshEditor(); });
+  });
+
+  body.querySelectorAll('[data-cms-delete]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const index = Number(button.dataset.cmsDelete);
+      if (!Number.isInteger(index) || !confirm('Delete this item? This change will be saved to Supabase.')) return;
+      const before = structuredClone(portfolio);
+      try {
+        const list = [...cmsArrayFor(activeCmsSection)];
+        list.splice(index, 1);
+        cmsAssignArray(activeCmsSection, list);
+        await saveRemotePortfolio(portfolio);
+        activeCmsIndex = -1;
+        await refreshOpenPortfolioWindows();
+        refreshEditor();
+      } catch (error) {
+        portfolio = before;
+        console.error('CMS delete failed:', error);
+        alert(error?.message || 'Could not delete this item. Your previous data has been restored.');
+      }
+    });
+  });
+
+  body.querySelectorAll('[data-cms-form]').forEach(form => {
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      const submit = form.querySelector('button[type="submit"]');
+      const status = form.querySelector('[data-cms-status]');
+      const before = structuredClone(portfolio);
+      submit.disabled = true;
+      if (status) status.textContent = 'Saving…';
+      try {
+        const fd = new FormData(form);
+        const kind = form.dataset.cmsForm;
+        if (kind === 'profile') {
+          portfolio.owner ||= {};
+          portfolio.owner.identity ||= {};
+          portfolio.owner.contact ||= {};
+          ['fullName','profession','headline'].forEach(k => portfolio.owner.identity[k] = String(fd.get(k)||'').trim());
+          portfolio.owner.identity.location = String(fd.get('location')||'').trim();
+          portfolio.owner.contact.location = portfolio.owner.identity.location;
+          portfolio.owner.identity.bio = String(fd.get('bio')||'').trim();
+          portfolio.owner.about = portfolio.owner.identity.bio;
+          ['email','phone','github','linkedin','cv'].forEach(k => portfolio.owner.contact[k] = String(fd.get(k)||'').trim());
+        } else if (kind === 'quote') {
+          portfolio.quote = String(fd.get('quote')||'').trim();
+        } else {
+          const section = activeCmsSection;
+          const config = cmsSections[section];
+          const old = activeCmsIndex >= 0 ? cmsArrayFor(section)[activeCmsIndex] : null;
+          const item = old && typeof old === 'object' ? { ...old } : {};
+          for (const [key] of config.fields) {
+            const value = String(fd.get(key)||'').trim();
+            if (key === 'technologies' || key === 'items') item[key] = value.split(',').map(v=>v.trim()).filter(Boolean);
+            else if (key === 'progress') item[key] = Math.max(0,Math.min(100,Number(value)||0));
+            else item[key] = value;
+          }
+          if (section === 'projects') item.featured = fd.get('featured') === 'true';
+          if (section === 'achievements') {
+            const file = fd.get('certificateFile');
+            if (file instanceof File && file.size) item.certificate = await uploadCertificate(file);
+            // Preserve existing plain-text achievements as an object only when the user edits them.
+          }
+          if (section === 'skills') {
+            item.items = item.items || [];
+            item.title = item.title || '';
+          }
+          if (section === 'learning') {
+            item.name = item.name || '';
+            item.status = item.status || '';
+          }
+          const list = [...cmsArrayFor(section)];
+          if (activeCmsIndex >= 0) list[activeCmsIndex] = item;
+          else list.push(item);
+          cmsAssignArray(section, list);
+        }
+        await saveRemotePortfolio(portfolio);
+        activeCmsIndex = -1;
+        await refreshOpenPortfolioWindows();
+        refreshEditor();
+      } catch (error) {
+        portfolio = before;
+        console.error('CMS save failed:', error);
+        if (status) status.textContent = error?.message || 'Save failed. Your previous data has been restored.';
+        submit.disabled = false;
+      }
+    });
+  });
+
+  const refresh = body.querySelector('[data-action="admin-refresh"]');
+  if (refresh) refresh.addEventListener('click', async () => {
+    refresh.disabled = true;
+    refresh.textContent = 'Loading…';
+    try {
+      const result = await loadRemotePortfolio();
+      const data = result?.data ?? result;
+      if (data && typeof data === 'object') portfolio = { ...portfolio, ...data, owner: { ...(portfolio.owner||{}), ...(data.owner||{}) } };
+      await refreshOpenPortfolioWindows();
+      refreshEditor();
+    } catch (error) {
+      console.error('Portfolio refresh failed:', error);
+      alert(error?.message || 'Could not refresh portfolio data.');
+      refresh.disabled = false;
+      refresh.textContent = '↻ Refresh';
+    }
+  });
+
+  const logout = body.querySelector('[data-action="admin-logout"]');
+  if (logout) logout.addEventListener('click', async () => {
+    try { await signOut(); } catch (error) { console.error('Sign out failed:', error); }
+    state.adminSession = null;
+    refreshEditor();
+  });
+}
+
+function cmsAssignArray(section, list) {
+  if (section === 'learning') {
+    portfolio.owner ||= {};
+    portfolio.owner.learning = list;
+  } else if (section === 'quickNotes') portfolio.quickNotes = list;
+  else if (section === 'nextGoals') portfolio.nextGoals = list;
+  else if (section === 'recentActivity') portfolio.recentActivity = list;
+  else portfolio[section] = list;
+}
+
+async function refreshOpenPortfolioWindows() {
+  renderIdentity();
+  for (const [id, win] of state.windows) {
+    if (!win?.body) continue;
+    if (id === 'control') {
+      // The active Control Center is refreshed by its own caller.
+      continue;
+    }
+    renderWindow(id);
+  }
 }
 
 /* =========================================================

@@ -1,0 +1,30 @@
+TAYASSUK OS — CONTROL CENTER UPDATE
+==================================
+
+Package contents
+- app.js       Updated Control Center dashboard and form-based content editor.
+- styles.css   Additional styles scoped only to .cc-* Control Center components.
+
+INSTALLATION
+1. Download and extract this ZIP.
+2. Open your GitHub repository: tayassuk-imam/tayassuk-os.
+3. Open the existing app.js file, choose Edit, and replace its contents with this package's app.js.
+4. Commit the change.
+5. Repeat for styles.css using this package's styles.css.
+6. Wait for GitHub Pages to deploy, then hard-refresh the website (Ctrl+F5).
+7. Open Control Center and sign in with your existing Supabase admin account.
+
+IMPORTANT
+- Only app.js and styles.css are included. No other app, OS screen, dock, launcher, boot flow, or portfolio window styling was intentionally changed.
+- The CSS additions are scoped to .cc-* classes.
+- Content forms save the portfolio object through the existing saveRemotePortfolio() function in content/portfolio-store.js.
+- Public visitor updates depend on the existing Supabase project being configured correctly, the portfolio_content row/table existing, and its read/write RLS policies being correct.
+- Quick Notes, Next Goals, Quote, and Recent Activity are stored in the portfolio record. The supplied app.js does not contain public-window rendering for all of these fields, so this package does not claim that those four fields are visibly rendered elsewhere on the public site.
+- Certificate upload still uses the existing uploadCertificate() function and existing Supabase Storage bucket/policies.
+
+TEST STATUS
+- JavaScript syntax check: passed (Node --check).
+- CSS parse check: passed (no top-level parse errors).
+- Live browser UI test: not performed.
+- Supabase login, database write/read, RLS, and certificate upload: not live-tested.
+- Keep a backup of your current app.js and styles.css before replacing them.
