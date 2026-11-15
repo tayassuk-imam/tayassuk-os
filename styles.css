@@ -6196,3 +6196,29 @@ body {
   .tayassuk-birds, .tayassuk-birds .wing { animation: none !important; }
   .tayassuk-birds { display: none !important; }
 }
+
+
+/* =========================================================
+   BOOT SCREEN — BLUE, RED & ORANGE FLOATING FLECKS
+   Keeps the existing 8 lightweight particles and their motion.
+   Only changes particle colours; no new DOM or JS animation.
+   ========================================================= */
+.boot-bg i:nth-child(1),
+.boot-bg i:nth-child(3),
+.boot-bg i:nth-child(5),
+.boot-bg i:nth-child(8) {
+  background: #55c9ff !important;
+  box-shadow: 0 0 10px 2px rgba(85, 201, 255, .62) !important;
+}
+
+.boot-bg i:nth-child(2),
+.boot-bg i:nth-child(6) {
+  background: #ff9b62 !important;
+  box-shadow: 0 0 10px 2px rgba(255, 155, 98, .58) !important;
+}
+
+.boot-bg i:nth-child(4),
+.boot-bg i:nth-child(7) {
+  background: #ff626f !important;
+  box-shadow: 0 0 10px 2px rgba(255, 98, 111, .55) !important;
+}
