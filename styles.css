@@ -5780,3 +5780,102 @@ body {
 :root[data-theme="light"] .desktop {
   color: #172b43;
 }
+/* =========================================
+   MODERN SKILLS WINDOW
+   ========================================= */
+
+.app-window[data-app="skills"] .skills-window-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 28px;
+}
+
+.app-window[data-app="skills"] .skill-group {
+  position: relative;
+  padding: 22px;
+  min-width: 0;
+  border: 1px solid rgba(100, 190, 255, .18);
+  border-radius: 18px;
+  background: linear-gradient(
+    145deg,
+    rgba(15, 39, 65, .78),
+    rgba(7, 19, 36, .88)
+  );
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .16);
+  transition: transform .25s ease, border-color .25s ease;
+}
+
+.app-window[data-app="skills"] .skill-group:hover {
+  transform: translateY(-4px);
+  border-color: rgba(55, 205, 255, .48);
+}
+
+.app-window[data-app="skills"] .skill-group-heading {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-bottom: 18px;
+}
+
+.app-window[data-app="skills"] .skill-group-heading h3 {
+  margin: 0;
+  color: #edf7ff;
+  font-size: 17px;
+  font-weight: 750;
+}
+
+.app-window[data-app="skills"] .skill-group-dot {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #35d5ff;
+  box-shadow: 0 0 14px rgba(53, 213, 255, .65);
+}
+
+.app-window[data-app="skills"] .skill-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+}
+
+.app-window[data-app="skills"] .skill-tags span {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 12px;
+  border: 1px solid rgba(105, 185, 240, .17);
+  border-radius: 9px;
+  background: rgba(35, 105, 155, .13);
+  color: #c8e5fa;
+  font-size: 11px;
+  font-weight: 550;
+  transition: all .2s ease;
+}
+
+.app-window[data-app="skills"] .skill-tags span:hover {
+  background: rgba(35, 165, 225, .22);
+  border-color: rgba(55, 205, 255, .45);
+  color: #fff;
+  transform: translateY(-2px);
+}
+
+@media (max-width: 650px) {
+  .app-window[data-app="skills"] .skills-window-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+:root[data-theme="light"] .app-window[data-app="skills"] .skill-group {
+  background: linear-gradient(145deg, #fff, #edf5ff);
+}
+
+:root[data-theme="light"] .app-window[data-app="skills"] .skill-group-heading h3 {
+  color: #183653;
+}
+
+:root[data-theme="light"] .app-window[data-app="skills"] .skill-tags span {
+  background: #e6f1fc;
+  color: #244664;
+  border-color: #c9dced;
+}
