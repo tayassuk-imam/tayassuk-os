@@ -6058,106 +6058,131 @@ body {
     padding: 17px;
   }
 }
-/* =========================================
-   TAYASSUK OS — LIVING CYBERPUNK BACKGROUND
-   ========================================= */
+
+
+/* =========================================================
+   TAYASSUK OS — CINEMATIC NIGHT CITY BACKGROUND
+   Background-only enhancement. Keeps existing layout/content.
+   ========================================================= */
 
 .desktop {
   position: relative;
   isolation: isolate;
 }
 
-/* Aurora + Floating Particles */
+/* Window rain + distant birds + subtle city atmosphere.
+   The overlays are intentionally low-opacity so the portrait and UI stay clear. */
 .desktop::before {
   content: "";
   position: absolute;
-  inset: -5%;
+  inset: 0;
   z-index: 1;
   pointer-events: none;
-
+  opacity: .72;
   background-image:
-    radial-gradient(
-      ellipse at 20% 35%,
-      rgba(0, 190, 255, .20),
-      transparent 38%
-    ),
-    radial-gradient(
-      ellipse at 75% 25%,
-      rgba(105, 65, 255, .20),
-      transparent 42%
-    ),
-    radial-gradient(
-      ellipse at 55% 80%,
-      rgba(0, 225, 255, .13),
-      transparent 38%
-    ),
-    radial-gradient(
-      circle,
-      rgba(130, 220, 255, .75) 1px,
-      transparent 2px
-    ),
-    radial-gradient(
-      circle,
-      rgba(130, 100, 255, .65) 1px,
-      transparent 2px
-    );
-
+    /* Fine rain streaks, visually concentrated over the window area */
+    repeating-linear-gradient(108deg,
+      transparent 0 13px,
+      rgba(180, 224, 255, .19) 14px,
+      transparent 15px 27px),
+    /* tiny glass droplets */
+    radial-gradient(ellipse, rgba(205,235,255,.48) 0 1px, transparent 2px),
+    /* distant moving bird silhouettes (SVG) */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 60'%3E%3Cg fill='none' stroke='%23dcecff' stroke-width='2.2' stroke-linecap='round' opacity='.8'%3E%3Cpath d='M8 24q9 -10 18 0q9 -10 18 0'/%3E%3Cpath d='M70 40q7 -8 14 0q7 -8 14 0'/%3E%3Cpath d='M125 17q8 -9 16 0q8 -9 16 0'/%3E%3C/g%3E%3C/svg%3E"),
+    /* slow blue/purple ambient reflection across skyline */
+    radial-gradient(ellipse at 70% 28%, rgba(34,126,255,.13), transparent 42%),
+    radial-gradient(ellipse at 48% 35%, rgba(155,75,255,.08), transparent 45%);
   background-size:
-    180% 180%,
-    170% 170%,
-    190% 190%,
-    145px 145px,
-    215px 215px;
-
+    100% 100%,
+    170px 130px,
+    230px 78px,
+    100% 100%,
+    100% 100%;
   background-position:
-    0% 20%,
-    100% 30%,
-    50% 100%,
     0 0,
-    80px 60px;
-
-  opacity: .65;
-  filter: blur(1px);
-
-  animation: tayassukAurora 28s ease-in-out infinite alternate;
+    25px 15px,
+    -260px 18%,
+    0 0,
+    0 0;
+  background-repeat: repeat, repeat, no-repeat, no-repeat, no-repeat;
+  /* Keep rain and bird animation within the upper window / skyline region. */
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 43%, transparent 59%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 43%, transparent 59%);
+  animation: tayassukCityAtmosphere 34s linear infinite;
 }
 
-/* Slow Cinematic Movement */
-@keyframes tayassukAurora {
+@keyframes tayassukCityAtmosphere {
   0% {
-    background-position:
-      0% 20%,
-      100% 30%,
-      50% 100%,
-      0 0,
-      80px 60px;
-    transform: translate3d(-1%, 0, 0) scale(1);
+    background-position: 0 0, 25px 15px, -260px 18%, 0 0, 0 0;
+    filter: brightness(.92);
   }
-
   50% {
-    background-position:
-      65% 80%,
-      20% 70%,
-      90% 10%,
-      45px 80px,
-      130px 10px;
-    transform: translate3d(1%, -1%, 0) scale(1.035);
+    background-position: 0 0, 92px 68px, 55% 23%, 0 0, 0 0;
+    filter: brightness(1.08);
   }
-
   100% {
-    background-position:
-      100% 40%,
-      0% 90%,
-      10% 20%,
-      90px 20px,
-      20px 120px;
-    transform: translate3d(-1%, 1%, 0) scale(1.02);
+    background-position: 0 0, 25px 125px, calc(100% + 260px) 16%, 0 0, 0 0;
+    filter: brightness(.96);
   }
 }
 
-/* Accessibility */
+/* Existing dark readability overlay plus very soft passing city-light glow. */
+.desktop::after {
+  background-image:
+    linear-gradient(180deg,
+      rgba(2, 7, 19, 0.02),
+      rgba(2, 7, 19, 0.08) 60%,
+      rgba(2, 7, 19, 0.48)),
+    radial-gradient(ellipse at 78% 39%, rgba(255, 180, 72, .10), transparent 24%),
+    radial-gradient(ellipse at 58% 34%, rgba(42, 155, 255, .09), transparent 30%);
+  background-size: 100% 100%, 180% 100%, 160% 100%;
+  animation: tayassukDistantCityGlow 22s ease-in-out infinite alternate;
+}
+
+@keyframes tayassukDistantCityGlow {
+  from { background-position: 0 0, 100% 0, 0 0; }
+  to   { background-position: 0 0, 0 0, 100% 0; }
+}
+
+/* A fine light sweep across the existing name gradient only. */
+.hero-copy h1 span {
+  position: relative;
+  display: inline-block;
+  isolation: isolate;
+}
+
+.hero-copy h1 span::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  top: -12%;
+  bottom: -12%;
+  left: -45%;
+  width: 28%;
+  pointer-events: none;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(255,255,255,.18) 28%,
+    rgba(255,255,255,.95) 50%,
+    rgba(100,225,255,.30) 70%,
+    transparent);
+  filter: blur(2px);
+  transform: skewX(-18deg);
+  animation: tayassukNameLightSweep 7.5s ease-in-out infinite;
+}
+
+@keyframes tayassukNameLightSweep {
+  0%, 58% { left: -45%; opacity: 0; }
+  63% { opacity: .95; }
+  78% { left: 125%; opacity: .72; }
+  79%, 100% { left: 125%; opacity: 0; }
+}
+
+/* Reduced motion preference */
 @media (prefers-reduced-motion: reduce) {
-  .desktop::before {
-    animation: none;
+  .desktop::before,
+  .desktop::after,
+  .hero-copy h1 span::after {
+    animation: none !important;
   }
 }
