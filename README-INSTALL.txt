@@ -1,11 +1,18 @@
-TAYASSUK OS — MAIN BACKGROUND FLECKS UPDATE
+TAYASSUK OS — FINAL COMBINED BACKGROUND UPDATE
 
-This update places tiny blue, soft red, and orange floating flecks on the MAIN DESKTOP BACKGROUND (.desktop), behind existing desktop content. It does not add particles to the boot screen or other interface elements.
+This package combines the effects without removing the previous animations:
+- Black bird silhouettes fly across the main desktop/window background.
+- Your name keeps its light-sweep animation.
+- Small blue, soft red, and light orange flecks float upward on the MAIN DESKTOP BACKGROUND only.
+- Flecks do not appear on the boot screen/interface.
 
-Install:
-1. Back up your current styles.css.
-2. Replace it with this styles.css.
-3. Keep your existing birds.js and all other files unchanged.
-4. Commit/push to GitHub Pages, then hard-refresh with Ctrl+Shift+R.
+INSTALL
+1. Back up your current styles.css and index.html.
+2. Replace the existing styles.css with this package's styles.css.
+3. Put birds.js in the same folder as index.html (repository root if index.html is in the root).
+4. In index.html, keep exactly one script line immediately before </body>:
+   <script src="./birds.js" defer></script>
+5. Do not remove your existing app.js, music.js, companion-drag.js, notes-sync.js, project-modal.js, or skills-tabs.js scripts.
+6. Commit/push both files to GitHub Pages and hard-refresh with Ctrl + Shift + R.
 
-The desktop background image, layout, cards, portrait, dock, CMS, and scripts are not intentionally changed.
+The bird and name-sweep CSS from the previous black-birds update is retained; only the desktop fleck layer is upgraded to moving blue/red/orange flecks.
