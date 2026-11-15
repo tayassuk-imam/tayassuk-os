@@ -28,3 +28,11 @@ TEST STATUS
 - Live browser UI test: not performed.
 - Supabase login, database write/read, RLS, and certificate upload: not live-tested.
 - Keep a backup of your current app.js and styles.css before replacing them.
+
+
+CONTACT SECURITY UPDATE
+- Public Contact window is now read-only: visitors cannot add or remove links.
+- Sign in to Control Center with your Supabase Auth admin email and password.
+- Use the new Contact Links section to add, edit, or delete custom contact links; save to Supabase.
+- Do not share your admin password. Create/manage the admin account in Supabase Authentication.
+- Previously browser-local custom links are not automatically migrated; re-add them once in Control Center.

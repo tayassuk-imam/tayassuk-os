@@ -3146,95 +3146,21 @@ function renderAchievementsWindow() {
 
 
 /* =========================================================
-   CONTACT — CUSTOM LINKS (+ Add Link)
+   CONTACT — ADMIN-MANAGED CUSTOM LINKS
    ========================================================= */
 
-const CUSTOM_LINKS_KEY = 'tayassuk-os-custom-links';
-
-function readCustomLinks() {
-  try {
-    const list = JSON.parse(localStorage.getItem(CUSTOM_LINKS_KEY) || '[]');
-    return Array.isArray(list) ? list : [];
-  } catch (error) {
-    return [];
-  }
-}
-
-function writeCustomLinks(list) {
-  try {
-    localStorage.setItem(CUSTOM_LINKS_KEY, JSON.stringify(list));
-  } catch (error) {
-    console.warn('Could not save links.', error);
-  }
-}
-
 function customLinksHtml() {
-  return readCustomLinks()
-    .map((link, index) => `
-      <div class="contact-item-row">
-        <a href="${esc(safeUrl(link.url))}" target="_blank" rel="noreferrer noopener" class="contact-item">
-          <span class="contact-item-icon">↗</span>
-          <div>
-            <span>Link</span>
-            <strong>${esc(link.label)}</strong>
-          </div>
-          <span class="contact-arrow">↗</span>
-        </a>
-        <button type="button" class="secondary-action" data-contact-remove="${index}" aria-label="Remove ${esc(link.label)}">Remove</button>
-      </div>
-    `)
-    .join('');
+  const links = portfolio.owner?.contact?.links || [];
+  return (Array.isArray(links) ? links : []).map(link => `
+    <div class="contact-item-row">
+      <a href="${esc(safeUrl(link.url))}" target="_blank" rel="noreferrer noopener" class="contact-item">
+        <span class="contact-item-icon">↗</span>
+        <div><span>Link</span><strong>${esc(link.label)}</strong></div>
+        <span class="contact-arrow">↗</span>
+      </a>
+    </div>
+  `).join('');
 }
-
-document.addEventListener('click', event => {
-  const root = event.target.closest('.contact-add-root');
-  if (!root) return;
-
-  const extra = root.querySelector('.contact-extra');
-  const form = root.querySelector('.contact-add-form');
-  const message = root.querySelector('.contact-add-message');
-
-  if (event.target.closest('[data-contact-add-toggle]')) {
-    form.hidden = !form.hidden;
-    return;
-  }
-
-  const removeButton = event.target.closest('[data-contact-remove]');
-  if (removeButton) {
-    const list = readCustomLinks();
-    list.splice(Number(removeButton.dataset.contactRemove), 1);
-    writeCustomLinks(list);
-    extra.innerHTML = customLinksHtml();
-    return;
-  }
-
-  if (event.target.closest('[data-contact-add-save]')) {
-    const label = form.querySelector('[name="label"]').value.trim();
-    const raw = form.querySelector('[name="url"]').value.trim();
-    const url = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
-
-    let valid = false;
-    try {
-      valid = Boolean(label) && Boolean(raw) && /^https?:$/.test(new URL(url).protocol);
-    } catch (error) {
-      valid = false;
-    }
-
-    if (!valid) {
-      message.textContent = 'Enter a name and a valid link.';
-      return;
-    }
-
-    const list = readCustomLinks();
-    list.push({ label, url });
-    writeCustomLinks(list);
-    extra.innerHTML = customLinksHtml();
-    form.querySelector('[name="label"]').value = '';
-    form.querySelector('[name="url"]').value = '';
-    message.textContent = '';
-    form.hidden = true;
-  }
-});
 
 /* =========================================================
    CONTACT WINDOW
@@ -3249,7 +3175,7 @@ function renderContactWindow() {
 
   return `
 
-    <div class="window-page">
+    <div class="window-page contact-public-page">
 
       <div class="window-page-heading">
 
@@ -3395,18 +3321,7 @@ function renderContactWindow() {
 
       </div>
 
-      <div class="contact-add-root">
-        <div class="contact-list contact-extra">${customLinksHtml()}</div>
-        <div class="settings-actions">
-          <button type="button" class="secondary-action" data-contact-add-toggle>+ Add Link</button>
-        </div>
-        <div class="contact-add-form" hidden>
-          <input type="text" name="label" placeholder="Name (e.g. Facebook)" maxlength="40" autocomplete="off">
-          <input type="text" name="url" placeholder="https://..." maxlength="300" autocomplete="off">
-          <button type="button" class="secondary-action" data-contact-add-save>Save</button>
-          <small class="contact-add-message" aria-live="polite"></small>
-        </div>
-      </div>
+      <div class="contact-list contact-extra">${customLinksHtml()}</div>
     </div>
   `;
 }
@@ -3922,6 +3837,7 @@ let activeCmsSection = 'profile';
 let activeCmsIndex = -1;
 
 const cmsSections = {
+  contactLinks: { title: 'Contact Links', description: 'Extra links displayed in the public Contact window', fields: [['label','Link name'],['url','Link URL']] },
   projects: { title: 'Projects', description: 'Portfolio projects and case studies', fields: [
     ['name','Project name'],['description','Description','textarea'],['role','Your role'],['status','Status'],
     ['technologies','Technologies (comma separated)'],['liveUrl','Live URL'],['githubUrl','GitHub URL'],
@@ -3955,6 +3871,7 @@ const cmsSections = {
 };
 
 function cmsArrayFor(section) {
+  if (section === 'contactLinks') return portfolio.owner?.contact?.links || [];
   if (section === 'learning') return portfolio.owner?.learning || [];
   if (section === 'quickNotes') return portfolio.quickNotes || portfolio.notes || [];
   if (section === 'nextGoals') return portfolio.nextGoals || portfolio.goals || [];
@@ -4047,7 +3964,7 @@ function renderControlCenter() {
   }
 
   const sections = [
-    ['profile','◉','Profile'],['projects','▣','Projects'],['learning','⌁','Learning'],
+    ['profile','◉','Profile'],['contactLinks','↗','Contact Links'],['projects','▣','Projects'],['learning','⌁','Learning'],
     ['skills','✳','Skills'],['education','▤','Education'],['achievements','✦','Achievements'],
     ['journey','↗','Journey'],['quickNotes','☷','Quick Notes'],['nextGoals','◎','Next Goals'],
     ['quote','❝','Quote'],['recentActivity','◷','Recent Activity']
@@ -4231,7 +4148,9 @@ function wireControlCenter(body) {
 }
 
 function cmsAssignArray(section, list) {
-  if (section === 'learning') {
+  if (section === 'contactLinks') {
+    portfolio.owner ||= {}; portfolio.owner.contact ||= {}; portfolio.owner.contact.links = list;
+  } else if (section === 'learning') {
     portfolio.owner ||= {};
     portfolio.owner.learning = list;
   } else if (section === 'quickNotes') portfolio.quickNotes = list;
