@@ -6254,109 +6254,81 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .desktop::before { animation: none !important; }
 }
-/* =========================================
-   TAYASSUK OS - REFERENCE CALENDAR + CLOCK
-   ========================================= */
+/* CALENDAR - ORIGINAL SIZE, NEW NEON STYLE */
 
 .calendar-card {
   position: relative;
-  width: 100%;
-  height: 265px !important;
-  min-height: 265px !important;
-  padding: 20px !important;
+  height: 170px !important;
+  min-height: 170px !important;
+  padding: 15px !important;
   overflow: hidden;
 
-  border: 1.5px solid rgba(0, 160, 255, 0.55);
-  border-radius: 22px;
+  border: 1px solid rgba(0, 170, 255, .45);
+  border-radius: 15px;
 
   background:
-    radial-gradient(
-      circle at 78% 50%,
-      rgba(0, 110, 255, 0.13),
-      transparent 42%
-    ),
-    linear-gradient(
-      140deg,
-      #071d38,
-      #061326 65%,
-      #101a2b
-    );
+    radial-gradient(circle at 75% 50%,
+      rgba(0, 140, 255, .13),
+      transparent 45%),
+    linear-gradient(145deg, #071d38, #061326 65%, #101a2b);
 
   box-shadow:
-    0 0 18px rgba(0, 140, 255, 0.12),
-    inset 0 0 25px rgba(0, 130, 255, 0.05);
+    0 0 16px rgba(0, 140, 255, .12),
+    inset 0 0 20px rgba(0, 130, 255, .05);
 }
 
 /* CALENDAR GRID */
 
 .calendar-grid {
-  width: 59% !important;
-  margin-top: 20px !important;
-
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 12px 5px !important;
+  width: 150px !important;
+  margin-top: 14px !important;
+  gap: 7px !important;
 }
 
 .calendar-grid span {
   color: #edf5ff;
-  font-size: 12px !important;
-  text-align: center;
+  font-size: 8px !important;
 }
 
 .calendar-grid .weekday {
   color: #82a9d5;
-  font-size: 11px !important;
 }
 
 .calendar-grid .today {
-  width: 35px;
-  height: 35px;
-  margin: -8px auto 0;
-  border-radius: 50%;
-
   background: #00d9d0;
   color: #031727;
-
-  box-shadow: 0 0 20px rgba(0, 217, 208, 0.5);
+  box-shadow: 0 0 12px rgba(0, 217, 208, .45);
 }
 
-/* NEON CLOCK */
+/* NEON CLOCK - ORIGINAL SIZE */
 
 .clock-face {
   position: absolute !important;
 
-  width: 132px !important;
-  height: 132px !important;
+  width: 94px !important;
+  height: 94px !important;
 
-  top: 48px !important;
-  right: 25px !important;
-
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  top: 43px !important;
+  right: 16px !important;
 
   border: none !important;
   border-radius: 50%;
 
   background: #07182b !important;
-
   isolation: isolate;
 
   box-shadow:
-    0 0 25px rgba(0, 180, 255, 0.18),
-    inset 0 0 25px rgba(0, 180, 255, 0.08);
+    0 0 18px rgba(0, 180, 255, .18),
+    inset 0 0 18px rgba(0, 180, 255, .08);
 }
 
-/* ROTATING NEON RING */
+/* MOVING RAINBOW RING */
 
 .clock-face::before {
   content: "";
   position: absolute;
-  inset: -3px;
-  padding: 3px;
-
+  inset: -2px;
+  padding: 2px;
   border-radius: 50%;
 
   background: conic-gradient(
@@ -6374,11 +6346,10 @@ body {
   -webkit-mask:
     linear-gradient(#fff 0 0) content-box,
     linear-gradient(#fff 0 0);
-
   -webkit-mask-composite: xor;
   mask-composite: exclude;
 
-  filter: drop-shadow(0 0 8px #00baff);
+  filter: drop-shadow(0 0 6px #00baff);
 
   z-index: -1;
   pointer-events: none;
@@ -6387,75 +6358,43 @@ body {
 /* TIME */
 
 .clock-face span {
-  color: #ffffff !important;
-  font-size: 34px !important;
+  color: #fff !important;
+  font-size: 18px !important;
   font-weight: 900 !important;
-  letter-spacing: -1px;
 
   text-shadow:
-    0 0 12px rgba(255, 255, 255, 0.65),
-    0 0 25px rgba(0, 150, 255, 0.3);
+    0 0 8px rgba(255,255,255,.6),
+    0 0 15px rgba(0,150,255,.3);
 }
 
 /* AM / PM */
 
 .clock-face small {
-  margin-top: 7px !important;
-  padding: 5px 15px;
+  margin-top: 5px !important;
+  padding: 3px 10px;
 
   color: #00eaff !important;
-  font-size: 13px !important;
+  font-size: 8px !important;
   font-weight: 800;
 
-  border: 1.5px solid #00dfff;
-  border-radius: 12px;
+  border: 1px solid #00dfff;
+  border-radius: 10px;
 }
 
 /* DATE */
 
 .date-caption {
-  position: absolute;
   right: 20px !important;
-  bottom: 13px !important;
+  bottom: 10px !important;
 
   color: #a9dfff !important;
-  font-size: 11px !important;
-  font-weight: 600;
+  font-size: 8px !important;
 }
 
-/* ROTATION */
+/* ANIMATION */
 
 @keyframes neonClockRotate {
   to {
     transform: rotate(360deg);
-  }
-}
-
-/* MOBILE RESPONSIVE */
-
-@media (max-width: 480px) {
-  .calendar-card {
-    height: 235px !important;
-    min-height: 235px !important;
-  }
-
-  .clock-face {
-    width: 105px !important;
-    height: 105px !important;
-    right: 12px !important;
-    top: 65px !important;
-  }
-
-  .clock-face span {
-    font-size: 25px !important;
-  }
-
-  .calendar-grid {
-    width: 58% !important;
-    gap: 9px 3px !important;
-  }
-
-  .calendar-grid span {
-    font-size: 10px !important;
   }
 }
