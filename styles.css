@@ -6254,77 +6254,169 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .desktop::before { animation: none !important; }
 }
-/* CLOCK + CALENDAR VISUAL UPGRADE */
+/* =====================================
+   TAYASSUK OS - NEON CALENDAR CLOCK
+   ===================================== */
 
 .calendar-card {
+  position: relative;
   min-height: 210px;
-  border: 1px solid rgba(65, 170, 255, 0.25);
+  height: 210px;
+  padding: 15px;
+
   background:
     radial-gradient(
-      circle at 80% 65%,
-      rgba(0, 160, 255, 0.10),
+      circle at 78% 55%,
+      rgba(0, 160, 255, 0.12),
       transparent 45%
     ),
     linear-gradient(
       145deg,
-      rgba(10, 27, 49, 0.96),
-      rgba(5, 15, 30, 0.96)
+      rgba(8, 25, 46, 0.97),
+      rgba(3, 13, 28, 0.97)
     );
+
+  border: 1px solid rgba(45, 160, 255, 0.35);
+  border-radius: 16px;
+}
+
+/* CALENDAR LEFT SIDE */
+
+.calendar-grid {
+  width: calc(100% - 130px);
+  margin-top: 14px;
+
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px 4px;
+}
+
+.calendar-grid span {
+  color: #e5f1ff;
+  font-size: 9px;
+  text-align: center;
+}
+
+.calendar-grid .weekday {
+  color: #83a9d0;
+}
+
+.calendar-grid .today {
+  background: #00d9d0;
+  color: #031727;
+  box-shadow: 0 0 14px rgba(0, 217, 208, 0.45);
 }
 
 /* CLOCK CIRCLE */
 
 .clock-face {
+  position: absolute;
+  top: 55px;
+  right: 15px;
+
   width: 116px;
   height: 116px;
 
-  top: 53px;
-  right: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 
-  border: 2px solid #00baff;
+  isolation: isolate;
+  border: none !important;
   border-radius: 50%;
 
-  background: rgba(8, 25, 43, 0.48);
+  background: #07182b !important;
 
   box-shadow:
-    0 0 12px rgba(0, 186, 255, 0.20),
-    inset 0 0 20px rgba(0, 186, 255, 0.08);
+    0 0 20px rgba(0, 180, 255, 0.16),
+    inset 0 0 22px rgba(0, 180, 255, 0.08);
 }
 
-/* TIME */
+/* MOVING NEON BORDER */
+
+.clock-face::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  padding: 2px;
+
+  border-radius: inherit;
+
+  background: conic-gradient(
+    from 0deg,
+    #00eaff,
+    #087bff,
+    #8c35ff,
+    #ff4fd8,
+    #ff9b45,
+    #00eaff
+  );
+
+  animation: neonClockRotate 4s linear infinite;
+
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* CLOCK TIME */
 
 .clock-face span {
-  color: #ffffff;
+  position: relative;
+  z-index: 1;
 
-  font-size: 23px;
-  font-weight: 900;
-
-  letter-spacing: -0.5px;
+  color: #ffffff !important;
+  font-size: 23px !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.6px;
 
   text-shadow:
-    0 0 12px rgba(80, 190, 255, 0.35);
+    0 0 12px rgba(90, 190, 255, 0.5);
 }
 
 /* AM / PM */
 
 .clock-face small {
-  margin-top: 7px;
+  position: relative;
+  z-index: 1;
 
-  color: #91c9e8;
+  margin-top: 6px;
 
-  font-size: 10px;
-  font-weight: 700;
+  color: #75dcff !important;
+  font-size: 10px !important;
+  font-weight: 800;
   letter-spacing: 1px;
 }
 
 /* DATE */
 
 .date-caption {
-  right: 28px;
-  bottom: 12px;
+  position: absolute;
+  right: 17px;
+  bottom: 10px;
 
-  color: #a9c4da;
+  color: #a9cce8 !important;
+  font-size: 9px !important;
+}
 
-  font-size: 9px;
-  font-weight: 500;
+/* NEON ROTATION */
+
+@keyframes neonClockRotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* REDUCED MOTION SUPPORT */
+
+@media (prefers-reduced-motion: reduce) {
+  .clock-face::before {
+    animation: none;
+  }
 }
