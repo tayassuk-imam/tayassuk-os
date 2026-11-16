@@ -6254,3 +6254,77 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .desktop::before { animation: none !important; }
 }
+/* CLOCK + CALENDAR VISUAL UPGRADE */
+
+.calendar-card {
+  min-height: 210px;
+  border: 1px solid rgba(65, 170, 255, 0.25);
+  background:
+    radial-gradient(
+      circle at 80% 65%,
+      rgba(0, 160, 255, 0.10),
+      transparent 45%
+    ),
+    linear-gradient(
+      145deg,
+      rgba(10, 27, 49, 0.96),
+      rgba(5, 15, 30, 0.96)
+    );
+}
+
+/* CLOCK CIRCLE */
+
+.clock-face {
+  width: 116px;
+  height: 116px;
+
+  top: 53px;
+  right: 20px;
+
+  border: 2px solid #00baff;
+  border-radius: 50%;
+
+  background: rgba(8, 25, 43, 0.48);
+
+  box-shadow:
+    0 0 12px rgba(0, 186, 255, 0.20),
+    inset 0 0 20px rgba(0, 186, 255, 0.08);
+}
+
+/* TIME */
+
+.clock-face span {
+  color: #ffffff;
+
+  font-size: 23px;
+  font-weight: 900;
+
+  letter-spacing: -0.5px;
+
+  text-shadow:
+    0 0 12px rgba(80, 190, 255, 0.35);
+}
+
+/* AM / PM */
+
+.clock-face small {
+  margin-top: 7px;
+
+  color: #91c9e8;
+
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+/* DATE */
+
+.date-caption {
+  right: 28px;
+  bottom: 12px;
+
+  color: #a9c4da;
+
+  font-size: 9px;
+  font-weight: 500;
+}
